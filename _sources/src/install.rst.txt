@@ -7,6 +7,10 @@
 
 :red:`Matlantis上には既にインストール済みです`
 
+- GitHubからダウンロード
+
+    https://github.com/shimi-lab/GRRMPY
+
 `setup.py` が存在するディレクトリ上で以下のコマンドを実行してインストールする
 
 >>> pip install -e .
