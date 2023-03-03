@@ -20,6 +20,7 @@ GRRMPYドキュメント
    src/algorithm
    src/other_lib
    src/other
+   src/SearchByPurpose
 
 
 Indices and tables
@@ -28,8 +29,6 @@ Indices and tables
 .. toctree::
    :maxdepth: 1
 
-   src/SearchByPurpose
-   
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
