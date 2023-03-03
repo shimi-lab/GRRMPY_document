@@ -16,7 +16,6 @@ GRRMPYドキュメント
    src/modules
    src/blender_gallery
    src/toy_tools
-   src/SearchByPurpose
    src/tips
    src/algorithm
    src/other_lib
