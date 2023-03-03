@@ -11,6 +11,10 @@
 
     https://github.com/shimi-lab/GRRMPY
 
+- zipファイルをダウンロード
+
+    :download:`GRRMPY.zip <../download/GRRMPY.zip>`
+
 `setup.py` が存在するディレクトリ上で以下のコマンドを実行してインストールする
 
 >>> pip install -e .
