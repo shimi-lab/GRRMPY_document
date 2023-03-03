@@ -1,0 +1,23 @@
+################
+Convモジュール
+################
+
+.. module:: grrmpy.conv
+
+Atomsオブジェクト --> molオブジェクト
+-------------------------------------
+.. autofunction:: grrmpy.conv.atoms2mol.atoms2mol
+.. autofunction:: grrmpy.conv.atoms2mol.atomslist2mols
+
+Atomsオブジェクト --> SMILES
+-------------------------------------
+SMILESは結合情報有しているが,結合の有無はase.geometry.analysis.Analysisで判断している.
+だたし,単結合,二重結合等の判断はできないので全て単結合とみなしてSMILESに変換する.
+
+.. autofunction:: grrmpy.conv.atoms2smiles.atoms2smiles
+.. autofunction:: grrmpy.conv.atoms2smiles.atomslist2smileses
+
+molオブジェクト --> PNGのバイナリデータ --> UTF-8
+-----------------------------------------------------
+.. autofunction:: grrmpy.conv.mol2png_binary.mol2png_binary
+

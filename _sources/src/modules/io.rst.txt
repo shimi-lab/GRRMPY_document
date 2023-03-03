@@ -1,0 +1,135 @@
+################
+I/O モジュール
+################
+
+.. module:: grrmpy.io
+
+- 使用頻度の高い機能
+    
+    - :class:`log2atoms<grrmpy.io.read_listlog.log2atoms>`
+    - :class:`read_connections<grrmpy.io.read_listlog.read_connections>`
+    - :class:`write_html<grrmpy.io.html.write_html>`
+
+
+Atomsへ変換する
+================
+
+
+log2atoms
+------------
+.. code-block:: python
+
+    from grrmpy.io import log2atoms
+
+    eqs_list = log2atoms("XXX_EQ_list.log",com="XXX.com",poscar="POSCAR") # GRRM-VASPで計算した場合
+    eqs_list = log2atoms("XXX_EQ_list.log",com="XXX.com") # クラスターモデルでGRRM計算した場合
+    # FrozenAtomsがない場合,読み込みたくない時はcomファイルは指定しなくて良い
+
+.. autofunction:: grrmpy.io.read_listlog.log2atoms
+
+read_connections
+------------------
+.. code-block:: python
+
+    from grrmpy.io import read_connections
+    connections = read_connections("XXX_TS_list.log")
+    print(connections)# --> [[0,1],[5,4],[4,6],[30,2],["??",1]]
+
+
+.. autofunction:: grrmpy.io.read_listlog.read_connections
+
+frozen2atoms
+--------------
+.. autofunction:: grrmpy.io.read_com.frozen2atoms
+
+read_traj
+--------------
+:class:`grrmpy.automate.auto_opt.AutoOpt` で計算を行なった後,計算後の構造を一括でAtomsに変換する際に用いる.
+
+.. autofunction:: grrmpy.io.read_traj.read_traj
+
+iread_traj
+---------------
+.. autofunction:: grrmpy.io.read_traj.iread_traj
+
+list.logファイルをマージする.
+===============================
+.. autoclass:: grrmpy.io.log.Log
+    :members: write_log 
+
+htmlに書き込む
+================
+
+write_html
+------------
+
+- NEBイメージのエネルギーダイアグラムを作成
+    .. code-block:: python
+        :emphasize-lines: 8,9
+
+        from grrmpy.io import write_html
+        from ase.optimize import FIRE
+        from ase.neb import NEB
+
+        neb = NEB(images)
+        opt = FIRE(neb,climb=True)
+        opt.run(fmax=0.001)
+        opt.attach(lambda:write_html("NEB.html",images),interval=10) # 10イタレーション毎に逐次書き込み 
+        write_html("NEB.html",images) # 書き込み
+
+- 振動のエネルギーダイアグラムを作成
+    .. code-block:: python
+        :emphasize-lines: 11
+
+        from grrmpy import pfp_calculator
+        from ase.vibrations import Vibrations
+        from ase.io import iread
+
+        vib = Vibrations(ts)
+        vib.run()
+        vib.write_mode(n=0) # --> vib.0.trajが作成される
+        vib_images = list(iread("vib.0.traj"))
+        for image in vib_images
+            image.calc = pfp_calculator()
+        write_html("Vib.html",vib_images)
+
+- 追記モード
+    .. code-block:: python
+        :emphasize-lines: 9
+
+        from grrmpy.io import write_html
+        from ase.optimize import FIRE
+        from ase.neb import NEB
+
+        write_html("NEB.html",images) # 計算前のNEBイメージを書き込み
+        neb = NEB(images)
+        opt = FIRE(neb,climb=True)
+        opt.run(fmax=0.001)
+        write_html("NEB.html",images,append=True) # 同一ファイル上にのNEBイメージを追記
+
+.. autofunction:: grrmpy.io.html.write_html
+
+BaderChargeの読み込み
+=======================
+
+read_afc
+------------
+.. autofunction:: grrmpy.io.read_acfdat.read_acf
+.. autofunction:: grrmpy.io.read_acfdat.get_dader
+
+
+VESTAのelement.iniやCSVファイルからclolorの辞書を作成する
+=============================================================
+.. autofunction:: grrmpy.io.read_elementsini.read_elementsini
+.. autofunction:: grrmpy.io.read_elementsini.read_csv
+
+
+高圧縮でシリアライズ化する
+===========================
+
+pickleのバイナリデータをbz2にさらに圧縮することでpythonオブジェクトを高い圧縮率でシリアライズ化する.
+
+.. autofunction:: grrmpy.io.compressed_pickle.loads
+.. autofunction:: grrmpy.io.compressed_pickle.dumps
+.. autofunction:: grrmpy.io.compressed_pickle.load
+.. autofunction:: grrmpy.io.compressed_pickle.dump

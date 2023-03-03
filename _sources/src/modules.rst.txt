@@ -1,0 +1,20 @@
+###########################
+Modules
+###########################
+
+.. toctree::
+   :maxdepth: 2
+
+   modules/io
+   modules/optimize
+   modules/neb
+   modules/opt
+   modules/automate
+   modules/visualize
+   modules/path
+   modules/geometry
+   modules/data
+   modules/conv
+   modules/network
+   modules/blender
+   modules/commandline

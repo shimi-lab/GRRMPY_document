@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.automate.pin_neb &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.automate.pin_neb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.automate.pin_neb のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">kJ</span><span class="p">,</span> <span class="n">mol</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">ExtendedInterpolation</span>
+<span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">tqdm</span>
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.functions</span> <span class="kn">import</span> <span class="n">find_local_minimum_points_and_ea</span><span class="p">,</span><span class="n">get_appropriate_nimages</span><span class="p">,</span><span class="n">get_imax</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">partially_overlapping_groupings</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.repetitive_neb</span> <span class="kn">import</span> <span class="n">RepetitiveNEB</span>
+<span class="kn">from</span> <span class="nn">grrmpy.opt.repetitive_opt</span> <span class="kn">import</span> <span class="n">RepetitiveOpt</span>
+<span class="kn">from</span> <span class="nn">grrmpy.io.html</span> <span class="kn">import</span> <span class="n">write_html</span>
+<span class="kn">from</span> <span class="nn">grrmpy.geometry.functions</span> <span class="kn">import</span> <span class="n">get_bond_diff</span>
+<span class="kn">from</span> <span class="nn">grrmpy.path.create_reactpath</span> <span class="kn">import</span> <span class="n">create_reactpath</span>
+<span class="kn">from</span> <span class="nn">grrmpy.automate.queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="kn">from</span> <span class="nn">grrmpy.io.read_traj</span> <span class="kn">import</span> <span class="n">read_traj</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">grrmpy.optimize</span> <span class="kn">import</span> <span class="n">FIRELBFGS</span>
+    <span class="n">DEFAULT_OPTIMIZER</span> <span class="o">=</span> <span class="n">FIRELBFGS</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">LBFGS</span>
+    <span class="n">DEFAULT_OPTIMIZER</span> <span class="o">=</span> <span class="n">LBFGS</span>
+
+<div class="viewcode-block" id="is_similar"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.pin_neb.is_similar">[ドキュメント]</a><span class="k">def</span> <span class="nf">is_similar</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">energy_dif</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">bond_dif</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.0</span><span class="p">),</span><span class="n">mult</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;atoms1とatoms2を同一構造とみなすか(NEBでつなぐ必要はないか?)</span>
+<span class="sd">    </span>
+<span class="sd">    PinNEBの引数:isomorphism_funcのための関数</span>
+<span class="sd">    </span>
+<span class="sd">    基本的には結合状態が同じ且つ,エネルギー差がenergy_dif(kJ/mol)以下であれば同一構造とみなす.</span>
+<span class="sd">    また,bond_dif[0] 本以下の結合状態の違いであり,その結合の差がbond_dif[1] Å以下の時も同一構造とする.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    atoms1: Atoms</span>
+<span class="sd">        Atomsオブジェクト</span>
+<span class="sd">    atoms2: Atoms:</span>
+<span class="sd">        Atomsオブジェクト</span>
+<span class="sd">    energy_dif: float</span>
+<span class="sd">        同じ結合状態かつ,エネルギー差がenergy_dif(kJ/mol)の時,同一構造とする</span>
+<span class="sd">    bond_dif: Tuple[int,flaot]</span>
+<span class="sd">        | 1要素目は許容できる結合の差(結合本数)</span>
+<span class="sd">        | 2要素目は結合状態の異なる部分の許容できる結合距離の差(Å)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy1</span> <span class="o">=</span> <span class="n">get_energy</span><span class="p">(</span><span class="n">atoms1</span><span class="p">)</span>
+    <span class="n">energy2</span> <span class="o">=</span> <span class="n">get_energy</span><span class="p">(</span><span class="n">atoms2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">energy1</span><span class="o">-</span><span class="n">energy2</span><span class="p">)</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="o">&gt;</span> <span class="n">energy_dif</span><span class="p">:</span>
+        <span class="c1"># energy_dif以下のエネルギーであるか</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">formation</span><span class="p">,</span> <span class="n">cleavage</span> <span class="o">=</span> <span class="n">get_bond_diff</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">mult</span><span class="o">=</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">((</span><span class="n">dif_idx</span><span class="o">:=</span><span class="n">formation</span><span class="o">+</span><span class="n">cleavage</span><span class="p">))</span><span class="o">&gt;</span><span class="n">bond_dif</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="c1"># bond_dif[0]以下の結合状態の違いでしかないか</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">a_idx</span><span class="p">,</span><span class="n">b_idx</span> <span class="ow">in</span> <span class="n">dif_idx</span><span class="p">:</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">atoms1</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">a_idx</span><span class="p">,</span><span class="n">b_idx</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">a_idx</span><span class="p">,</span><span class="n">b_idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="p">)</span><span class="o">&gt;</span><span class="n">bond_dif</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+<span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">float</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="AutoPinNEB"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.pin_neb.AutoPinNEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">AutoPinNEB</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">eq_list</span><span class="p">,</span>
+                 <span class="n">connections</span><span class="p">,</span>
+                 <span class="n">constraints</span><span class="o">=</span><span class="p">[],</span> <span class="c1"># connectionsには??などがあってはならない</span>
+                 <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">maxjob</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                 <span class="n">eq_folder</span><span class="o">=</span><span class="s2">&quot;EQ_List&quot;</span><span class="p">,</span>
+                 <span class="n">ts_folder</span><span class="o">=</span><span class="s2">&quot;TS_List&quot;</span><span class="p">,</span>
+                 <span class="n">images_folder</span><span class="o">=</span><span class="s2">&quot;Images&quot;</span><span class="p">,</span>
+                 <span class="n">unconv_folder</span><span class="o">=</span><span class="s2">&quot;unconv&quot;</span><span class="p">,</span>
+                 <span class="n">logfolder</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+                 <span class="n">error_file</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">,</span>
+                 <span class="n">path_file</span><span class="o">=</span><span class="s2">&quot;AllPath.dat&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span> <span class="o">=</span> <span class="n">eq_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="n">connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span> <span class="o">=</span> <span class="n">maxjob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span> <span class="o">=</span> <span class="n">eq_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span> <span class="o">=</span> <span class="n">ts_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span> <span class="o">=</span> <span class="n">images_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span> <span class="o">=</span> <span class="n">unconv_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span> <span class="o">=</span> <span class="n">logfolder</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_file</span> <span class="o">=</span> <span class="n">error_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_file</span> <span class="o">=</span> <span class="n">path_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># 最適化後のEQのリスト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tss</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># 最適化後のTSのリスト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># List[List[str]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_title</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preneb</span><span class="p">:</span> <span class="n">RepetitiveNEB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">:</span> <span class="n">RepetitiveNEB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="p">:</span> <span class="n">DEFAULT_OPTIMIZER</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;separate_completely&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;minenergy&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;barrier_less&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;nimages&quot;</span><span class="p">:(</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span>
+        <span class="s2">&quot;isomorphism_func&quot;</span><span class="p">:</span><span class="n">is_similar</span><span class="p">,</span>
+        <span class="s2">&quot;rename_preneb_file&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;preneb_optimizer&quot;</span><span class="p">:</span><span class="n">FIRE</span><span class="p">,</span>
+        <span class="s2">&quot;preneb_climb_list&quot;</span><span class="p">:[</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">],</span>
+        <span class="s2">&quot;preneb_maxstep_list&quot;</span><span class="p">:[</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.25</span><span class="p">],</span>
+        <span class="s2">&quot;preneb_automaxstep_climb_false&quot;</span><span class="p">:{</span><span class="mi">1</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mf">0.35</span><span class="p">},</span>
+        <span class="s2">&quot;preneb_automaxstep_climb_true&quot;</span><span class="p">:{</span><span class="mf">0.1</span><span class="p">:</span><span class="mf">0.03</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.01</span><span class="p">},</span>
+        <span class="s2">&quot;preneb_fmax_list&quot;</span><span class="p">:[</span><span class="mi">30</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span>
+        <span class="s2">&quot;preneb_steps_list&quot;</span><span class="p">:[</span><span class="mi">500</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">500</span><span class="p">],</span>
+        <span class="s2">&quot;preneb_kwargs&quot;</span><span class="p">:{},</span>
+        <span class="s2">&quot;prenebopt_kwargs&quot;</span><span class="p">:{},</span>
+        <span class="s2">&quot;neb_optimizer&quot;</span><span class="p">:</span><span class="n">FIRE</span><span class="p">,</span>
+        <span class="s2">&quot;neb_climb_list&quot;</span><span class="p">:[</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">],</span>
+        <span class="s2">&quot;neb_maxstep_list&quot;</span><span class="p">:[</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="kc">None</span><span class="p">],</span>
+        <span class="s2">&quot;neb_automaxstep_climb_false&quot;</span><span class="p">:{</span><span class="mi">1</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mf">0.35</span><span class="p">},</span>
+        <span class="s2">&quot;neb_automaxstep_climb_true&quot;</span><span class="p">:{</span><span class="mf">0.1</span><span class="p">:</span><span class="mf">0.03</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.01</span><span class="p">},</span>
+        <span class="s2">&quot;neb_fmax_list&quot;</span><span class="p">:[</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],</span>
+        <span class="s2">&quot;neb_steps_list&quot;</span><span class="p">:[</span><span class="mi">100</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">2000</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">1500</span><span class="p">],</span>
+        <span class="s2">&quot;neb_kwargs&quot;</span><span class="p">:{},</span>
+        <span class="s2">&quot;nebopt_kwargs&quot;</span><span class="p">:{},</span>
+        <span class="s2">&quot;opt_optimizer&quot;</span><span class="p">:</span><span class="n">DEFAULT_OPTIMIZER</span><span class="p">,</span>
+        <span class="s2">&quot;opt_maxstep_list&quot;</span><span class="p">:[</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span>
+        <span class="s2">&quot;opt_automaxstep&quot;</span><span class="p">:{</span><span class="mi">1</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},</span>
+        <span class="s2">&quot;opt_fmax_list&quot;</span><span class="p">:[</span><span class="mf">0.001</span><span class="p">,</span><span class="mf">0.001</span><span class="p">,</span><span class="mf">0.001</span><span class="p">,</span><span class="mf">0.001</span><span class="p">],</span>
+        <span class="s2">&quot;opt_steps_list&quot;</span><span class="p">:[</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="mi">10000</span><span class="p">],</span>
+        <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">:{},</span>
+        <span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">:{</span><span class="s2">&quot;times&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">&quot;row&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;force_digit&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;energy_digit&quot;</span><span class="p">:</span><span class="mi">6</span><span class="p">},</span>
+        <span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">:{</span><span class="s2">&quot;max_ea&quot;</span><span class="p">:</span><span class="mi">800</span><span class="p">,</span> <span class="s2">&quot;nsteps&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">},</span>
+        <span class="p">}</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preneb_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;preneb_optimizer&quot;</span><span class="p">,</span> <span class="s2">&quot;preneb_climb_list&quot;</span><span class="p">,</span> <span class="s2">&quot;preneb_maxstep_list&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;preneb_automaxstep_climb_false&quot;</span><span class="p">,</span> <span class="s2">&quot;preneb_automaxstep_climb_true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;preneb_fmax_list&quot;</span><span class="p">,</span> <span class="s2">&quot;preneb_steps_list&quot;</span><span class="p">,</span> <span class="s2">&quot;preneb_kwargs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prenebopt_kwargs&quot;</span><span class="p">,</span><span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">,</span><span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;base_optimizer&quot;</span><span class="p">,</span> <span class="s2">&quot;climb_list&quot;</span><span class="p">,</span> <span class="s2">&quot;maxstep_list&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;automate_maxstep_false&quot;</span><span class="p">,</span> <span class="s2">&quot;automate_maxstep_true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fmax_list&quot;</span><span class="p">,</span> <span class="s2">&quot;steps_list&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_kwargs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">,</span><span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">,</span><span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">]</span> 
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">key</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span><span class="n">keys</span><span class="p">)}</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neb_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;neb_optimizer&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_climb_list&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_maxstep_list&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;neb_automaxstep_climb_false&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_automaxstep_climb_true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;neb_fmax_list&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_steps_list&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_kwargs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nebopt_kwargs&quot;</span><span class="p">,</span><span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">,</span><span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;base_optimizer&quot;</span><span class="p">,</span> <span class="s2">&quot;climb_list&quot;</span><span class="p">,</span> <span class="s2">&quot;maxstep_list&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;automate_maxstep_false&quot;</span><span class="p">,</span> <span class="s2">&quot;automate_maxstep_true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fmax_list&quot;</span><span class="p">,</span> <span class="s2">&quot;steps_list&quot;</span><span class="p">,</span> <span class="s2">&quot;neb_kwargs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">,</span><span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">,</span><span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">]</span> 
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">attr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span><span class="n">attrs</span><span class="p">)}</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opt_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;opt_optimizer&quot;</span><span class="p">,</span> <span class="s2">&quot;opt_maxstep_list&quot;</span><span class="p">,</span> <span class="s2">&quot;opt_automaxstep&quot;</span><span class="p">,</span><span class="s2">&quot;opt_fmax_list&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;opt_steps_list&quot;</span><span class="p">,</span> <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">,</span><span class="s2">&quot;maxstep_list&quot;</span><span class="p">,</span><span class="s2">&quot;automate_maxstep&quot;</span><span class="p">,</span><span class="s2">&quot;fmax_list&quot;</span><span class="p">,</span><span class="s2">&quot;steps_list&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">attr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span><span class="n">attrs</span><span class="p">)}</span>
+    
+    <span class="k">def</span> <span class="nf">set_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">param</span><span class="p">):</span>
+        <span class="n">default_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
+        <span class="n">unexpected_argument</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">-</span><span class="nb">set</span><span class="p">(</span><span class="n">default_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unexpected_argument</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;予期しない引数(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unexpected_argument</span><span class="p">)</span><span class="si">}</span><span class="s2">)が存在します.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                            <span class="sa">f</span><span class="s2">&quot;&#39;self.default_params??&#39;で引数を確認できます</span><span class="se">\n</span><span class="s2">&quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">default_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="AutoPinNEB.get_param"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.pin_neb.AutoPinNEB.get_param">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">get_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        separate_completely: bool</span>
+<span class="sd">            | 通常のNEBで収束した時,エネルギーダイアグラム上に極小点があれば,極小点を最適化してNEB分割する.</span>
+<span class="sd">        minenergy: float</span>
+<span class="sd">            | minenergy(kJ/mol)以下の活性化エネルギーの場合は極小点があっても無視する.</span>
+<span class="sd">        barrier_less: float</span>
+<span class="sd">            | barrier_less(kJ/mol)以下の活性化エネルギーの場合,バリアレスとみなす．</span>
+<span class="sd">        nimages: int or tuple</span>
+<span class="sd">            | intので指定した場合,指定した数のイメージ数で新たなNEBイメージを作成する.</span>
+<span class="sd">            | tupleで指定する場合,3要素(a,b,c)のタプルを与える.</span>
+<span class="sd">            | aÅ毎にイメージを作成する.最大でもb個,最低でもc個のイメージを作成する.</span>
+<span class="sd">        isomorphism_func: function object</span>
+<span class="sd">            | 同一構造判定を行なう関数,デフォルトではis_similarを用いる.</span>
+<span class="sd">        rename_preneb_file: bool</span>
+<span class="sd">            | Trueの場合,pre_NEBファイルは消す</span>
+<span class="sd">        preneb_optimizer: Optimizer</span>
+<span class="sd">            PreNEBのOptimizer</span>
+<span class="sd">        preneb_climb_list: list of bool</span>
+<span class="sd">            | climbのリスト</span>
+<span class="sd">        preneb_maxstep_list: list of float</span>
+<span class="sd">            | maxstepのリスト</span>
+<span class="sd">        preneb_automaxstep_climb_false: </span>
+<span class="sd">            | {1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35}</span>
+<span class="sd">        preneb_automaxstep_climb_true: dict</span>
+<span class="sd">            {0.1:0.03,0:0.01}</span>
+<span class="sd">        preneb_fmax_list :list of float</span>
+<span class="sd">            | </span>
+<span class="sd">        preneb_steps_list: list of int</span>
+<span class="sd">            | </span>
+<span class="sd">        preneb_kwargs:</span>
+<span class="sd">            | </span>
+<span class="sd">        prenebopt_kwargs:</span>
+<span class="sd">            | </span>
+<span class="sd">        neb_optimizer: Optimizer</span>
+<span class="sd">            | </span>
+<span class="sd">        &quot;neb_climb_list&quot;: list of bool</span>
+<span class="sd">            | </span>
+<span class="sd">        neb_maxstep_list: </span>
+<span class="sd">            | [0.02,0.05,0.1,None,0.01,None],</span>
+<span class="sd">        neb_automaxstep_climb_false:</span>
+<span class="sd">            | {1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35},</span>
+<span class="sd">        neb_automaxstep_climb_true&quot;:</span>
+<span class="sd">            | {0.1:0.03,0:0.01},</span>
+<span class="sd">        neb_fmax_list:</span>
+<span class="sd">            | [0.01,0.05,0.05,0.05,0.05,0.05],</span>
+<span class="sd">        neb_steps_list:</span>
+<span class="sd">            | [100,200,200,2000,500,1500],</span>
+<span class="sd">        neb_kwargs:</span>
+<span class="sd">            | {}</span>
+<span class="sd">        nebopt_kwargs:</span>
+<span class="sd">            | {}</span>
+<span class="sd">        opt_optimizer:</span>
+<span class="sd">            | DEFAULT_OPTIMIZER</span>
+<span class="sd">        opt_maxstep_list:</span>
+<span class="sd">            | [0.02,0.05,0.1,0.2]</span>
+<span class="sd">        opt_automaxstep:</span>
+<span class="sd">            | {1:0.1, 0.5:0.2, 0.1:0.3, 0.05:0.4, 0:0.5}</span>
+<span class="sd">        opt_fmax_list:</span>
+<span class="sd">            | [0.001,0.001,0.001,0.001]</span>
+<span class="sd">        opt_steps_list:</span>
+<span class="sd">            | [50,100,300,10000]</span>
+<span class="sd">        opt_kwargs:</span>
+<span class="sd">            | {}</span>
+<span class="sd">        same_energy_and_fmax_arg:</span>
+<span class="sd">            | {&quot;times&quot;:10,&quot;row&quot;:2,&quot;force_digit&quot;:4,&quot;energy_digit&quot;:6},</span>
+<span class="sd">        steep_peak_arg:</span>
+<span class="sd">            | {&quot;max_ea&quot;:800, &quot;nsteps&quot;:100}</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span></div>
+        
+    <span class="k">def</span> <span class="nf">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">folder</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">old_name</span><span class="p">,</span><span class="n">new_name</span><span class="p">,</span><span class="n">extention_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span><span class="s2">&quot;html&quot;</span><span class="p">,</span><span class="s2">&quot;log&quot;</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">extention</span> <span class="ow">in</span> <span class="n">extention_list</span><span class="p">:</span><span class="c1"># prenebのReName</span>
+                <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">old_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">extention</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">extention</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+    <span class="k">def</span> <span class="nf">register_eqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="n">eq_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">eq_num</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">eq_num</span>
+        
+    <span class="k">def</span> <span class="nf">register_tss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">):</span> <span class="c1"># ts_idx GRRMのTS番号</span>
+        <span class="n">imax</span> <span class="o">=</span> <span class="n">get_imax</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">barrier_less</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">imax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># バリアレスでない場合</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># バリアレスの場合</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_path_txt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span>            
+
+    <span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">make_images_and_canc_dH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;imageを作成する</span>
+<span class="sd">        n: 指定方法は2種類ある</span>
+<span class="sd">        int: n個のイメージで作成する</span>
+<span class="sd">        Tuple(dist,max_n,min_n)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span>
+        <span class="n">fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">!=</span><span class="nb">int</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">get_appropriate_nimages</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fin</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="n">dH</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_energy</span><span class="p">(</span><span class="n">ini</span><span class="p">)</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_energy</span><span class="p">(</span><span class="n">fin</span><span class="p">))</span>
+        <span class="n">interpolate</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">dH</span> <span class="c1"># この地点ではCalculatorもConstraintsも設定していない</span>
+            
+    <span class="k">def</span> <span class="nf">_first_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">):</span>
+        <span class="n">ini_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span>
+        <span class="n">fin_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomorphism_func</span><span class="p">(</span><span class="n">ini_atoms</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span> <span class="c1"># ini,finが同じ構造だった時</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">images</span><span class="p">,</span><span class="n">dH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_images_and_canc_dH</span><span class="p">(</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="o">-</span><span class="n">dH</span><span class="p">,[</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">images</span><span class="p">,</span><span class="n">i</span><span class="p">]]</span>
+    
+    <span class="k">def</span> <span class="nf">make_first_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">ini_idx</span><span class="o">=</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="o">=</span><span class="n">fin_idx</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first_push</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">run_and_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">layer</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,[</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="n">width</span><span class="p">],</span><span class="n">images</span><span class="p">,</span><span class="n">i</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">folder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">preneb_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pre_EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">neb_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_neb</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">preneb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># PreNEB</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minimum_point</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># 極小値がある場合</span>
+            <span class="n">eq_num_list</span><span class="p">,</span> <span class="n">atoms_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/opt_</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">nabname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># 構造最適化とEQの保存</span>
+            <span class="n">eq_num_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">eq_num_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+            <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">atoms_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">push_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_push_data</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="c1"># 新たなImagesを作成</span>
+            <span class="k">return</span> <span class="n">push_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_preneb_file</span><span class="p">:</span> <span class="c1"># pre_NEBのrename</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">converged</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_neb</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># PreNEB</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minimum_point</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>    
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_completely</span><span class="p">:</span>
+                    <span class="n">eq_num_list</span><span class="p">,</span> <span class="n">atoms_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/opt_</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">nabname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># 構造最適化とEQの保存</span>
+                    <span class="n">eq_num_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">eq_num_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+                    <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">atoms_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="n">push_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_push_data</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="c1"># 新たなImagesを作成</span>
+                    <span class="k">return</span> <span class="n">push_data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">register_tss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">register_tss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span><span class="si">}</span><span class="s2">/(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span> <span class="c1"># 未収束の保存</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="k">def</span> <span class="nf">write_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">path_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">/Path.dat&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_path</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[Dir]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TS: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path_title</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;path: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">path_obj</span> <span class="o">=</span> <span class="n">create_reactpath</span><span class="p">(</span><span class="n">path_path</span><span class="p">)</span>
+        <span class="n">path_obj</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">/Path.html&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">write_all_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_file</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[Dir]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TS: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">title</span><span class="p">,</span><span class="n">path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_title</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">paths_obj</span> <span class="o">=</span> <span class="n">create_reactpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_file</span><span class="p">)</span>
+        <span class="n">paths_obj</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">))</span>
+        
+    <span class="k">def</span> <span class="nf">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path_txt</span><span class="p">,</span><span class="n">ini_name</span><span class="p">,</span><span class="n">fin_name</span><span class="p">,</span><span class="n">add_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        path_txt: 現在のpath_txt</span>
+<span class="sd">        add_data: str</span>
+<span class="sd">            EQを追加する</span>
+<span class="sd">        add_data: int:</span>
+<span class="sd">            TSを追加する</span>
+<span class="sd">        add_data: None</span>
+<span class="sd">            バリアレスを追加</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">add_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">).(EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">1~</span><span class="se">\\</span><span class="s2">2&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">add_data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">).(EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">1;TS</span><span class="si">{</span><span class="n">add_data</span><span class="si">}</span><span class="s2">;</span><span class="se">\\</span><span class="s2">2&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">add_data</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">.EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">add_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_path_txt</span>
+                
+    <span class="k">def</span> <span class="nf">before_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">restart</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">restart</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">config</span>  <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">(</span><span class="n">interpolation</span><span class="o">=</span> <span class="n">ExtendedInterpolation</span><span class="p">())</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span> <span class="c1"># キーが小文字になることを防ぐ</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">title_list</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;Dir&quot;</span> <span class="ow">in</span> <span class="n">title_list</span><span class="p">:</span>
+                <span class="n">title_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Dir&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_title</span> <span class="o">=</span> <span class="n">title_list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="p">[</span><span class="n">title</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">title_list</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">read_traj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">read_traj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">)):</span>
+                <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>   
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_title</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ts_idx</span><span class="si">}</span><span class="s2">(EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">ts_idx</span><span class="p">,(</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span> 
+                        <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">restart</span><span class="p">:],</span><span class="n">start</span><span class="o">=</span><span class="n">restart</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">;EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">&quot;</span> 
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomorphism_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">])</span>
+                        <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">|EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">&quot;</span> 
+                        <span class="k">for</span> <span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">restart</span><span class="p">:]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_all_path</span><span class="p">()</span>
+                    
+    <span class="k">def</span> <span class="nf">run_neb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">preneb</span><span class="o">=</span><span class="kc">False</span><span class="p">,):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb</span> <span class="o">=</span> <span class="n">RepetitiveNEB</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preneb_param</span> <span class="k">if</span> <span class="n">preneb</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb_param</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">minimum_point</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">find_local_minimum_points_and_ea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">minenergy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minenergy</span><span class="p">)</span>
+        <span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">highlight</span><span class="o">=</span><span class="n">minimum_point</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">converged</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span>
+    
+    <span class="k">def</span> <span class="nf">run_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="n">RepetitiveOpt</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_param</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">eq_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_eqs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span> <span class="k">if</span> <span class="n">converged</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">eq_num</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="p">]</span> <span class="c1"># 収束した場合eq_num=EQ番号,未収束の場合None</span>
+    
+    <span class="k">def</span> <span class="nf">run_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">nabname</span><span class="p">):</span>
+        <span class="c1"># 最適化を行なう. [EQ番号] 未収束の場合EQ番号はNoneが入る</span>
+        <span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">minimum_point</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">run_opt</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-(</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">).log&quot;</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">minimum_point</span><span class="p">])</span>
+        <span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nabname</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">highlight</span><span class="o">=</span><span class="n">minimum_point</span><span class="p">,</span>     
+            <span class="n">annotation</span><span class="o">=</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;Succeed--&gt;EQ</span><span class="si">{</span><span class="n">eq_num</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">eq_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span> 
+                         <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">eq_num</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">minimum_point</span><span class="p">,</span><span class="n">eq_num_list</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">atoms_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">make_push_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">eq_num_list</span><span class="p">,</span> <span class="n">atoms_list</span><span class="p">,</span><span class="n">ts_idx</span><span class="p">):</span> <span class="c1"># ts_idxはGRRM上のTS番号</span>
+        <span class="n">push_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">path_txt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">eq_num_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,((</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">ini_atoms</span><span class="p">),(</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">partially_overlapping_groupings</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">),</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomorphism_func</span><span class="p">(</span><span class="n">ini_atoms</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">):</span> <span class="c1"># 違う構造の時</span>
+                <span class="n">images</span><span class="p">,</span><span class="n">dH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_images_and_canc_dH</span><span class="p">(</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">)</span>
+                <span class="n">push_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="n">dH</span><span class="p">,[</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="n">i</span><span class="p">],</span><span class="n">images</span><span class="p">,</span><span class="n">ts_idx</span><span class="p">])</span>
+                <span class="n">path_txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;|EQ</span><span class="si">{</span><span class="n">fin_eq_num</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path_txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;;EQ</span><span class="si">{</span><span class="n">fin_eq_num</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">ts_idx</span><span class="p">],</span><span class="n">eq_num_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">eq_num_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">[</span><span class="n">ts_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_path_txt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">(</span><span class="n">ts_idx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">push_data</span>
+    
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">restart</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">before_run</span><span class="p">(</span><span class="n">restart</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">restart</span><span class="p">:]),</span><span class="n">start</span><span class="o">=</span><span class="n">restart</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ini_idx</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fin_idx</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_push</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_first_push</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+            <span class="n">que</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">executor</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span><span class="n">priority</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span><span class="n">maxjob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span><span class="p">)</span>
+            <span class="n">que</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_all_path</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;STOP.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;STOP.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="PinNEB"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.pin_neb.PinNEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">PinNEB</span><span class="p">(</span><span class="n">AutoPinNEB</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">images</span><span class="p">,</span> 
+                 <span class="n">constraints</span><span class="o">=</span><span class="p">[],</span> 
+                 <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span> 
+                 <span class="n">eq_folder</span><span class="o">=</span><span class="s2">&quot;EQ_List&quot;</span><span class="p">,</span>
+                 <span class="n">logfolder</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+                 <span class="n">images_folder</span><span class="o">=</span><span class="s2">&quot;Images_List&quot;</span><span class="p">,</span>
+                 <span class="n">unconv_folder</span><span class="o">=</span><span class="s2">&quot;unconv&quot;</span><span class="p">,</span>
+                 <span class="n">ts_folder</span><span class="o">=</span><span class="s2">&quot;TS_List&quot;</span><span class="p">,</span>
+                 <span class="n">errorfile</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">,</span>
+                 <span class="n">path_html</span><span class="o">=</span><span class="s2">&quot;Path.html&quot;</span><span class="p">,</span>
+                 <span class="n">path_dat</span> <span class="o">=</span> <span class="s2">&quot;Path.dat&quot;</span><span class="p">,</span>
+                 <span class="n">priority</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">maxjob</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span> <span class="o">=</span> <span class="n">eq_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span> <span class="o">=</span> <span class="n">images_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span> <span class="o">=</span> <span class="n">unconv_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span> <span class="o">=</span> <span class="n">ts_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span> <span class="o">=</span> <span class="n">logfolder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errorfile</span> <span class="o">=</span> <span class="n">errorfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_html</span> <span class="o">=</span> <span class="n">path_html</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_dat</span> <span class="o">=</span> <span class="n">path_dat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span> <span class="o">=</span> <span class="n">maxjob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tss</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_params</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preneb_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">preneb_param</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neb_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">neb_param</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opt_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">opt_param</span>
+    
+    <span class="k">def</span> <span class="nf">set_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">param</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="PinNEB.get_param"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.pin_neb.PinNEB.get_param">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">get_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_param</span><span class="p">()</span></div>
+        
+    <span class="k">def</span> <span class="nf">register_eqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="n">eq_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eqs</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">eq_num</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">eq_num</span>
+        
+    <span class="k">def</span> <span class="nf">register_tss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">):</span> <span class="c1"># ts_idx GRRMのTS番号</span>
+        <span class="n">imax</span> <span class="o">=</span> <span class="n">get_imax</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">barrier_less</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">imax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># バリアレスでない場合</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tss</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># バリアレスの場合</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="n">new_path_txt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">()</span>
+        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">images_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span>            
+
+    <span class="k">def</span> <span class="nf">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path_txt</span><span class="p">,</span><span class="n">ini_name</span><span class="p">,</span><span class="n">fin_name</span><span class="p">,</span><span class="n">add_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        path_txt: 現在のpath_txt</span>
+<span class="sd">        add_data: str</span>
+<span class="sd">            EQを追加する</span>
+<span class="sd">        add_data: int:</span>
+<span class="sd">            TSを追加する</span>
+<span class="sd">        add_data: None</span>
+<span class="sd">            バリアレスを追加</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">add_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">).(EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">1~</span><span class="se">\\</span><span class="s2">2&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">add_data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">).(EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">1;TS</span><span class="si">{</span><span class="n">add_data</span><span class="si">}</span><span class="s2">;</span><span class="se">\\</span><span class="s2">2&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">add_data</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+            <span class="n">new_path_txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_name</span><span class="si">}</span><span class="s2">.EQ</span><span class="si">{</span><span class="n">fin_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">add_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_path_txt</span>
+    
+    <span class="k">def</span> <span class="nf">write_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_dat</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[Dir]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TS: ./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_folder</span><span class="si">}</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[reaction]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;path: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">path_obj</span> <span class="o">=</span> <span class="n">create_reactpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_dat</span><span class="p">)</span>
+        <span class="n">path_obj</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_html</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">first_push</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;必須メソッド&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="s2">&quot;EQ0|EQ1&quot;</span>
+        <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomorphism_func</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span> <span class="c1"># ini,finが同じ構造だった時</span>
+        <span class="n">dH</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_energy</span><span class="p">(</span><span class="n">ini</span><span class="p">)</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_energy</span><span class="p">(</span><span class="n">fin</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="o">-</span><span class="n">dH</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">]]</span>
+    
+    <span class="k">def</span> <span class="nf">make_push_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">):</span>
+        <span class="n">push_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">path_txt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">eq_num_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,((</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">ini_atoms</span><span class="p">),(</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">partially_overlapping_groupings</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">),</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isomorphism_func</span><span class="p">(</span><span class="n">ini_atoms</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">):</span> <span class="c1"># 違う構造の時</span>
+                <span class="n">images</span><span class="p">,</span><span class="n">dH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_images_and_canc_dH</span><span class="p">(</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">)</span>
+                <span class="n">push_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="n">dH</span><span class="p">,[</span><span class="n">ini_eq_num</span><span class="p">,</span><span class="n">fin_eq_num</span><span class="p">,</span><span class="n">i</span><span class="p">],</span><span class="n">images</span><span class="p">])</span>
+                <span class="n">path_txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;|EQ</span><span class="si">{</span><span class="n">fin_eq_num</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path_txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;;EQ</span><span class="si">{</span><span class="n">fin_eq_num</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">new_path_txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_path_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span><span class="p">,</span><span class="n">eq_num_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">eq_num_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">path_txt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_txt</span> <span class="o">=</span> <span class="n">new_path_txt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_path</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">push_data</span> 
+
+    <span class="k">def</span> <span class="nf">run_and_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">layer</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,[</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">,</span><span class="n">width</span><span class="p">],</span><span class="n">images</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">preneb_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pre_EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">neb_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_neb</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">preneb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># PreNEB</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minimum_point</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># 極小値がある場合</span>
+            <span class="n">eq_num_list</span><span class="p">,</span> <span class="n">atoms_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/opt_</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">nabname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># 構造最適化とEQの保存</span>
+            <span class="n">eq_num_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">eq_num_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+            <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">atoms_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">push_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_push_data</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">)</span> <span class="c1"># 新たなImagesを作成</span>
+            <span class="k">return</span> <span class="n">push_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_preneb_file</span><span class="p">:</span> <span class="c1"># pre_NEBのrename</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">preneb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">converged</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_neb</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># PreNEB</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minimum_point</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>    
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_completely</span><span class="p">:</span>
+                    <span class="n">eq_num_list</span><span class="p">,</span> <span class="n">atoms_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_opts</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">minimum_point</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/opt_</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">nabname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># 構造最適化とEQの保存</span>
+                    <span class="n">eq_num_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">eq_num_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span>
+                    <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">atoms_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="n">push_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_push_data</span><span class="p">(</span><span class="n">eq_num_list</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">)</span> <span class="c1"># 新たなImagesを作成</span>
+                    <span class="k">return</span> <span class="n">push_data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">register_tss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">register_tss</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unconv_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">neb_name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span> <span class="c1"># 未収束の保存</span>
+                    <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_eqs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_eqs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">que</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">executor</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span><span class="n">priority</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span><span class="n">maxjob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span><span class="p">)</span>
+        <span class="n">que</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+        
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

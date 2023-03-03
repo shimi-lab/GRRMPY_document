@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.automate.auto_vib &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.automate.auto_vib</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.automate.auto_vib のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.vibrations</span> <span class="kn">import</span> <span class="n">Vibrations</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">plotly.subplots</span> <span class="kn">import</span> <span class="n">make_subplots</span>
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.vibrations.functions</span> <span class="kn">import</span> <span class="n">get_vibdf</span><span class="p">,</span><span class="n">_to_table_and_imode</span>
+
+<div class="viewcode-block" id="AutoVib"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_vib.AutoVib">[ドキュメント]</a><span class="k">class</span> <span class="nc">AutoVib</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts_list</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;vib&quot;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;振動数計算を行なう</span>
+
+<span class="sd">        Paramters:</span>
+<span class="sd">        </span>
+<span class="sd">        ts_list: list of Atoms</span>
+<span class="sd">            | 計算するTSのAtomsのリスト.</span>
+<span class="sd">            | listの要素にNoneを指定する事もできる.Noneを指定した場合計算されない</span>
+<span class="sd">        indice: list of int</span>
+<span class="sd">            動かす原子のindex番号</span>
+<span class="sd">        calc_func: functions object</span>
+<span class="sd">            claculatorを返す関数</span>
+<span class="sd">        name:</span>
+<span class="sd">            指定したフォルダ名にキャッシュが作成される</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_list</span> <span class="o">=</span> <span class="n">ts_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ts</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivib</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># 虚振動のindex番号のリストが入る</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vib</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># 計算が終わったVibrationsオブジェクトのリストが入る</span>
+        
+    <span class="k">def</span> <span class="nf">irun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">vib</span> <span class="o">=</span> <span class="n">Vibrations</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+        <span class="n">vib</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">vib</span>
+        
+<div class="viewcode-block" id="AutoVib.run"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_vib.AutoVib.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;計算実行&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">ts</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_list</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">ts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">vib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">irun</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vib</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="AutoVib.summary"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_vib.AutoVib.summary">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">html</span><span class="o">=</span><span class="s2">&quot;Summary.html&quot;</span><span class="p">,</span><span class="n">cols</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        振動数の表をhtmlへ出力する</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        html:str</span>
+<span class="sd">            出力先のhtml</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table_and_i</span> <span class="o">=</span> <span class="p">[</span><span class="n">_to_table_and_imode</span><span class="p">(</span><span class="n">vib</span><span class="p">)</span> <span class="k">if</span> <span class="n">vib</span> <span class="k">else</span> <span class="kc">None</span>
+                        <span class="k">for</span> <span class="n">vib</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">]</span>
+        <span class="n">splited_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">table_and_i</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">+</span><span class="n">cols</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_and_i</span><span class="p">),</span> <span class="n">cols</span><span class="p">)]</span>
+        <span class="n">subplot_titles</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table_and_i</span><span class="p">))]</span>
+        
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_and_i</span><span class="p">)</span><span class="o">//</span><span class="n">cols</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="p">[[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">)]</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span><span class="n">specs</span><span class="o">=</span><span class="n">specs</span><span class="p">,</span><span class="n">subplot_titles</span><span class="o">=</span><span class="n">subplot_titles</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">row_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">splited_data</span><span class="p">,</span><span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">vib_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_data</span><span class="p">,</span><span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">vib_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ivib</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">vib_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">row</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ivib</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vib_data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1">#虚振動の振動モード番号</span>
+                
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">700</span><span class="o">*</span><span class="n">rows</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;振動数&quot;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="n">html</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="AutoVib.write_mode"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_vib.AutoVib.write_mode">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;虚振動モードのtrajファイルを作成する</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        i: int</span>
+<span class="sd">            | TS{i}の虚振動の振動モードでtrajファイルを作成する</span>
+<span class="sd">            | Noneを指定した場合,全てのTSの虚振動のtrajが作成される</span>
+<span class="sd">            | 虚振動が確認できなかったTSのtrajファイルは作成されない</span>
+<span class="sd">        forlder:str</span>
+<span class="sd">            | 指定したフォルダ内にtrajファイルが作成される</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">        </span>
+<span class="sd">            事前にsummary()を実行しておく必要がある.</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; vib.summary()</span>
+<span class="sd">            &gt;&gt;&gt; vib.write_mode()</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+
+<span class="sd">            虚振動以外のモードを出力したい時,例えばTS5のmode=8の振動のtrajを作成する場合は</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; vib[5].write_mode(8)</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i_mode</span><span class="p">,</span><span class="n">vib</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ivib</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">i_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">vib</span><span class="o">.</span><span class="n">write_mode</span><span class="p">(</span><span class="n">i_mode</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ivib</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">write_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ivib</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>    </div>
+        
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">[</span><span class="n">item</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

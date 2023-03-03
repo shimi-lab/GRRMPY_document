@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blenderギャラリー &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="ちょっとした機能" href="toy_tools.html" />
+    <link rel="prev" title="コマンドライン" href="modules/commandline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Blenderギャラリー</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">コード</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ballandstick">BallAndStick</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ballandstick-bicolor">BallAndStick(bicolor)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spacefilling">SpaceFilling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stick">Stick</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stick-bicolor">Stick(bicolor)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ballandstick-cartoon">漫画風(BallAndStick,cartoonを適用)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spacefilling-cartoon">漫画風(SpaceFilling,cartoonを適用)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stick-spacefilling">Stick+SpaceFilling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#animation">Animation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#motion-blur">モーションブラー</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Blenderギャラリー</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/blender_gallery.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="blender">
+<h1>Blenderギャラリー<a class="headerlink" href="#blender" title="この見出しへのパーマリンク"></a></h1>
+<figure class="align-left" id="id6">
+<a class="reference internal image-reference" href="../_images/ball_and_stick.png"><img alt="../_images/ball_and_stick.png" src="../_images/ball_and_stick.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#ball-and-stick"><span class="std std-ref">BallAndStick</span></a></span><a class="headerlink" href="#id6" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id7">
+<a class="reference internal image-reference" href="../_images/bicolor.png"><img alt="../_images/bicolor.png" src="../_images/bicolor.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#bicolor"><span class="std std-ref">BallAndStick(bicolor)</span></a></span><a class="headerlink" href="#id7" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id8">
+<a class="reference internal image-reference" href="../_images/cartoony.png"><img alt="../_images/cartoony.png" src="../_images/cartoony.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#cartoony"><span class="std std-ref">漫画風(BallAndStick)</span></a></span><a class="headerlink" href="#id8" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id9">
+<a class="reference internal image-reference" href="../_images/cartoon.png"><img alt="../_images/cartoon.png" src="../_images/cartoon.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#cartoon"><span class="std std-ref">漫画風(SpaceFilling)</span></a></span><a class="headerlink" href="#id9" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id10">
+<a class="reference internal image-reference" href="../_images/SpaceFilling.png"><img alt="../_images/SpaceFilling.png" src="../_images/SpaceFilling.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#space-filling"><span class="std std-ref">SpaceFilling</span></a></span><a class="headerlink" href="#id10" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id11">
+<a class="reference internal image-reference" href="../_images/stick.png"><img alt="../_images/stick.png" src="../_images/stick.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#stick"><span class="std std-ref">Stick</span></a></span><a class="headerlink" href="#id11" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id12">
+<a class="reference internal image-reference" href="../_images/stick_bicolor.png"><img alt="../_images/stick_bicolor.png" src="../_images/stick_bicolor.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#stick-bicolor"><span class="std std-ref">Stick(bicolor)</span></a></span><a class="headerlink" href="#id12" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id13">
+<a class="reference internal image-reference" href="../_images/combine.png"><img alt="../_images/combine.png" src="../_images/combine.png" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#combine"><span class="std std-ref">Stick+SpaceFilling</span></a></span><a class="headerlink" href="#id13" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<figure class="align-left" id="id14">
+<a class="reference internal image-reference" href="../_images/animation.gif"><img alt="../_images/animation.gif" src="../_images/animation.gif" style="width: 288.0px; height: 162.0px;" /></a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="#animation"><span class="std std-ref">animation</span></a></span><a class="headerlink" href="#id14" title="この画像へのパーマリンク"></a></p>
+</figcaption>
+</figure>
+<p><a class="reference internal" href="#motion-blur"><span class="std std-ref">motion_blur</span></a></p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/blank.png"><img alt="../_images/blank.png" src="../_images/blank.png" style="width: 1320.0px; height: 21.0px;" /></a>
+</figure>
+<section id="id1">
+<h2>コード<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<section id="ballandstick">
+<span id="ball-and-stick"></span><h3>BallAndStick<a class="headerlink" href="#ballandstick" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">Bulk構造でball_and_stickを適用する場合,結合の数が多くなるため,Blender上でのPythonスクリプトの実行にかなり時間がかかるので注意.</div>
+<div class="line">その他,適用できるキーワード引数は <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.BallAndStick" title="grrmpy.blender.make_pyscript.BallAndStick"><code class="xref py py-class docutils literal notranslate"><span class="pre">BallAndStick</span></code></a> を参照</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">BallAndStick</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="ballandstick-bicolor">
+<span id="bicolor"></span><h3>BallAndStick(bicolor)<a class="headerlink" href="#ballandstick-bicolor" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">その他,適用できるキーワード引数は <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.BallAndStick" title="grrmpy.blender.make_pyscript.BallAndStick"><code class="xref py py-class docutils literal notranslate"><span class="pre">BallAndStick</span></code></a> を参照</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">BallAndStick</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">bicolor</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="spacefilling">
+<span id="space-filling"></span><h3>SpaceFilling<a class="headerlink" href="#spacefilling" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">その他,適用できるキーワード引数は <code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceFillng</span></code> を参照</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">SpaceFilling</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="stick">
+<span id="id2"></span><h3>Stick<a class="headerlink" href="#stick" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">サンプルではカメラを平行投影とし,被写界深度を設定している.</div>
+<div class="line">その他,適用できるキーワード引数は <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.Stick" title="grrmpy.blender.make_pyscript.Stick"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stick</span></code></a> を参照</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">Stick</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="stick-bicolor">
+<span id="id3"></span><h3>Stick(bicolor)<a class="headerlink" href="#stick-bicolor" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">サンプルではカメラを平行投影とし,被写界深度を設定している.</div>
+<div class="line">その他,適用できるキーワード引数は <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.Stick" title="grrmpy.blender.make_pyscript.Stick"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stick</span></code></a> を参照</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">Stick</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">bicolor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.12</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="ballandstick-cartoon">
+<span id="cartoony"></span><h3>漫画風(BallAndStick,cartoonを適用)<a class="headerlink" href="#ballandstick-cartoon" title="この見出しへのパーマリンク"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">BallAndStick</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">cartoon</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;apply&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">}))</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">cartoonでは次のようなシェダーが設定されている.フレネルとミックスを入れ,BSDFの粗さを1に設定にすることで漫画風にしている.</div>
+<div class="line">フレネルのIRC値を変更することで枠線の太さを変えることができる.</div>
+<div class="line">各元素のIRCは全て同じ値になるようにPythonスクリプトは作成されるが, <strong>小さな原子の枠線が細くなりがちなので,手動で微調整することを勧める.</strong></div>
+<div class="line">また影を柔らかくするために <strong>ワールド背景色を明るくするのがオススメ</strong> .</div>
+</div>
+<a class="reference internal image-reference" href="../_images/node.png"><img alt="../_images/node.png" class="align-center" src="../_images/node.png" style="width: 478.79999999999995px; height: 369.59999999999997px;" /></a>
+</section>
+<section id="spacefilling-cartoon">
+<span id="cartoon"></span><h3>漫画風(SpaceFilling,cartoonを適用)<a class="headerlink" href="#spacefilling-cartoon" title="この見出しへのパーマリンク"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">SpaceFilling</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">cartoon</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;apply&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">}))</span>
+</pre></div>
+</div>
+</section>
+<section id="stick-spacefilling">
+<span id="combine"></span><h3>Stick+SpaceFilling<a class="headerlink" href="#stick-spacefilling" title="この見出しへのパーマリンク"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">]</span> <span class="c1"># Ballを表示するindex番号</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,[</span><span class="n">Stick</span><span class="p">(</span><span class="n">atoms</span><span class="p">),</span> <span class="n">SpaceFilling</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">)])</span>
+</pre></div>
+</div>
+</section>
+<section id="animation">
+<span id="id4"></span><h3>Animation<a class="headerlink" href="#animation" title="この見出しへのパーマリンク"></a></h3>
+<p>詳しいやり方は <a class="reference internal" href="tutorial/blender_tutorial.html"><span class="doc">チュートリアル</span></a> を参考にする</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;Animation.zip&quot;</span><span class="p">,</span> <span class="n">traj</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">animation.zipをローカルPC上にダウンロードして展開する.
+Python,pickleファイルと同じ場所にblenderファイルを作成する(先にblenderファイルを作成しないとpython実行時にエラーになる).</div>
+<div class="line">Blenderでpythonコードを実行し,構造をインポートする.</div>
+<div class="line">アニメーションをレンダリングする(重いのでEeveeの方が良い)</div>
+</div>
+</section>
+<section id="motion-blur">
+<span id="id5"></span><h3>モーションブラー<a class="headerlink" href="#motion-blur" title="この見出しへのパーマリンク"></a></h3>
+<p>キーフレームを打ち,モーションブラーでレンダリングをする.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules/commandline.html" class="btn btn-neutral float-left" title="コマンドライン" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="toy_tools.html" class="btn btn-neutral float-right" title="ちょっとした機能" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

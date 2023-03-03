@@ -1,0 +1,58 @@
+##################
+PFP Calculator
+##################
+
+
+PFP
+-------------------------------------
+.. role:: red
+
+:red:`model_version='v3.0.0'がデフォルト値になっている.今後pfpのアップデートによりデフォルト値を変更したい場合, pfp_calculator のソースコードを変更する必要がある.`
+:red:`もしくは次のようにmodel_versionを指定する`
+
+>>> pfp_calculator(model_version='v3.0.0')
+
+PFPは3種類のDFT計算条件による学習データを持っています。これに対応して、計算モードと呼ばれる機能を提供しています.
+計算モードを切り替えることによってどちらの学習データに合った挙動をするかを選べます。(Matlantisから引用)
+
+- 使用方法
+   .. code-block:: python
+
+      from grrmpy import pfp_calculator
+      atoms.calc = pfp_calculator()
+
+   これは次のコードと同じ意味である.
+
+   .. code-block:: python
+
+      from pfp_api_client.pfp.calculators.ase_calculator import ASECalculator
+      from pfp_api_client.pfp.estimator import Estimator, EstimatorCalcMode
+      estimator = Estimator(calc_mode=EstimatorCalcMode.CRYSTAL_PLUS_D3)
+      atoms.calc = ASECalculator(estimator)
+
+   
+   | pfp_api_clientから呼び出すとコード量が多くなってしまうため,GRRMPYから簡単に呼び出せるようにした.
+   | またclaculatorを関数化することは様々なコードを書く上でも便利になることが多い.
+   | 例えばIRC計算でcalculatorを付ける際にpfp_api_clientの場合
+
+   .. code-block:: python
+
+      i_step = atoms0.calc = 
+         estimator = Estimator(calc_mode=EstimatorCalcMode.CRYSTAL_PLUS_D3)
+         atoms.calc = ASECalculator(estimator)
+
+.. csv-table::
+   :header: 計算モード, 説明
+   :widths: 5, 20
+
+   **CRYSTAL**, 結晶系(Hubbard補正あり)
+   **MOLECULE**, 分子系
+   **CRYSTAL_PLUS_D3**, 結晶系(Hubbard補正あり)+DFT-D3補正
+   **CRYSTAL_U0**, 結晶系(Hubbard補正なし)
+   **CRYSTAL_U0_PLUS_D3**, 結晶系(Hubbard補正なし)+DFT-D3補正
+
+
+.. module:: grrmpy.calculator
+
+.. autofunction:: grrmpy.calculator.pfp_calculator
+

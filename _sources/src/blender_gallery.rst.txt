@@ -1,0 +1,186 @@
+===================
+Blenderギャラリー
+===================
+
+.. figure:: ./img/ball_and_stick.png
+   :scale: 30%
+   :align: left
+
+   :ref:`BallAndStick<ball_and_stick>` 
+
+.. figure:: ./img/bicolor.png
+   :scale: 30%
+   :align: left
+
+   :ref:`BallAndStick(bicolor)<bicolor>` 
+
+.. figure:: ./img/cartoony.png
+   :scale: 30%
+   :align: left
+
+   :ref:`漫画風(BallAndStick)<cartoony>` 
+
+.. figure:: ./img/cartoon.png
+   :scale: 30%
+   :align: left
+
+   :ref:`漫画風(SpaceFilling)<cartoon>` 
+
+
+.. figure:: ./img/SpaceFilling.png
+   :scale: 30%
+   :align: left
+
+   :ref:`SpaceFilling<space_filling>`
+
+
+.. figure:: ./img/stick.png
+   :scale: 30%
+   :align: left
+
+   :ref:`Stick<stick>`
+
+
+.. figure:: ./img/stick_bicolor.png
+   :scale: 30%
+   :align: left
+
+   :ref:`Stick(bicolor)<stick_bicolor>`
+
+
+.. figure:: ./img/combine.png
+   :scale: 30%
+   :align: left
+
+   :ref:`Stick+SpaceFilling<combine>`
+
+.. figure:: ./img/animation.gif
+   :scale: 30%
+   :align: left
+
+   :ref:`animation<animation>`
+
+:ref:`motion_blur<motion_blur>`
+
+.. figure:: ./img/blank.png
+   :scale: 30%
+   :align: center
+
+
+
+
+コード
+==========
+
+
+
+.. _ball_and_stick:
+
+BallAndStick
+------------------
+
+| Bulk構造でball_and_stickを適用する場合,結合の数が多くなるため,Blender上でのPythonスクリプトの実行にかなり時間がかかるので注意.
+| その他,適用できるキーワード引数は :class:`BallAndStick<grrmpy.blender.make_pyscript.BallAndStick>` を参照
+
+>>> make_py_script("-",BallAndStick(atoms))
+
+
+.. _bicolor:
+
+BallAndStick(bicolor)
+----------------------------
+
+| その他,適用できるキーワード引数は :class:`BallAndStick<grrmpy.blender.make_pyscript.BallAndStick>` を参照
+
+>>> make_py_script("-",BallAndStick(atoms,bicolor=True))
+
+
+.. _space_filling:
+
+SpaceFilling
+------------------
+
+| その他,適用できるキーワード引数は :class:`SpaceFillng<grrmpy.blender.make_pyscript.SpaceFillng>` を参照
+
+>>> make_py_script("-", SpaceFilling(atoms))
+
+
+.. _stick:
+
+Stick
+------------------
+
+| サンプルではカメラを平行投影とし,被写界深度を設定している.
+| その他,適用できるキーワード引数は :class:`Stick<grrmpy.blender.make_pyscript.Stick>` を参照
+
+>>> make_py_script("-", Stick(atoms))
+
+.. _stick_bicolor:
+
+Stick(bicolor)
+------------------
+
+| サンプルではカメラを平行投影とし,被写界深度を設定している.
+| その他,適用できるキーワード引数は :class:`Stick<grrmpy.blender.make_pyscript.Stick>` を参照
+
+>>> make_py_script("-", Stick(atoms,bicolor=True,radius=0.12))
+
+.. _cartoony:
+
+漫画風(BallAndStick,cartoonを適用)
+-------------------------------------
+
+>>> make_py_script("-",BallAndStick(atoms,cartoon={"apply":True}))
+
+| cartoonでは次のようなシェダーが設定されている.フレネルとミックスを入れ,BSDFの粗さを1に設定にすることで漫画風にしている.
+| フレネルのIRC値を変更することで枠線の太さを変えることができる.
+| 各元素のIRCは全て同じ値になるようにPythonスクリプトは作成されるが, **小さな原子の枠線が細くなりがちなので,手動で微調整することを勧める.**
+| また影を柔らかくするために **ワールド背景色を明るくするのがオススメ** .
+
+.. image:: ./img/node.png
+   :scale: 60%
+   :align: center
+
+
+
+.. _cartoon:
+
+漫画風(SpaceFilling,cartoonを適用)
+-------------------------------------
+
+>>> make_py_script("-",SpaceFilling(atoms,cartoon={"apply":True}))
+
+
+.. _combine:
+
+Stick+SpaceFilling
+----------------------
+
+>>> indices = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,5,16,17,18,19,20,21,22,23,24] # Ballを表示するindex番号
+>>> make_py_script("-",[Stick(atoms), SpaceFilling(atoms,scale=0.4,indices=indices)])
+
+.. _animation:
+
+Animation
+------------------
+
+詳しいやり方は :doc:`チュートリアル<./tutorial/blender_tutorial>` を参考にする
+
+>>> make_py_script("Animation.zip", traj)
+
+| animation.zipをローカルPC上にダウンロードして展開する.
+ Python,pickleファイルと同じ場所にblenderファイルを作成する(先にblenderファイルを作成しないとpython実行時にエラーになる).
+| Blenderでpythonコードを実行し,構造をインポートする.
+| アニメーションをレンダリングする(重いのでEeveeの方が良い)
+
+
+.. _motion_blur:
+
+モーションブラー
+--------------------
+
+キーフレームを打ち,モーションブラーでレンダリングをする.
+
+
+
+

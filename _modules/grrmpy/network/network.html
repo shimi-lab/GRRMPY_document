@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.network.network &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.network.network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.network.network のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">PurePath</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">rgb2hex</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">pyvis.network</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">kJ</span><span class="p">,</span><span class="n">mol</span><span class="p">,</span><span class="n">Hartree</span><span class="p">,</span><span class="n">eV</span>
+
+<span class="c1">#USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.io.read_listlog</span> <span class="kn">import</span> <span class="n">log2atoms</span><span class="p">,</span><span class="n">read_connections</span><span class="p">,</span><span class="n">read_energies</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.conv.atoms2smiles</span> <span class="kn">import</span> <span class="n">atomslist2smileses</span>
+
+<span class="k">def</span> <span class="nf">make_color</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="s2">&quot;gnuplot&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;カラースケール</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    x :</span>
+<span class="sd">        0~1の間の数字</span>
+<span class="sd">    cm str:</span>
+<span class="sd">        &#39;jet&#39;,&#39;viridis&#39;,&#39;plasma&#39;,&#39;inferno&#39;,&#39;magma&#39;,&#39;cividis&#39;,&#39;gnuplot&#39;,&#39;CMRmap&#39;,&#39;rainbow&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
+    <span class="n">colorcode</span> <span class="o">=</span> <span class="n">rgb2hex</span><span class="p">(</span><span class="n">cmap</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">colorcode</span>
+
+<span class="k">def</span> <span class="nf">make_color_scale</span><span class="p">(</span><span class="n">val_list</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="s2">&quot;gnuplot&quot;</span><span class="p">):</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span>
+    <span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">val_list</span><span class="p">)</span>
+    <span class="n">val_scale</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="o">-</span><span class="n">min_val</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">max_val</span><span class="o">-</span><span class="n">min_val</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">val_list</span><span class="p">]</span>
+    <span class="n">color_scale</span> <span class="o">=</span> <span class="p">[</span><span class="n">make_color</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="n">cm</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">val_scale</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">color_scale</span>
+
+<span class="k">class</span> <span class="nc">NodeData</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">eq_list</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span><span class="n">energies</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="s2">&quot;gnuplot&quot;</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms_list</span> <span class="o">=</span> <span class="n">eq_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">&quot;node&quot;</span><span class="p">:[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">Energy:</span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.03f</span><span class="si">}</span><span class="s2"> kJ/mol&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)),</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">)],</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">make_color_scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="n">cm</span><span class="p">),</span>
+            <span class="s2">&quot;energy&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+            <span class="s2">&quot;group&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">grouping</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="p">})</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[[</span><span class="s2">&quot;node&quot;</span><span class="p">,</span><span class="s2">&quot;label&quot;</span><span class="p">,</span><span class="s2">&quot;title&quot;</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">]]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;xlwingで動かすプログラムと互換性を保つため&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;node&quot;</span><span class="p">:[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;group&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;E/Hartree&quot;</span><span class="p">:[</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">kJ</span><span class="o">/</span><span class="n">mol</span><span class="p">)</span><span class="o">/</span><span class="n">Hartree</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]],</span>
+            <span class="s2">&quot;E/kJmol-1&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nx_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">node</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">data</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">node</span><span class="p">,</span><span class="o">*</span><span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()]</span>
+    
+    <span class="k">def</span> <span class="nf">change_color_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cm</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_color_scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span><span class="n">cm</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">grouping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">atomslist2smileses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">target0</span><span class="o">=</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">unique</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">smiles_list</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">unique</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span> <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">smiles_list</span><span class="p">]</span>
+        
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_list</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">EdgeData</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts_list</span><span class="p">,</span><span class="n">connections</span><span class="p">,</span><span class="n">energies</span><span class="p">:</span><span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms_list</span> <span class="o">=</span> <span class="n">ts_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="n">connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">&quot;edge&quot;</span><span class="p">:[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                     <span class="sa">f</span><span class="s2">&quot;Energy:</span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.03f</span><span class="si">}</span><span class="s2"> kJ/mol</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                     <span class="sa">f</span><span class="s2">&quot;connections:</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span>
+                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span><span class="p">,(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">)</span>
+                     <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)),</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">)],</span>
+            <span class="s2">&quot;energy&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">&quot;target&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+            <span class="p">})</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">source</span> <span class="k">for</span> <span class="n">source</span><span class="p">,</span><span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">target</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;xlwingで動かすプログラムと互換性を保つため&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;edge&quot;</span><span class="p">:[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:[</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">&quot;target&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+            <span class="s2">&quot;E/Hartree&quot;</span><span class="p">:[</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">kJ</span><span class="o">/</span><span class="n">mol</span><span class="p">)</span><span class="o">/</span><span class="n">Hartree</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]],</span>
+            <span class="s2">&quot;E/kJmol-1&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">nx_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">self_roop</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;エッジのタプルのリストを返す(??などは消す)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">self_roop</span><span class="p">:</span>
+            <span class="n">edge_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> 
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ini_idx</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fin_idx</span><span class="p">,</span> <span class="nb">int</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">edge_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> 
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ini_idx</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fin_idx</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ini_idx</span><span class="o">!=</span><span class="n">fin_idx</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">edge_list</span>
+    
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_list</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="NetGraph"><a class="viewcode-back" href="../../../src/modules/network.html#grrmpy.network.network.NetGraph">[ドキュメント]</a><span class="k">class</span> <span class="nc">NetGraph</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    \*listlog: </span>
+<span class="sd">        | 方法1: EQ_list.log,TS_list.log,,PT_list.logを与える.</span>
+<span class="sd">        | 方法2: eq_list,ts_list,connectionsを与える.</span>
+<span class="sd">    indices: list of int</span>
+<span class="sd">        | 原子のindex番号のリスト.</span>
+<span class="sd">        | 同一構造をグループ化するために用いる.</span>
+<span class="sd">        | 指定した原子同士の結合状態から同一構造かを判定する.</span>
+<span class="sd">    comfile:</span>
+<span class="sd">        comfileパス</span>
+<span class="sd">    poscar:</span>
+<span class="sd">        POSCARパス</span>
+<span class="sd">    calc_func:</span>
+<span class="sd">        calculatorを返す関数</span>
+<span class="sd">            </span>
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; G = NetGraph(&quot;XXX_EQ_list&quot;,&quot;XXX_TS_list&quot;,&quot;XXX_PT_list&quot;,comfile=&quot;XXX.com&quot;,poscar=&quot;POSCAR&quot;,indices=[i for i in range(0:10)])</span>
+<span class="sd">        or</span>
+<span class="sd">        &gt;&gt;&gt; G = NetGraph(&quot;XXX_EQ_list&quot;,&quot;XXX_TS_list&quot;,comfile=&quot;XXX.com&quot;,poscar=&quot;POSCAR&quot;,indices=[i for i in range(0:10)])</span>
+<span class="sd">        or</span>
+<span class="sd">        &gt;&gt;&gt; G = NetGraph(eq_list,ts_list,connections,indices=[i for i in range(0:10)])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">listlog</span><span class="p">,</span>
+                 <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">comfile</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">poscar</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        *listlog: </span>
+<span class="sd">            | 方法1: EQ_list.log,TS_list.log,,PT_list.logを与える.</span>
+<span class="sd">            | 方法2: eq_list,ts_list,connectionsを与える.</span>
+<span class="sd">        indices: list of int</span>
+<span class="sd">            | 原子のindex番号のリスト.</span>
+<span class="sd">            | 同一構造をグループ化するために用いる.</span>
+<span class="sd">            | 指定した原子同士の結合状態から同一構造かを判定する.</span>
+<span class="sd">        comfile:</span>
+<span class="sd">            comfileパス</span>
+<span class="sd">        poscar:</span>
+<span class="sd">            POSCARパス</span>
+<span class="sd">        calc_func:</span>
+<span class="sd">            calculatorを返す関数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Node</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">listlog</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">listlog</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">PurePath</span><span class="p">):</span>
+            <span class="c1"># EQ_list.log,TS_list.log,PT_list.logで与えた場合</span>
+            <span class="c1"># Node</span>
+            <span class="n">eq_energies</span> <span class="o">=</span> <span class="n">read_energies</span><span class="p">(</span><span class="n">listlog</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">eq_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">*</span><span class="n">Hartree</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eq_energies</span><span class="p">]</span>
+            <span class="n">node_atoms</span> <span class="o">=</span> <span class="n">log2atoms</span><span class="p">(</span><span class="n">listlog</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">comfile</span><span class="p">,</span><span class="n">poscar</span><span class="p">)</span>
+            <span class="c1"># EDGE</span>
+            <span class="n">ts_energies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">read_energies</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="p">))</span>
+            <span class="n">ts_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">*</span><span class="n">Hartree</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ts_energies</span><span class="p">]</span>
+            <span class="n">edge_atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">log2atoms</span><span class="p">(</span><span class="n">log</span><span class="p">,</span><span class="n">comfile</span><span class="p">,</span><span class="n">poscar</span><span class="p">)</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="p">))</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">read_connections</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># eq_list,ts_list,connectionsで与えた場合</span>
+            <span class="c1"># NODE</span>
+            <span class="n">node_atoms</span> <span class="o">=</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">eq_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_calc_and_get_energy</span><span class="p">(</span><span class="n">node_atoms</span><span class="p">,</span><span class="n">calc_func</span><span class="p">)</span>
+            <span class="n">eq_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">eq_energies</span><span class="p">]</span>
+            <span class="c1"># EDGE</span>
+            <span class="n">edge_atoms</span> <span class="o">=</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>        
+            <span class="n">ts_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_calc_and_get_energy</span><span class="p">(</span><span class="n">edge_atoms</span><span class="p">,</span><span class="n">calc_func</span><span class="p">)</span>
+            <span class="n">ts_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ts_energies</span><span class="p">]</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="n">listlog</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">NodeData</span><span class="p">(</span><span class="n">node_atoms</span><span class="p">,</span><span class="n">eq_energies</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge</span> <span class="o">=</span> <span class="n">EdgeData</span><span class="p">(</span><span class="n">edge_atoms</span><span class="p">,</span><span class="n">connections</span><span class="p">,</span><span class="n">ts_energies</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">_set_calc_and_get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">calc_func</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span> <span class="k">for</span> <span class="n">atoms</span> <span class="ow">in</span> <span class="n">atoms_list</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">atoms</span> <span class="ow">in</span> <span class="n">atoms_list</span><span class="p">:</span>
+                <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span> <span class="k">for</span> <span class="n">atoms</span> <span class="ow">in</span> <span class="n">atoms_list</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">energies</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">forward_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;単位はkJ/mol,もしマイナスになる場合0とする&quot;&quot;&quot;</span>
+        <span class="n">node_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">edge_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">source_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">e</span><span class="o">-</span><span class="n">node_e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span><span class="o">-</span><span class="n">node_e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> 
+                <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_e</span><span class="p">,</span><span class="n">source_idx</span><span class="p">)]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reverse_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;単位はkJ/mol&quot;&quot;&quot;</span>
+        <span class="n">node_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">edge_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">target_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">target</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">e</span><span class="o">-</span><span class="n">node_e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span><span class="o">-</span><span class="n">node_e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> 
+                <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edge_e</span><span class="p">,</span><span class="n">target_idx</span><span class="p">)]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">node_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;xlwingで動かすプログラムと互換性を保つため&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">data</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;xlwingで動かすプログラムと互換性を保つため&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;forward/kJmol-1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_energy</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reverse/kJmol-1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_energy</span>
+        <span class="k">return</span> <span class="n">df</span>
+    
+<div class="viewcode-block" id="NetGraph.get_graph"><a class="viewcode-back" href="../../../src/modules/network.html#grrmpy.network.network.NetGraph.get_graph">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">get_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">self_loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="s2">&quot;gnuplot&quot;</span><span class="p">,</span><span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">edge</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;NetWorkXのグラフを返す</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        self_loop: bool</span>
+<span class="sd">            | 自己ループを含める場合True.</span>
+<span class="sd">        cm : str</span>
+<span class="sd">            | &quot;jet&quot;,&quot;hot&quot;などmatplotlibで指定できるカラースケール.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            networkx.Graph: networkxのグラフ</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;list&#39;</span><span class="p">)[</span><span class="s2">&quot;node&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="o">.</span><span class="n">nx_data</span><span class="p">(</span><span class="n">self_loop</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">change_color_scale</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+    
+<div class="viewcode-block" id="NetGraph.write_html"><a class="viewcode-back" href="../../../src/modules/network.html#grrmpy.network.network.NetGraph.write_html">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">html</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="s2">&quot;500px&quot;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;100%&quot;</span><span class="p">,</span><span class="n">cm</span><span class="o">=</span><span class="s2">&quot;gnuplot&quot;</span><span class="p">,</span><span class="n">notebook</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_buttons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">self_loop</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;htmlにグラフを作成する</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        html: str</span>
+<span class="sd">            保存名.html</span>
+<span class="sd">        height: str</span>
+<span class="sd">            縦幅</span>
+<span class="sd">        width: str</span>
+<span class="sd">            横幅</span>
+<span class="sd">        cm: str</span>
+<span class="sd">            | &quot;jet&quot;,&quot;hot&quot;などmatplotlibで指定できるカラースケール.</span>
+<span class="sd">            | デフォルトは&quot;gnuplot&quot;.</span>
+<span class="sd">        notebook: bool</span>
+<span class="sd">            | Trueした場合,Notebook上に表示される.</span>
+<span class="sd">            | (現在機能していない)</span>
+<span class="sd">        show_buttons: bool</span>
+<span class="sd">            Trueにした場合,全ての機能を搭載したボタンが作成される.</span>
+<span class="sd">        self_loop: bool</span>
+<span class="sd">            自己ループを表示する場合はTrue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span><span class="n">notebook</span><span class="o">=</span><span class="n">notebook</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">from_nx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_graph</span><span class="p">(</span><span class="n">self_loop</span><span class="p">,</span><span class="n">cm</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">show_buttons</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">show_buttons</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># 全機能使用</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">show_buttons</span><span class="p">(</span><span class="n">filter_</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;physics&#39;</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">])</span> <span class="c1"># 一部の機能のみ使用</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">html</span><span class="p">)</span></div>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_weight_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;最短距離を計算する時に用いる&quot;&quot;&quot;</span>
+        <span class="n">weight_edge</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">))]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_df</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="nb">set</span><span class="p">((</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">edge</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">forward_e</span><span class="p">,</span><span class="n">reverse_e</span><span class="p">,</span><span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">source</span><span class="o">==</span><span class="n">target</span><span class="p">:</span>
+                <span class="n">weight_edge</span><span class="p">[</span><span class="n">source</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">target</span><span class="p">,</span><span class="n">forward_e</span><span class="p">,</span><span class="n">name</span><span class="p">])</span>
+                <span class="n">weight_edge</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">source</span><span class="p">,</span><span class="n">reverse_e</span><span class="p">,</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">weight_edge</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;最短距離を計算する時に用いる&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_df</span>
+        <span class="n">group_dict</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">group_name</span><span class="p">):</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">group_name</span><span class="p">][</span><span class="s2">&quot;node&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;group&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()}</span> 
+        <span class="k">return</span> <span class="n">group_dict</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_node_data_for_graphml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s1">&#39;E/Hartree&#39;</span><span class="p">]]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="s2">&quot;group&quot;</span><span class="p">,</span><span class="s2">&quot;E/kJmol-1&quot;</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+        <span class="n">node_data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">node</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key</span><span class="p">,[</span><span class="n">node</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">group</span><span class="p">)]</span><span class="o">+</span><span class="n">vals</span><span class="p">)))</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">node</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">group</span><span class="p">,</span><span class="o">*</span><span class="n">vals</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">node_data</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_edge_data_for_graphml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s1">&#39;E/Hartree&#39;</span><span class="p">]]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;edge&quot;</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="s2">&quot;E/kJmol-1&quot;</span><span class="p">,</span><span class="s2">&quot;forward/kJmol-1&quot;</span><span class="p">,</span><span class="s2">&quot;reverse/kJmol-1&quot;</span><span class="p">]</span>
+        <span class="n">edge_data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key</span><span class="p">,[</span><span class="n">edge</span><span class="p">,</span><span class="n">name</span><span class="p">]</span><span class="o">+</span><span class="n">vals</span><span class="p">)))</span> 
+                     <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">edge</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="o">*</span><span class="n">vals</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">source</span><span class="o">!=</span><span class="n">target</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">edge_data</span>
+        
+<div class="viewcode-block" id="NetGraph.write_graphml"><a class="viewcode-back" href="../../../src/modules/network.html#grrmpy.network.network.NetGraph.write_graphml">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write_graphml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">graphml</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        graphmlファイルを作成する</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        graphml: str or Path</span>
+<span class="sd">            | graphmlパス(.graphml)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_data_for_graphml</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_data_for_graphml</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">write_graphml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_graph</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">,</span><span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">),</span><span class="n">path</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

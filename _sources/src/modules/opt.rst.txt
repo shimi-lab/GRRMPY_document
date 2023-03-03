@@ -1,0 +1,10 @@
+###########################
+OPTモジュール 
+###########################
+
+.. module:: grrmpy.opt
+
+RepetitiveOpt
+=================
+.. autoclass:: grrmpy.opt.repetitive_opt.RepetitiveOpt
+   :members: run, attach, update, default_param

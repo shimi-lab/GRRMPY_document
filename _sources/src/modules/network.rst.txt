@@ -1,0 +1,38 @@
+###########################
+Networkモジュール
+###########################
+
+.. module:: grrmpy.network
+
+.. code-block:: python
+
+    from grrmpy.network import NetGraph
+
+    net_g = NetGraph("XXX_EQ_list",
+                     "XXX_TS_list",
+                     "XXX_PT_list",
+                     comfile="XXX.com",
+                     poscar="POSCAR",
+                     indices=[0,1,2,3,4,5,6,7,8,9,10])
+    net_g.write_html("Sample.html") # htmlに出力
+    net_g.write_graphml("Sample.graphml") # graphmlに出力
+
+| インタラクティブなグラフが作成される. 
+
+| nodeにカーソルをホバーさせるとエネルギーが表示される.
+| エネルギーの大きさに従った色付けがされる.
+
+**write_htmlの結果**
+
+.. image:: ./img/network.png
+   :scale: 60%
+   :align: center
+
+**write_graphで作成したgraphmlファイルをCytoscapeで表示**
+
+.. image:: ./img/graphml.png
+   :scale: 60%
+   :align: center
+
+.. autoclass:: grrmpy.network.network.NetGraph 
+    :members: get_graph, write_html ,write_graphml

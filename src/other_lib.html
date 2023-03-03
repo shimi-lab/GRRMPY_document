@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>その他のアプリ &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="その他" href="other.html" />
+    <link rel="prev" title="最短経路アルゴリズム" href="algorithm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">その他のアプリ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#xlwings">xlwingsを使ったアプリ</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">ダウンロード</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#blenderpython">Blender用のPythonスクリプトを作成するためのアプリ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#matlanticgrrm">MatlanticGRRM ライブラリ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">その他のアプリ</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/other_lib.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="id1">
+<h1>その他のアプリ<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h1>
+<section id="xlwings">
+<h2>xlwingsを使ったアプリ<a class="headerlink" href="#xlwings" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">GRRMの結果をpythonコードを書くことなく,Excelのみで解析できる.</div>
+<div class="line">主な機能は</div>
+</div>
+<ul class="simple">
+<li><p>反応経路検索(もっともEaの低い経路を検索する)</p></li>
+<li><p>反応座標の作図</p></li>
+<li><p>Graphmlファイルへエクスポート.</p></li>
+<li><p>構造の可視化(ExcelからJmol, VESTAを呼び出し可視化)</p></li>
+<li><p>構造の保存(xyzデータに保存する)</p></li>
+</ul>
+<div class="line-block">
+<div class="line">反応経路検索に関してはExcel上で操作できるのはWindowsのみ.</div>
+<div class="line">Macユーザーはpythonのnotebookを利用することで使用できる.</div>
+</div>
+<section id="id2">
+<h3>ダウンロード<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<ul>
+<li><dl>
+<dt>ダウンロードファイル(.zip)</dt><dd><div class="line-block">
+<div class="line"><a class="reference download internal" download="" href="../_downloads/47269ed2b8a031f2321422f8c7ca82be/Windows.zip"><code class="xref download docutils literal notranslate"><span class="pre">Windows用</span></code></a></div>
+<div class="line"><a class="reference download internal" download="" href="../_downloads/f8f25b07b0b6a8f3089d6fed79c4bbec/Mac.zip"><code class="xref download docutils literal notranslate"><span class="pre">Mac用</span></code></a></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>ダウンロード方法と使用方法(.pptx)</dt><dd><div class="line-block">
+<div class="line"><a class="reference download internal" download="" href="../_downloads/b4ea2a32773ecf235e23e89047a35dd2/setup.pptx"><code class="xref download docutils literal notranslate"><span class="pre">setup.pptx</span></code></a></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+</section>
+<section id="blenderpython">
+<h2>Blender用のPythonスクリプトを作成するためのアプリ<a class="headerlink" href="#blenderpython" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">Blender上で3D化学構造を作成すつためのPythonスクリプトを作成するGUIアプリ.</div>
+<div class="line">cif,xyz,POSCARファイル等から構造からPythonスクリプトを作成することができる.</div>
+<div class="line">基本的には <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.make_py_script" title="grrmpy.blender.make_pyscript.make_py_script"><code class="xref py py-class docutils literal notranslate"><span class="pre">make_py_script</span></code></a> と同じ機能である. アニメーションを作成する場合,
+特にイメージ数の多いアニメーションを作成する場合は <a class="reference internal" href="modules/blender.html#grrmpy.blender.make_pyscript.make_py_script" title="grrmpy.blender.make_pyscript.make_py_script"><code class="xref py py-class docutils literal notranslate"><span class="pre">make_py_script</span></code></a> を使った方が良い.</div>
+</div>
+<p><a class="reference external" href="https://shimi-lab-makeblenderscriptapp-app-vrendi.streamlit.app/">アプリはこちら</a></p>
+</section>
+<section id="matlanticgrrm">
+<h2>MatlanticGRRM ライブラリ<a class="headerlink" href="#matlanticgrrm" title="この見出しへのパーマリンク"></a></h2>
+<p><span class="strike">MatlanticGRRMの機能はGRRMPYに移行中</span> → 移行完了</p>
+<p><a class="reference external" href="https://kt19906.github.io/MatlanticGrrm/index.html">https://kt19906.github.io/MatlanticGrrm/index.html</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="algorithm.html" class="btn btn-neutral float-left" title="最短経路アルゴリズム" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="other.html" class="btn btn-neutral float-right" title="その他" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

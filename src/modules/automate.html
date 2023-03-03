@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automateモジュール &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="Visualizeモジュール" href="visualize.html" />
+    <link rel="prev" title="OPTモジュール" href="opt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io.html">I/O モジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimize.html">Optimizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neb.html">NEBモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">OPTモジュール</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Automateモジュール</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pinneb">PinNEB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.pin_neb.PinNEB"><code class="docutils literal notranslate"><span class="pre">PinNEB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#autopinneb">AutoPinNEB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.pin_neb.AutoPinNEB"><code class="docutils literal notranslate"><span class="pre">AutoPinNEB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#is-similar">is_similar</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#singlepath">SinglePath</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.by_neb.SinglePath"><code class="docutils literal notranslate"><span class="pre">SinglePath</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#autoopt">AutoOpt</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">基本的な使用方法</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">計算後のデータの取り出し方</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">細かな条件を設定する方法</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">続きから計算する場合</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#autoneb">AutoNEB</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.auto_neb.AutoNEB"><code class="docutils literal notranslate"><span class="pre">AutoNEB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#autovib">AutoVib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.auto_vib.AutoVib"><code class="docutils literal notranslate"><span class="pre">AutoVib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.automate.queue.Queue"><code class="docutils literal notranslate"><span class="pre">Queue</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visualize.html">Visualizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path.html">Pathモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometryモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conv.html">Convモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Networkモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blender.html">blenderモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html">コマンドライン</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">Automateモジュール</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/modules/automate.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-grrmpy.automate">
+<span id="automate"></span><h1>Automateモジュール<a class="headerlink" href="#module-grrmpy.automate" title="この見出しへのパーマリンク"></a></h1>
+<section id="pinneb">
+<h2>PinNEB<a class="headerlink" href="#pinneb" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.pin_neb.PinNEB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.pin_neb.</span></span><span class="sig-name descname"><span class="pre">PinNEB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mic=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_folder='EQ_List'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfolder='log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_folder='Images_List'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unconv_folder='unconv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_folder='TS_List'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errorfile='ERROR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_html='Path.html'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_dat='Path.dat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxjob=20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/pin_neb.html#PinNEB"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.pin_neb.PinNEB" title="この定義へのパーマリンク"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.pin_neb.PinNEB.get_param">
+<span class="sig-name descname"><span class="pre">get_param</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/pin_neb.html#PinNEB.get_param"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.pin_neb.PinNEB.get_param" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>separate_completely: bool</dt><dd><div class="line-block">
+<div class="line">通常のNEBで収束した時,エネルギーダイアグラム上に極小点があれば,極小点を最適化してNEB分割する.</div>
+</div>
+</dd>
+<dt>minenergy: float</dt><dd><div class="line-block">
+<div class="line">minenergy(kJ/mol)以下の活性化エネルギーの場合は極小点があっても無視する.</div>
+</div>
+</dd>
+<dt>barrier_less: float</dt><dd><div class="line-block">
+<div class="line">barrier_less(kJ/mol)以下の活性化エネルギーの場合,バリアレスとみなす．</div>
+</div>
+</dd>
+<dt>nimages: int or tuple</dt><dd><div class="line-block">
+<div class="line">intので指定した場合,指定した数のイメージ数で新たなNEBイメージを作成する.</div>
+<div class="line">tupleで指定する場合,3要素(a,b,c)のタプルを与える.</div>
+<div class="line">aÅ毎にイメージを作成する.最大でもb個,最低でもc個のイメージを作成する.</div>
+</div>
+</dd>
+<dt>isomorphism_func: function object</dt><dd><div class="line-block">
+<div class="line">同一構造判定を行なう関数,デフォルトではis_similarを用いる.</div>
+</div>
+</dd>
+<dt>rename_preneb_file: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合,pre_NEBファイルは消す</div>
+</div>
+</dd>
+<dt>preneb_optimizer: Optimizer</dt><dd><p>PreNEBのOptimizer</p>
+</dd>
+<dt>preneb_climb_list: list of bool</dt><dd><div class="line-block">
+<div class="line">climbのリスト</div>
+</div>
+</dd>
+<dt>preneb_maxstep_list: list of float</dt><dd><div class="line-block">
+<div class="line">maxstepのリスト</div>
+</div>
+</dd>
+<dt>preneb_automaxstep_climb_false:</dt><dd><div class="line-block">
+<div class="line">{1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35}</div>
+</div>
+</dd>
+<dt>preneb_automaxstep_climb_true: dict</dt><dd><p>{0.1:0.03,0:0.01}</p>
+</dd>
+<dt>preneb_fmax_list :list of float</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>preneb_steps_list: list of int</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>preneb_kwargs:</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>prenebopt_kwargs:</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>neb_optimizer: Optimizer</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>&quot;neb_climb_list&quot;: list of bool</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>neb_maxstep_list:</dt><dd><div class="line-block">
+<div class="line">[0.02,0.05,0.1,None,0.01,None],</div>
+</div>
+</dd>
+<dt>neb_automaxstep_climb_false:</dt><dd><div class="line-block">
+<div class="line">{1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35},</div>
+</div>
+</dd>
+<dt>neb_automaxstep_climb_true&quot;:</dt><dd><div class="line-block">
+<div class="line">{0.1:0.03,0:0.01},</div>
+</div>
+</dd>
+<dt>neb_fmax_list:</dt><dd><div class="line-block">
+<div class="line">[0.01,0.05,0.05,0.05,0.05,0.05],</div>
+</div>
+</dd>
+<dt>neb_steps_list:</dt><dd><div class="line-block">
+<div class="line">[100,200,200,2000,500,1500],</div>
+</div>
+</dd>
+<dt>neb_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>nebopt_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>opt_optimizer:</dt><dd><div class="line-block">
+<div class="line">DEFAULT_OPTIMIZER</div>
+</div>
+</dd>
+<dt>opt_maxstep_list:</dt><dd><div class="line-block">
+<div class="line">[0.02,0.05,0.1,0.2]</div>
+</div>
+</dd>
+<dt>opt_automaxstep:</dt><dd><div class="line-block">
+<div class="line">{1:0.1, 0.5:0.2, 0.1:0.3, 0.05:0.4, 0:0.5}</div>
+</div>
+</dd>
+<dt>opt_fmax_list:</dt><dd><div class="line-block">
+<div class="line">[0.001,0.001,0.001,0.001]</div>
+</div>
+</dd>
+<dt>opt_steps_list:</dt><dd><div class="line-block">
+<div class="line">[50,100,300,10000]</div>
+</div>
+</dd>
+<dt>opt_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>same_energy_and_fmax_arg:</dt><dd><div class="line-block">
+<div class="line">{&quot;times&quot;:10,&quot;row&quot;:2,&quot;force_digit&quot;:4,&quot;energy_digit&quot;:6},</div>
+</div>
+</dd>
+<dt>steep_peak_arg:</dt><dd><div class="line-block">
+<div class="line">{&quot;max_ea&quot;:800, &quot;nsteps&quot;:100}</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="autopinneb">
+<h2>AutoPinNEB<a class="headerlink" href="#autopinneb" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.pin_neb.AutoPinNEB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.pin_neb.</span></span><span class="sig-name descname"><span class="pre">AutoPinNEB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eq_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mic=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxjob=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq_folder='EQ_List'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_folder='TS_List'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_folder='Images'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unconv_folder='unconv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfolder='log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_file='ERROR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_file='AllPath.dat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/pin_neb.html#AutoPinNEB"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.pin_neb.AutoPinNEB" title="この定義へのパーマリンク"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.pin_neb.AutoPinNEB.get_param">
+<span class="sig-name descname"><span class="pre">get_param</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/pin_neb.html#AutoPinNEB.get_param"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.pin_neb.AutoPinNEB.get_param" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>separate_completely: bool</dt><dd><div class="line-block">
+<div class="line">通常のNEBで収束した時,エネルギーダイアグラム上に極小点があれば,極小点を最適化してNEB分割する.</div>
+</div>
+</dd>
+<dt>minenergy: float</dt><dd><div class="line-block">
+<div class="line">minenergy(kJ/mol)以下の活性化エネルギーの場合は極小点があっても無視する.</div>
+</div>
+</dd>
+<dt>barrier_less: float</dt><dd><div class="line-block">
+<div class="line">barrier_less(kJ/mol)以下の活性化エネルギーの場合,バリアレスとみなす．</div>
+</div>
+</dd>
+<dt>nimages: int or tuple</dt><dd><div class="line-block">
+<div class="line">intので指定した場合,指定した数のイメージ数で新たなNEBイメージを作成する.</div>
+<div class="line">tupleで指定する場合,3要素(a,b,c)のタプルを与える.</div>
+<div class="line">aÅ毎にイメージを作成する.最大でもb個,最低でもc個のイメージを作成する.</div>
+</div>
+</dd>
+<dt>isomorphism_func: function object</dt><dd><div class="line-block">
+<div class="line">同一構造判定を行なう関数,デフォルトではis_similarを用いる.</div>
+</div>
+</dd>
+<dt>rename_preneb_file: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合,pre_NEBファイルは消す</div>
+</div>
+</dd>
+<dt>preneb_optimizer: Optimizer</dt><dd><p>PreNEBのOptimizer</p>
+</dd>
+<dt>preneb_climb_list: list of bool</dt><dd><div class="line-block">
+<div class="line">climbのリスト</div>
+</div>
+</dd>
+<dt>preneb_maxstep_list: list of float</dt><dd><div class="line-block">
+<div class="line">maxstepのリスト</div>
+</div>
+</dd>
+<dt>preneb_automaxstep_climb_false:</dt><dd><div class="line-block">
+<div class="line">{1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35}</div>
+</div>
+</dd>
+<dt>preneb_automaxstep_climb_true: dict</dt><dd><p>{0.1:0.03,0:0.01}</p>
+</dd>
+<dt>preneb_fmax_list :list of float</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>preneb_steps_list: list of int</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>preneb_kwargs:</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>prenebopt_kwargs:</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>neb_optimizer: Optimizer</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>&quot;neb_climb_list&quot;: list of bool</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt>neb_maxstep_list:</dt><dd><div class="line-block">
+<div class="line">[0.02,0.05,0.1,None,0.01,None],</div>
+</div>
+</dd>
+<dt>neb_automaxstep_climb_false:</dt><dd><div class="line-block">
+<div class="line">{1:0.05, 0.5:0.1, 0.1:0.2, 0.05:0.3, 0:0.35},</div>
+</div>
+</dd>
+<dt>neb_automaxstep_climb_true&quot;:</dt><dd><div class="line-block">
+<div class="line">{0.1:0.03,0:0.01},</div>
+</div>
+</dd>
+<dt>neb_fmax_list:</dt><dd><div class="line-block">
+<div class="line">[0.01,0.05,0.05,0.05,0.05,0.05],</div>
+</div>
+</dd>
+<dt>neb_steps_list:</dt><dd><div class="line-block">
+<div class="line">[100,200,200,2000,500,1500],</div>
+</div>
+</dd>
+<dt>neb_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>nebopt_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>opt_optimizer:</dt><dd><div class="line-block">
+<div class="line">DEFAULT_OPTIMIZER</div>
+</div>
+</dd>
+<dt>opt_maxstep_list:</dt><dd><div class="line-block">
+<div class="line">[0.02,0.05,0.1,0.2]</div>
+</div>
+</dd>
+<dt>opt_automaxstep:</dt><dd><div class="line-block">
+<div class="line">{1:0.1, 0.5:0.2, 0.1:0.3, 0.05:0.4, 0:0.5}</div>
+</div>
+</dd>
+<dt>opt_fmax_list:</dt><dd><div class="line-block">
+<div class="line">[0.001,0.001,0.001,0.001]</div>
+</div>
+</dd>
+<dt>opt_steps_list:</dt><dd><div class="line-block">
+<div class="line">[50,100,300,10000]</div>
+</div>
+</dd>
+<dt>opt_kwargs:</dt><dd><div class="line-block">
+<div class="line">{}</div>
+</div>
+</dd>
+<dt>same_energy_and_fmax_arg:</dt><dd><div class="line-block">
+<div class="line">{&quot;times&quot;:10,&quot;row&quot;:2,&quot;force_digit&quot;:4,&quot;energy_digit&quot;:6},</div>
+</div>
+</dd>
+<dt>steep_peak_arg:</dt><dd><div class="line-block">
+<div class="line">{&quot;max_ea&quot;:800, &quot;nsteps&quot;:100}</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="is-similar">
+<h3>is_similar<a class="headerlink" href="#is-similar" title="この見出しへのパーマリンク"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.automate.pin_neb.is_similar">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.automate.pin_neb.</span></span><span class="sig-name descname"><span class="pre">is_similar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_dif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_dif</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/pin_neb.html#is_similar"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.pin_neb.is_similar" title="この定義へのパーマリンク"></a></dt>
+<dd><p>atoms1とatoms2を同一構造とみなすか(NEBでつなぐ必要はないか?)</p>
+<p>PinNEBの引数:isomorphism_funcのための関数</p>
+<p>基本的には結合状態が同じ且つ,エネルギー差がenergy_dif(kJ/mol)以下であれば同一構造とみなす.
+また,bond_dif[0] 本以下の結合状態の違いであり,その結合の差がbond_dif[1] Å以下の時も同一構造とする.</p>
+<p>Parameters:</p>
+<dl>
+<dt>atoms1: Atoms</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>atoms2: Atoms:</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>energy_dif: float</dt><dd><p>同じ結合状態かつ,エネルギー差がenergy_dif(kJ/mol)の時,同一構造とする</p>
+</dd>
+<dt>bond_dif: Tuple[int,flaot]</dt><dd><div class="line-block">
+<div class="line">1要素目は許容できる結合の差(結合本数)</div>
+<div class="line">2要素目は結合状態の異なる部分の許容できる結合距離の差(Å)</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="singlepath">
+<h2>SinglePath<a class="headerlink" href="#singlepath" title="この見出しへのパーマリンク"></a></h2>
+<p>SinglePathはSNEB( <a class="reference internal" href="neb.html#grrmpy.neb.auto_neb.SNEB" title="grrmpy.neb.auto_neb.SNEB"><code class="xref py py-class docutils literal notranslate"><span class="pre">grrmpy.neb.auto_neb.SNEB</span></code></a> ),振動数計算,IRC計算をiniとfinが繋がるまで繰り返す.</p>
+<a class="reference internal image-reference" href="../../_images/SinglePath.png"><img alt="../../_images/SinglePath.png" class="align-center" src="../../_images/SinglePath.png" style="width: 801.6px; height: 566.8000000000001px;" /></a>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.by_neb.SinglePath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.by_neb.</span></span><span class="sig-name descname"><span class="pre">SinglePath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mic:</span> <span class="pre">~typing.Optional[bool]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints=[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/by_neb.html#SinglePath"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.by_neb.SinglePath" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>*data:</dt><dd><div class="line-block">
+<div class="line">3種類の方法でinput構造を与えることができる.</div>
+</div>
+<dl>
+<dt>ini,fin構造と初めの中間イメージの数を与える(3つの引数を与える)</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span> <span class="c1"># 21個内部にイメージを作成</span>
+</pre></div>
+</div>
+</dd>
+<dt>ini,fin構造を与える(2つの引数を与える.初期イメージの数は13になる)</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+<dt>images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>Constraintsがある場合</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">FixAtoms</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">constraints</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">FixAtoms</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">FixBondLength</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="p">,</span><span class="n">c</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>imageの数は奇数個を推奨する.</p>
+</dd>
+<dt>indices: list</dt><dd><p>振動数計算を行なう時に動かす原子のindex番号のリスト</p>
+</dd>
+<dt>parallel: bool</dt><dd><p>並列計算を行なう場合True.</p>
+</dd>
+<dt>mic: bool</dt><dd><div class="line-block">
+<div class="line">最小イメージ規則を適用する場合True.</div>
+<div class="line">Noneの場合,周期境界条件で計算する場合自動でTrueにする.</div>
+<div class="line">デフォルトはTrue.</div>
+</div>
+</dd>
+<dt>calc_func: function object</dt><dd><p>calculatorを返す関数. デフォルトは <code class="docutils literal notranslate"><span class="pre">pfp_calculator</span></code></p>
+</dd>
+<dt>debug: bool</dt><dd><p>debug.logを出力する(デバック用)</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<div class="line-block">
+<div class="line">EQ_list.traj, TS_list.trajが既にディレクトリ中にある場合,上書きされてしまうので</div>
+<div class="line">1つフォルダ内で複数の計算を行なわないようにする!!!</div>
+</div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="grrmpy.automate.by_neb.SinglePath.default_param">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_param</span></span><a class="headerlink" href="#grrmpy.automate.by_neb.SinglePath.default_param" title="この定義へのパーマリンク"></a></dt>
+<dd><p>run()のデフォルトのパラメータを返す.</p>
+<p>General:</p>
+<dl>
+<dt>stopping_criterion: int</dt><dd><p>停止基準. SNEBの計算をstopping_criterion回行なうと停止する.</p>
+</dd>
+<dt>struct_check_threshold: list of float</dt><dd><div class="line-block">
+<div class="line">2つの構造が同一構造であるとみなす基準.</div>
+<div class="line">a,b,c,d,e,fの6つの要素を指定する.基準1,基準2のどちらかを満たしている時,同一構造とする.</div>
+<div class="line">基準1:</div>
+<div class="line">電子エネルギーの差, 原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ</div>
+<div class="line">a kJ/mol, b%, cÅ 以下の時, 同一構造であるとみなす</div>
+<div class="line">基準2:</div>
+<div class="line">エネルギーの差がd kJ/mol以下であり,indicesで指定した原子を重ね合わせた時,</div>
+<div class="line">(最小二乗法で重ねる)原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ,</div>
+<div class="line">e%, fÅ 以下の時, 同一構造であるとみなす.</div>
+</div>
+</dd>
+<dt>minimize_rotation_and_translation: boolean</dt><dd><div class="line-block">
+<div class="line">基準1で2つの構造の座標が近くなるように再配置して解析する場合Ture.</div>
+<div class="line">(最小二乗値が小さくなるよう再配置を行なう)</div>
+</div>
+</dd>
+</dl>
+<p>SNEB:</p>
+<dl>
+<dt>optimizer: Optimizer class</dt><dd><p>NEB計算に使用するOptimizerの種類</p>
+</dd>
+<dt>nimages: list of int</dt><dd><p>各NEB計算の中間イメージの数</p>
+</dd>
+<dt>maxstep: list of float</dt><dd><div class="line-block">
+<div class="line">各NEB計算でのmaxstep値のリスト</div>
+<div class="line">Noneの場合,forceに合わせて自動的にmaxstepsを変化させる.</div>
+</div>
+</dd>
+<dt>fmax: list of float</dt><dd><p>各NEB計算でのfmax値のリスト</p>
+</dd>
+<dt>steps: list of int</dt><dd><p>各NEB計算でのsteps値のリスト</p>
+</dd>
+<dt>tolerance: float</dt><dd><p>NEBバンド中のtolerance(kJ/mol)以下の谷間はEQとは考えないで計算する.</p>
+</dd>
+<dt>threshold: list of float</dt><dd><p>活性化エネルギーに対してthreshold%以下の点は削り新たなNEBイメージを作成して計算する</p>
+</dd>
+<dt>dist: float</dt><dd><div class="line-block">
+<div class="line">新たなNEBイメージを作成する際,TSの両隣に,TSからdistÅ離れた位置にイメージを作成する.</div>
+<div class="line">TS付近にイメージを密集させるために行なう.</div>
+</div>
+</dd>
+<dt>min_nimages: int</dt><dd><div class="line-block">
+<div class="line">新たなイメージを作成するにあたって,それまでのNEBを削ることになるが,</div>
+<div class="line">少なくともmin_nimages個は確保するようにする.</div>
+</div>
+</dd>
+<dt>with_stop: bool</dt><dd><div class="line-block">
+<div class="line">optimizerにstop機能を付ける場合True.</div>
+<div class="line">max_n回連続でEnergyとForceが同じ状況がtimes回あった時計算を終了する.</div>
+<div class="line">grrmpy.optimize.functions.add_stop_to()を参照</div>
+</div>
+</dd>
+<dt>max_n: int:</dt><dd><p>with_stop=Trueの場合に指定.
+with_stop(add_stop_to)の引数. デフォルト12</p>
+</dd>
+<dt>times: int</dt><dd><p>with_stop=Trueの場合に指定.
+with_stop(add_stop_to)の引数. デフォルト2</p>
+</dd>
+<dt>climb_steps: integer</dt><dd><div class="line-block">
+<div class="line">climb=Falseで収束しなかった場合,その後のTrueでのNEB計算のStep数をclimb_steps回にする.</div>
+<div class="line">Noneの場合,climb=Falseの時と同じstepsで計算する.</div>
+<div class="line">一番最後のNEB計算ではclimb_stepsに関係なくclimb=Falseの時と同じstepsで計算する.</div>
+</div>
+</dd>
+<dt>climb: bool</dt><dd><div class="line-block">
+<div class="line">Falseの場合,climbはFalse,False,False,False...Trueで行なう.</div>
+<div class="line">Trueの場合はclimbはFalse,True,Fase,True,False....Trueで行なう</div>
+<div class="line">Falseにした場合,climb_stepsを設定する意味はなくなる.</div>
+</div>
+</dd>
+</dl>
+<p>IRC:</p>
+<dl>
+<dt>optimizer1: Optimizer calss</dt><dd><p>振動数計算後のエネルギーダイアグラム解析の結果,TSがはっきり分かる場合に使用するOptimizer</p>
+</dd>
+<dt>optimizer2: Optimizer calss</dt><dd><p>振動数計算後のエネルギーダイアグラム解析の結果,TSがはっきり見えない場合に使用するOptimizer</p>
+</dd>
+<dt>maxsteps:float or None</dt><dd><div class="line-block">
+<div class="line">maxsteps値. maxstepsの値を大きく設定したとしても,始めの200回はmaxstep=0.03で計算する.</div>
+<div class="line">Noneを指定した場合,forceに合わせて自動的にmaxstepを調整する.</div>
+</div>
+</dd>
+<dt>dif: float</dt><dd><div class="line-block">
+<div class="line">振動数計算後のエネルギーダイアグラム解析の結果,</div>
+<div class="line">TS(極大値)と谷間(極小値)の差が,dif(kJ/mol)以下の時,optimizer2を使って計算する.</div>
+</div>
+</dd>
+<dt>calc_notop_ts: boolean</dt><dd><div class="line-block">
+<div class="line">振動数計算後のエネルギーダイアグラム解析の結果,TSがない(極大値がない)時,</div>
+<div class="line">IRC計算を行なわないならFalse.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.by_neb.SinglePath.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/by_neb.html#SinglePath.run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.by_neb.SinglePath.run" title="この定義へのパーマリンク"></a></dt>
+<dd><p>計算を実行する</p>
+<p>Parameters:</p>
+<dl>
+<dt>param: dict</dt><dd><div class="line-block">
+<div class="line">種々のパラメータは辞書で与える</div>
+<div class="line">デフォルトの値はget_param()で取得できる</div>
+</div>
+</dd>
+</dl>
+<p>Example:</p>
+<p>IRCのoptimizer1をBFGS変えたい時</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span> <span class="o">=</span> <span class="n">SinglePath</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">default_param</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;optimizer1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BFGS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="autoopt">
+<h2>AutoOpt<a class="headerlink" href="#autoopt" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">複数の構造の最適化を連続的に行うことができる.</div>
+<div class="line">計算中のlogファイル, 最適化後の構造はそれぞれ, log, Structureフォルダに保存される.</div>
+<div class="line">計算中にエラーが発生した場合はERROR_XXX.txtが作成され,エラーメッセージを確認することができる.</div>
+</div>
+<section id="id1">
+<h3>基本的な使用方法<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">log2atoms</span>
+<span class="kn">from</span> <span class="nn">grrmpy.automate</span> <span class="kn">import</span> <span class="n">AutoOpt</span>
+<span class="kn">from</span> <span class="nn">grrmpy.optimize</span> <span class="kn">import</span> <span class="n">FIRELBFGS</span>
+
+<span class="n">eq_list</span> <span class="o">=</span> <span class="n">log2atoms</span><span class="p">(</span><span class="s2">&quot;XXX_EQ_list.log&quot;</span><span class="p">,</span><span class="s2">&quot;XXX.com&quot;</span><span class="p">,</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">AutoOpt</span><span class="p">(</span><span class="n">eq_list</span><span class="p">,</span><span class="n">optimizer</span><span class="o">=</span><span class="n">FIRELBFGS</span><span class="p">)</span>
+<span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>計算後のデータの取り出し方<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<p>計算後にはStructuresフォルダに最適化後の構造が保存されるので</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">read_traj</span>
+
+<span class="n">opted_eq_list</span> <span class="o">=</span> <span class="n">read_traj</span><span class="p">(</span><span class="s2">&quot;Structures&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>で構造を取り出せる.</p>
+</section>
+<section id="id3">
+<h3>細かな条件を設定する方法<a class="headerlink" href="#id3" title="この見出しへのパーマリンク"></a></h3>
+<p>細かい計算条件は <cite>run</cite> の引数で設定する.
+(maxstep=0.02,steps=200)→(maxstep=0.05,steps=500)→(maxstep=0.2,steps=1000)の条件で計算する場合.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">maxstep_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.02</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span><span class="n">steps_list</span><span class="o">=</span><span class="p">[</span><span class="mi">200</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">10000</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><cite>maxstep_list</cite> と <cite>steps_list</cite> の要素数が一致していないとエラーになるので注意する</p>
+</section>
+<section id="id4">
+<h3>続きから計算する場合<a class="headerlink" href="#id4" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">XXX_EQ_list.logが更新されて,新たに追加された構造のみを計算したい場合,run()の引数のrestartを指定すればよい</div>
+<div class="line">例えば,EQ16まで既に計算していた場合</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">restart</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span> <span class="c1"># EQ17から計算を開始する</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_opt.AutoOpt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.auto_opt.</span></span><span class="sig-name descname"><span class="pre">AutoOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomslist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer=&lt;class</span> <span class="pre">'ase.optimize.lbfgs.LBFGS'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errorfile='ERROR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">traj_foldername='trajectory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_foldername='log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_foldername='Structures'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_opt.html#AutoOpt"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_opt.AutoOpt" title="この定義へのパーマリンク"></a></dt>
+<dd><p>最適化後の構造は'Structure'フォルダ内にtrajファイルで保存される.</p>
+<p>計算後の構造を一括で読み込むには</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="nn">read_traj</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms_list</span> <span class="o">=</span> <span class="n">read_traj</span><span class="p">(</span><span class="s1">&#39;Structure&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<dl>
+<dt>atomslist: list of Atoms</dt><dd><p>Atomsのリスト</p>
+</dd>
+<dt>optimizer: object</dt><dd><p>使用するOptimizer.デフォルトはLBFGS.</p>
+</dd>
+<dt>constraints: ASE constraint</dt><dd><div class="line-block">
+<div class="line">FixAtoms等の制約.</div>
+<div class="line">複数設定する場合はリストで与える.</div>
+<div class="line">eq_list中のAtomsに既にconstraintがある場合,改めて設定する必要はない.</div>
+</div>
+</dd>
+<dt>trajectory: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合,最適化途中の構造をtrajに保存する.</div>
+<div class="line">'trajectory'フォルダー内に保存される.</div>
+</div>
+</dd>
+<dt>logfile: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合, logファイルを保存する.</div>
+<div class="line">'log'フォルダー内に保存される.</div>
+</div>
+</dd>
+<dt>calc_func: object</dt><dd><p>calculatorを返す関数</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_opt.AutoOpt.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxstep_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.05,</span> <span class="pre">0.2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[200,</span> <span class="pre">10000]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_opt.html#AutoOpt.run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_opt.AutoOpt.run" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>maxstep_list: float or list of float</dt><dd><div class="line-block">
+<div class="line">maxstep.</div>
+<div class="line">optimizeをFIRELBFGSにした場合,maxstep_fire,maxstep_lbfgsどちらもmaxstepで指定した値になる.</div>
+</div>
+</dd>
+<dt>steps_list: int or list of int</dt><dd><p>steps</p>
+</dd>
+<dt>fmax: float</dt><dd><p>収束条件</p>
+</dd>
+<dt>indexes: list of int</dt><dd><div class="line-block">
+<div class="line">index番号で指定した構造のみを計算する</div>
+<div class="line">indexesとrestartは同時に指定できない.</div>
+</div>
+</dd>
+<dt>restart: int</dt><dd><div class="line-block">
+<div class="line">指定した番号から計算を開始する.</div>
+<div class="line">indexesとrestartは同時に指定できない.</div>
+</div>
+</dd>
+<dt>kwargs:</dt><dd><p>その他,optimizer(LBFGSなど)ののインスタンス引数を指定できる.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_opt.AutoOpt.set_automaxstep">
+<span class="sig-name descname"><span class="pre">set_automaxstep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxstep_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_opt.html#AutoOpt.set_automaxstep"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_opt.AutoOpt.set_automaxstep" title="この定義へのパーマリンク"></a></dt>
+<dd><p>auto_maxstepsを用いる場合のパラメータを変更する</p>
+<p class="rubric">サンプル</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_automaxstep</span><span class="p">({</span><span class="mi">10</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mf">0.35</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>必ず0のキーを含める必要があるので注意する.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="autoneb">
+<h2>AutoNEB<a class="headerlink" href="#autoneb" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.auto_neb.</span></span><span class="sig-name descname"><span class="pre">AutoNEB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eq_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mic=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefolder='Structures'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unconvergedfolder='unconv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfolder='log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">htmlfolder='html'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errorfile='ERROR'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB" title="この定義へのパーマリンク"></a></dt>
+<dd><p>連続的にNEB計算を行なう</p>
+<div class="line-block">
+<div class="line">attach(),attach_stop(),update(),next_i()に関数を与える事ができる.</div>
+<div class="line">attach()とattach_stop()はイタレーション毎に実行される.</div>
+<div class="line">update()はNEB計算が終了する毎に実行される.</div>
+<div class="line">next_i()は1サンプルの計算を終える毎に実行される.</div>
+</div>
+<div class="line-block">
+<div class="line">STOP.txtファイルをディレクトリ中に設置すると計算を一時停止,またはスキップできる.</div>
+<div class="line">STOP.txtの中に</div>
+<div class="line">STOP = TUREとすると,計算が一時停止される.</div>
+<div class="line">SKIP = TRUEとすると現在実行中サンプルの計算が中止される.</div>
+</div>
+<div class="line-block">
+<div class="line">STOP.txtで停止を行なうとRESTART.txtが作成される.</div>
+<div class="line">ディレクトリ中にRESTART.txtが存在する場合,途中から再開する.</div>
+</div>
+<p>Parameters:</p>
+<dl>
+<dt>eq_list: list of Atoms</dt><dd><div class="line-block">
+<div class="line">EQのリスト(Atoms)</div>
+</div>
+</dd>
+<dt>connections:</dt><dd><div class="line-block">
+<div class="line">CONNECTiONS情報</div>
+<div class="line">Ex) [[0,1],[2,4],[3,5],...]</div>
+</div>
+</dd>
+<dt>constraints: Constraintオブジェクト</dt><dd><div class="line-block">
+<div class="line">FixAtomsなどの制約.</div>
+</div>
+</dd>
+<dt>parallel: bool</dt><dd><div class="line-block">
+<div class="line">NEBで並列計算を行なう場合True.</div>
+</div>
+</dd>
+<dt>mic: bool</dt><dd><div class="line-block">
+<div class="line">最小イメージ規則を適用する場合,True.</div>
+<div class="line">デフォルトでは周期境界条件で計算する場合自動でTrueにする.</div>
+</div>
+</dd>
+<dt>calc_func: function object</dt><dd><div class="line-block">
+<div class="line">calculatorを返す関数</div>
+</div>
+</dd>
+<dt>savefolder: str</dt><dd><div class="line-block">
+<div class="line">収束した構造を保存するためのフォルダ</div>
+</div>
+</dd>
+<dt>unconvergedfolder: str</dt><dd><div class="line-block">
+<div class="line">収束しなかった構造を保存するためのフォルダ</div>
+</div>
+</dd>
+<dt>logfolder: str</dt><dd><div class="line-block">
+<div class="line">logファイルを格納するフォルダ</div>
+</div>
+</dd>
+<dt>htmlfolder:</dt><dd><div class="line-block">
+<div class="line">エネルギーダイアグラムのhtmlを保存するためのフォルダ</div>
+</div>
+</dd>
+<dt>errorfile:</dt><dd><div class="line-block">
+<div class="line">ERRORファイルのパス</div>
+<div class="line">計算中にエラーが発生した場合,ERRORファイルに書き込まれる.</div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.attach">
+<span class="sig-name descname"><span class="pre">attach</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB.attach"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.attach" title="この定義へのパーマリンク"></a></dt>
+<dd><div class="line-block">
+<div class="line">ASEのOptimizerのattachと同じ.</div>
+<div class="line">イタレーション毎にattachで与えた関数が実行される.</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.attach_stop">
+<span class="sig-name descname"><span class="pre">attach_stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB.attach_stop"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.attach_stop" title="この定義へのパーマリンク"></a></dt>
+<dd><div class="line-block">
+<div class="line">grrmpy.optimize.optimizer.OptWithCondのattach_stopと同じ</div>
+<div class="line">True,Falseを返す関数を設定する.</div>
+<div class="line">イタレーション毎に関数が実行されTrueを返した時に計算が停止する</div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.default_param">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_param</span></span><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.default_param" title="この定義へのパーマリンク"></a></dt>
+<dd><p>run()の際に使用されるデフォルトの引数.</p>
+<p>climb_list,maxstep_list,fmax_list,steps_listの要素数は一致している必要がある.</p>
+<dl>
+<dt>base_optimizer: Optimizer</dt><dd><div class="line-block">
+<div class="line">NEB計算に使用するOptimizer.</div>
+<div class="line">ここで指定したOptimizerを継承して作成されるOptWithCondオプティマイザーが実際には使用される.</div>
+</div>
+</dd>
+<dt>climb_list: list of bool</dt><dd><p>毎回のNEB計算のclib</p>
+</dd>
+<dt>maxstep_list: list of float</dt><dd><div class="line-block">
+<div class="line">毎回のNEB計算のmaxstep_list</div>
+<div class="line">要素にNoneを指定した場合,forceに合わせて自動でmaxstepを変化させる.</div>
+<div class="line">どのように変化させるかはautomate_maxstep_true,automate_maxstep_falseで指定できる.</div>
+</div>
+</dd>
+<dt>fmax_list: list of float</dt><dd><div class="line-block">
+<div class="line">毎回のNEB計算のfmax</div>
+</div>
+</dd>
+<dt>steps_list: list of int</dt><dd><div class="line-block">
+<div class="line">毎回のNEB計算のsteps</div>
+</div>
+</dd>
+<dt>neb_kwargs: dict</dt><dd><div class="line-block">
+<div class="line">NEBのインスタンス時の引数を指定したい場合に用いる</div>
+<div class="line">例えばばね定数kを変えたい場合{&quot;k&quot;=0.2}のようにする</div>
+<div class="line">ここで指定した値は全てのNEB計算に適用される</div>
+</div>
+</dd>
+<dt>opt_kwargs: dict</dt><dd><div class="line-block">
+<div class="line">Optimizerのインスタンス引数を指定したい場合に用いる.</div>
+</div>
+</dd>
+<dt>automate_maxstep_true: dict</dt><dd><div class="line-block">
+<div class="line">climb=True時にautomaxstepを使用した際のmaxstep値</div>
+</div>
+</dd>
+<dt>automate_maxstep_false: dict</dt><dd><div class="line-block">
+<div class="line">climb=False時にautomaxstepを使用した際のmaxstep値</div>
+</div>
+</dd>
+<dt>same_energy_and_fmax_arg: dict</dt><dd><div class="line-block">
+<div class="line">停止基準</div>
+</div>
+</dd>
+<dt>steep_peak_arg:</dt><dd><div class="line-block">
+<div class="line">停止基準</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.next_i">
+<span class="sig-name descname"><span class="pre">next_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB.next_i"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.next_i" title="この定義へのパーマリンク"></a></dt>
+<dd><p>1サンプル計算が終える度に実行される関数を与えられる.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nimages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB.run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.run" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl class="simple">
+<dt>nimages: int or list of int</dt><dd><p>NEBのイメージの数. listで指定した場合はサンプル毎に違うイメージ数でNEB計算できる.</p>
+</dd>
+</dl>
+<p>その他の引数はdefault_paramで確認する</p>
+<p class="rubric">サンプル</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">auto_neb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="n">steps_list</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1500</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>以下のコードでも同じ処理を行なえる</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param</span> <span class="o">=</span> <span class="n">auto_neb</span><span class="o">.</span><span class="n">default_param</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;steps_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1500</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">auto_neb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="o">**</span><span class="n">param</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>途中から計算を再開するには</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">auto_neb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="n">restart</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># NEB8から計算を開始する</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_neb.AutoNEB.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_neb.html#AutoNEB.update"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_neb.AutoNEB.update" title="この定義へのパーマリンク"></a></dt>
+<dd><div class="line-block">
+<div class="line">grrmpy.neb.repetitive_neb.RepetitiveNEBのuodateと同じ</div>
+<div class="line">updateに関数を与えると,NEBの計算が終わるごとに実行される</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="autovib">
+<h2>AutoVib<a class="headerlink" href="#autovib" title="この見出しへのパーマリンク"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.automate</span> <span class="kn">import</span> <span class="n">AutoVib</span>
+
+<span class="n">vib</span> <span class="o">=</span> <span class="n">AutoVib</span><span class="p">(</span><span class="n">ts_list</span><span class="p">)</span>
+<span class="n">vib</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">vib</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span> <span class="c1"># Summary.htmlに振動数の表を出力</span>
+<span class="n">vib</span><span class="o">.</span><span class="n">write_mode</span><span class="p">()</span> <span class="c1"># vibフォルダ内に虚数振動のtrajファイルが作成される</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_vib.AutoVib">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.auto_vib.</span></span><span class="sig-name descname"><span class="pre">AutoVib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name='vib'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_vib.html#AutoVib"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_vib.AutoVib" title="この定義へのパーマリンク"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_vib.AutoVib.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_vib.html#AutoVib.run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_vib.AutoVib.run" title="この定義へのパーマリンク"></a></dt>
+<dd><p>計算実行</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_vib.AutoVib.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Summary.html'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_vib.html#AutoVib.summary"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_vib.AutoVib.summary" title="この定義へのパーマリンク"></a></dt>
+<dd><p>振動数の表をhtmlへ出力する</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>html:str</dt><dd><p>出力先のhtml</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.automate.auto_vib.AutoVib.write_mode">
+<span class="sig-name descname"><span class="pre">write_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/auto_vib.html#AutoVib.write_mode"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.auto_vib.AutoVib.write_mode" title="この定義へのパーマリンク"></a></dt>
+<dd><p>虚振動モードのtrajファイルを作成する</p>
+<p>Parameters:</p>
+<dl>
+<dt>i: int</dt><dd><div class="line-block">
+<div class="line">TS{i}の虚振動の振動モードでtrajファイルを作成する</div>
+<div class="line">Noneを指定した場合,全てのTSの虚振動のtrajが作成される</div>
+<div class="line">虚振動が確認できなかったTSのtrajファイルは作成されない</div>
+</div>
+</dd>
+<dt>forlder:str</dt><dd><div class="line-block">
+<div class="line">指定したフォルダ内にtrajファイルが作成される</div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>事前にsummary()を実行しておく必要がある.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vib</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vib</span><span class="o">.</span><span class="n">write_mode</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>虚振動以外のモードを出力したい時,例えばTS5のmode=8の振動のtrajを作成する場合は</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vib</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">write_mode</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.automate.queue.Queue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.automate.queue.</span></span><span class="sig-name descname"><span class="pre">Queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxjob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/automate/queue.html#Queue"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.automate.queue.Queue" title="この定義へのパーマリンク"></a></dt>
+<dd><p>executorにクラスを指定して使用する.
+executorのクラスはrun()メソッドを必ず有する必要がある.
+さらにSTOP.txtで処理を停止し,途中再開できるようにするにはtodict()とfromdictのクラスメソッドを有する必要がある.</p>
+<p>Parameters:</p>
+<dl>
+<dt>executor:</dt><dd><div class="line-block">
+<div class="line">計算実行クラスオブジェクト</div>
+</div>
+</dd>
+<dt>priority: int</dt><dd><div class="line-block">
+<div class="line">queueはタプルのリストであるが,階層の情報をリストの何番目に追加するかを指定する.</div>
+<div class="line">priority=0の場合,階層の浅さが全てに優先されるため,幅優先になる</div>
+<div class="line">priority&gt;0の時,深さ優先になる.</div>
+</div>
+</dd>
+<dt>maxjob: int</dt><dd><div class="line-block">
+<div class="line">maxjob回の計算を実行したら自動で計算を停止する.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="opt.html" class="btn btn-neutral float-left" title="OPTモジュール" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="visualize.html" class="btn btn-neutral float-right" title="Visualizeモジュール" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

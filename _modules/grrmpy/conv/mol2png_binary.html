@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.conv.mol2png_binary &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.conv.mol2png_binary</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.conv.mol2png_binary のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">rdkit.Chem.Draw</span> <span class="kn">import</span> <span class="n">rdMolDraw2D</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">rdBase</span>
+
+<div class="viewcode-block" id="mol2png_binary"><a class="viewcode-back" href="../../../src/modules/conv.html#grrmpy.conv.mol2png_binary.mol2png_binary">[ドキュメント]</a><span class="k">def</span> <span class="nf">mol2png_binary</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span><span class="mi">250</span><span class="p">),</span> <span class="n">kekulize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wedgeBonds</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;molオブジェクトをpngのbynaryデータに変換しutf-8でエンコードした状態で返す</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    mol : Mol</span>
+<span class="sd">        Molオブジェクト</span>
+<span class="sd">    size : tuple</span>
+<span class="sd">        画像のサイズ</span>
+<span class="sd">        </span>
+<span class="sd">    Retrun:</span>
+<span class="sd">        str: バイナリデータをutf-8に変換したもの</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_moltoimg</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;highlightAtoms&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;legend&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                <span class="n">highlightBonds</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;highlightBonds&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">drawOptions</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="n">kekulize</span><span class="o">=</span><span class="n">kekulize</span><span class="p">,</span> <span class="n">wedgeBonds</span><span class="o">=</span><span class="n">wedgeBonds</span><span class="p">,</span> <span class="n">returnPNG</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_okToKekulizeMol</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">kekulize</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">kekulize</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetIsAromatic</span><span class="p">()</span> <span class="ow">and</span> <span class="n">bond</span><span class="o">.</span><span class="n">HasQuery</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">kekulize</span>
+
+<span class="k">def</span> <span class="nf">_moltoimg</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">highlights</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">returnPNG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drawOptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">rdBase</span><span class="o">.</span><span class="n">BlockLogs</span><span class="p">():</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">GetExplicitValence</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">UpdatePropertyCache</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">kekulize</span> <span class="o">=</span> <span class="n">_okToKekulizeMol</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;kekulize&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="n">wedge</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wedgeBonds&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">rdBase</span><span class="o">.</span><span class="n">BlockLogs</span><span class="p">():</span>
+            <span class="n">mc</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">PrepareMolForDrawing</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">kekulize</span><span class="o">=</span><span class="n">kekulize</span><span class="p">,</span> <span class="n">wedgeBonds</span><span class="o">=</span><span class="n">wedge</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># &lt;- can happen on a kekulization failure</span>
+        <span class="n">mc</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">PrepareMolForDrawing</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">kekulize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wedgeBonds</span><span class="o">=</span><span class="n">wedge</span><span class="p">)</span>
+
+    <span class="n">d2d</span> <span class="o">=</span> <span class="n">rdMolDraw2D</span><span class="o">.</span><span class="n">MolDraw2DCairo</span><span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">drawOptions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">d2d</span><span class="o">.</span><span class="n">SetDrawOptions</span><span class="p">(</span><span class="n">drawOptions</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;highlightColor&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;highlightColor&#39;</span><span class="p">]:</span>
+        <span class="n">d2d</span><span class="o">.</span><span class="n">drawOptions</span><span class="p">()</span><span class="o">.</span><span class="n">setHighlightColour</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;highlightColor&#39;</span><span class="p">])</span>
+    <span class="c1"># we already prepared the molecule:</span>
+    <span class="n">d2d</span><span class="o">.</span><span class="n">drawOptions</span><span class="p">()</span><span class="o">.</span><span class="n">prepareMolsBeforeDrawing</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">bondHighlights</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;highlightBonds&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bondHighlights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">d2d</span><span class="o">.</span><span class="n">DrawMolecule</span><span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">highlightAtoms</span><span class="o">=</span><span class="n">highlights</span> <span class="ow">or</span> <span class="p">[],</span>
+                    <span class="n">highlightBonds</span><span class="o">=</span><span class="n">bondHighlights</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d2d</span><span class="o">.</span><span class="n">DrawMolecule</span><span class="p">(</span><span class="n">mc</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="n">legend</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">highlightAtoms</span><span class="o">=</span><span class="n">highlights</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">d2d</span><span class="o">.</span><span class="n">FinishDrawing</span><span class="p">()</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">d2d</span><span class="o">.</span><span class="n">GetDrawingText</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">img</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

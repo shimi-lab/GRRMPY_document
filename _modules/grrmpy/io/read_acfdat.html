@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.io.read_acfdat &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.io.read_acfdat</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.io.read_acfdat のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">Bohr</span>
+
+<span class="c1"># User</span>
+<span class="kn">from</span> <span class="nn">grrmpy.data</span> <span class="kn">import</span> <span class="n">zval</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">基本はase.io.dader.pyはBaderChargeの計算方法に誤りがある(Daderのバージョンの問題が原因??)ので,</span>
+<span class="sd">修正したコードを書く.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="read_acf"><a class="viewcode-back" href="../../../src/modules/io.html#grrmpy.io.read_acfdat.read_acf">[ドキュメント]</a><span class="k">def</span> <span class="nf">read_acf</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;ACF.dat&quot;</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    ACF.datファイルの中身をDataFrameにして返す.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    fileobj: Union[str, Path]</span>
+<span class="sd">        ACF.dataファイルパス</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.DataFrame: ACF.datのデータフレーム</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">firstline</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">firstline</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s1">&#39;CHARGE&#39;</span><span class="p">,</span> <span class="s1">&#39;MIN&#39;</span><span class="p">,</span> <span class="s1">&#39;DIST&#39;</span><span class="p">,</span> <span class="s1">&#39;ATOMIC&#39;</span><span class="p">,</span> <span class="s1">&#39;VOL&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;ACF.datの形式が異なるため解析できませんでした&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">skipfooter</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">,</span><span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#&quot;</span><span class="p">,</span><span class="s2">&quot;X&quot;</span><span class="p">,</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span><span class="s2">&quot;CHARGE&quot;</span><span class="p">,</span><span class="s2">&quot;MIN DIST&quot;</span><span class="p">,</span><span class="s2">&quot;ATOMIC VOL&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="get_dader"><a class="viewcode-back" href="../../../src/modules/io.html#grrmpy.io.read_acfdat.get_dader">[ドキュメント]</a><span class="k">def</span> <span class="nf">get_dader</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span><span class="n">Atoms</span><span class="p">,</span><span class="n">file</span><span class="o">=</span><span class="s2">&quot;ACF.dat&quot;</span><span class="p">,</span><span class="n">displacement</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    | ACF.datファイルからBaderChargeを計算する.</span>
+<span class="sd">    | BaderCharge = ZVAL - Charge(ACF.dat内に記載の)</span>
+<span class="sd">    | で計算される.</span>
+<span class="sd">    </span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    atoms: Atoms</span>
+<span class="sd">        Atomsオブジェクト</span>
+<span class="sd">    file: Union[str, Path, DataFrame]</span>
+<span class="sd">        ACF.dataファイルパス, DataFrame.</span>
+<span class="sd">    displacement: float</span>
+<span class="sd">        原子の順番がACF.datとAtomsとで同じか検証するため.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: BaderChargeのリスト</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">file</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">read_acf</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    
+    <span class="c1">#  原子の順番がACF.datとAtomsとで同じか検証</span>
+    <span class="k">if</span> <span class="n">displacement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># check if the atom positions match</span>
+        <span class="k">for</span> <span class="n">atom</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">])</span>
+            <span class="c1"># ACF.dat units could be Bohr or Angstrom</span>
+            <span class="n">norm1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="n">xyz</span><span class="p">)</span>
+            <span class="n">norm2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">position</span> <span class="o">-</span> <span class="n">xyz</span> <span class="o">*</span> <span class="n">Bohr</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">norm1</span> <span class="o">&lt;</span> <span class="n">displacement</span> <span class="ow">or</span> <span class="n">norm2</span> <span class="o">&lt;</span> <span class="n">displacement</span>
+    
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">zval</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">number</span><span class="p">]</span><span class="o">-</span><span class="n">charge</span> <span class="k">for</span> <span class="n">atom</span><span class="p">,</span> <span class="n">charge</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CHARGE&quot;</span><span class="p">])])</span></div>
+        
+    
+
+
+<span class="c1"># def attach_charges(atoms, fileobj=&#39;ACF.dat&#39;, displacement=1e-4):</span>
+<span class="c1">#     if isinstance(fileobj, str):</span>
+<span class="c1">#         with open(fileobj) as fd:</span>
+<span class="c1">#             lines = fd.readlines()</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         lines = fileobj</span>
+
+<span class="c1">#     sep = &#39;---------------&#39;</span>
+<span class="c1">#     i = 0  # Counter for the lines</span>
+<span class="c1">#     k = 0  # Counter of sep</span>
+<span class="c1">#     assume6columns = False</span>
+<span class="c1">#     for line in lines:</span>
+<span class="c1">#         if line[0] == &#39;\n&#39;:  # check if there is an empty line in the</span>
+<span class="c1">#             i -= 1           # head of ACF.dat file</span>
+<span class="c1">#         if i == 0:</span>
+<span class="c1">#             headings = line</span>
+<span class="c1">#             if &#39;BADER&#39; in headings.split():</span>
+<span class="c1">#                 j = headings.split().index(&#39;BADER&#39;)</span>
+<span class="c1">#             elif &#39;CHARGE&#39; in headings.split():</span>
+<span class="c1">#                 j = headings.split().index(&#39;CHARGE&#39;)</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 print(&#39;Can\&#39;t find keyword &quot;BADER&quot; or &quot;CHARGE&quot;.&#39;</span>
+<span class="c1">#                       &#39; Assuming the ACF.dat file has 6 columns.&#39;)</span>
+<span class="c1">#                 j = 4</span>
+<span class="c1">#                 assume6columns = True</span>
+<span class="c1">#         if sep in line:  # Stop at last separator line</span>
+<span class="c1">#             if k == 1:</span>
+<span class="c1">#                 break</span>
+<span class="c1">#             k += 1</span>
+<span class="c1">#         if not i &gt; 1:</span>
+<span class="c1">#             pass</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             words = line.split()</span>
+<span class="c1">#             if assume6columns is True:</span>
+<span class="c1">#                 if len(words) != 6:</span>
+<span class="c1">#                     raise IOError(&#39;Number of columns in ACF file incorrect!\n&#39;</span>
+<span class="c1">#                                   &#39;Check that Bader program version &gt;= 0.25&#39;)</span>
+
+<span class="c1">#             atom = atoms[int(words[0]) - 1]</span>
+<span class="c1">#             atom.charge = atomic_numbers[atom.symbol] - float(words[j])</span>
+<span class="c1">#             if displacement is not None:  # check if the atom positions match</span>
+<span class="c1">#                 xyz = np.array([float(w) for w in words[1:4]])</span>
+<span class="c1">#                 # ACF.dat units could be Bohr or Angstrom</span>
+<span class="c1">#                 norm1 = np.linalg.norm(atom.position - xyz)</span>
+<span class="c1">#                 norm2 = np.linalg.norm(atom.position - xyz * Bohr)</span>
+<span class="c1">#                 assert norm1 &lt; displacement or norm2 &lt; displacement</span>
+<span class="c1">#         i += 1</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

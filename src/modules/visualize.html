@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizeモジュール &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="Pathモジュール" href="path.html" />
+    <link rel="prev" title="Automateモジュール" href="automate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io.html">I/O モジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimize.html">Optimizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neb.html">NEBモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">OPTモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automate.html">Automateモジュール</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Visualizeモジュール</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#view">View</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.visualize.custum_viewer.View"><code class="docutils literal notranslate"><span class="pre">View</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">view</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.visualize.by_ase.view"><code class="docutils literal notranslate"><span class="pre">view()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#view-images">view_images</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.visualize.by_ase.view_images"><code class="docutils literal notranslate"><span class="pre">view_images()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#view-with-index">view_with_index</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.visualize.by_nglview.view_with_index"><code class="docutils literal notranslate"><span class="pre">view_with_index()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#view-with-coordinate">view_with_coordinate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.visualize.by_nglview.view_with_coordinate"><code class="docutils literal notranslate"><span class="pre">view_with_coordinate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="path.html">Pathモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometryモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conv.html">Convモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Networkモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blender.html">blenderモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html">コマンドライン</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">Visualizeモジュール</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/modules/visualize.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-grrmpy.visualize">
+<span id="visualize"></span><h1>Visualizeモジュール<a class="headerlink" href="#module-grrmpy.visualize" title="この見出しへのパーマリンク"></a></h1>
+<section id="view">
+<h2>View<a class="headerlink" href="#view" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">Forceのベクトル表示や電荷の色分けなどを行なえる.</div>
+<div class="line">電荷またはindex番号のラベルを貼ることができる.</div>
+<div class="line">原子にカーソルを合わせると,index番号と座標が表示される.</div>
+<div class="line">&quot;現在の構造のみ保存&quot;にチェックを入れた場合, 表示中の構造のみを保存する.</div>
+<div class="line">チェックを外すと，複数の構造を表示している場合は全ての構造を保存する
+(.traj, .html, .xyzなど複数の構造を保存できる形式に限る).</div>
+<div class="line"><br /></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.visualize</span> <span class="kn">import</span> <span class="n">View</span>
+<span class="kn">from</span> <span class="nn">grrmpy</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span>
+
+<span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iread</span><span class="p">(</span><span class="s2">&quot;images.traj&quot;</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">pfp_calculator</span>
+
+<span class="n">View</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/visualize.png"><img alt="../../_images/visualize.png" class="align-center" src="../../_images/visualize.png" style="width: 661.1999999999999px; height: 374.4px;" /></a>
+<div class="line-block">
+<div class="line">スタイルの色からいくつかの色を選択することができる</div>
+<div class="line">色の定義ファイルはライブラリの根本にある <cite>default_color.ini</cite> <cite>vesta_color.ini</cite> <cite>jmol_color,csv</cite> .</div>
+<div class="line">Viewクラスはnglviewライブラリを用いて作成している. nglviewのデフォルトの色の設定はelementであり,その他のdefaut,vesta,jmolの色は
+grrmpy用に作成したものであり, <strong>不具合によって稀に色が反映できず原子が全て黒く着色される</strong> 場合がある.(原因はわからない)</div>
+<div class="line"><strong>その場合はelenetを選択</strong> する(elementはそのような不具合が起きない). もしくはカーネルを再起動すると直る.</div>
+</div>
+<a class="reference internal image-reference" href="../../_images/color.png"><img alt="../../_images/color.png" class="align-center" src="../../_images/color.png" style="width: 610.8px; height: 240.29999999999998px;" /></a>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.visualize.custum_viewer.View">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.visualize.custum_viewer.</span></span><span class="sig-name descname"><span class="pre">View</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Atoms</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Trajectory</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Atoms</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ysize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/visualize/custum_viewer.html#View"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.visualize.custum_viewer.View" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>atoms:</dt><dd><div class="line-block">
+<div class="line">AtomsまたはAtomsのリストまたはTrajectoryクラス</div>
+</div>
+</dd>
+<dt>xsize:</dt><dd><div class="line-block">
+<div class="line">横幅(px単位)</div>
+</div>
+</dd>
+<dt>ysize:</dt><dd><div class="line-block">
+<div class="line">縦幅(px単位)</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id1">
+<h2>view<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.visualize.by_ase.view">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.visualize.by_ase.</span></span><span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/visualize/by_ase.html#view"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.visualize.by_ase.view" title="この定義へのパーマリンク"></a></dt>
+<dd><p>再生ボタンのない構造を表示</p>
+</dd></dl>
+
+</section>
+<section id="view-images">
+<h2>view_images<a class="headerlink" href="#view-images" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.visualize.by_ase.view_images">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.visualize.by_ase.</span></span><span class="sig-name descname"><span class="pre">view_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagess</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/visualize/by_ase.html#view_images"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.visualize.by_ase.view_images" title="この定義へのパーマリンク"></a></dt>
+<dd><p>再生ボタン付きの構造を表示</p>
+</dd></dl>
+
+</section>
+<section id="view-with-index">
+<h2>view_with_index<a class="headerlink" href="#view-with-index" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.visualize.by_nglview.view_with_index">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.visualize.by_nglview.</span></span><span class="sig-name descname"><span class="pre">view_with_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/visualize/by_nglview.html#view_with_index"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.visualize.by_nglview.view_with_index" title="この定義へのパーマリンク"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="view-with-coordinate">
+<h2>view_with_coordinate<a class="headerlink" href="#view-with-coordinate" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.visualize.by_nglview.view_with_coordinate">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.visualize.by_nglview.</span></span><span class="sig-name descname"><span class="pre">view_with_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/visualize/by_nglview.html#view_with_coordinate"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.visualize.by_nglview.view_with_coordinate" title="この定義へのパーマリンク"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="automate.html" class="btn btn-neutral float-left" title="Automateモジュール" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="path.html" class="btn btn-neutral float-right" title="Pathモジュール" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

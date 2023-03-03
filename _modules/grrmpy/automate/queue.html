@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.automate.queue &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.automate.queue</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.automate.queue のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">heapq</span> <span class="kn">import</span> <span class="n">heapify</span><span class="p">,</span><span class="n">heappop</span><span class="p">,</span><span class="n">heappush</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">LBFGS</span><span class="p">,</span><span class="n">FIRE</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span><span class="p">,</span><span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">set_calc2images</span><span class="p">,</span><span class="n">set_const2images</span><span class="p">,</span><span class="n">copy_images</span>
+<span class="kn">from</span> <span class="nn">grrmpy.path.reaction_path</span> <span class="kn">import</span> <span class="n">ReactPath</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.repetitive_neb</span> <span class="kn">import</span> <span class="n">RepetitiveNEB</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.functions</span> <span class="kn">import</span> <span class="n">get_energy_list</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">grrmpy.optimize</span> <span class="kn">import</span> <span class="n">FIRELBFGS</span>
+    <span class="n">OPT_OPTIMIZER</span> <span class="o">=</span> <span class="n">FIRELBFGS</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">OPT_OPTIMIZER</span> <span class="o">=</span> <span class="n">FIRE</span>
+    
+<div class="viewcode-block" id="Queue"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.queue.Queue">[ドキュメント]</a><span class="k">class</span> <span class="nc">Queue</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">    executorにクラスを指定して使用する.</span>
+<span class="sd">    executorのクラスはrun()メソッドを必ず有する必要がある.</span>
+<span class="sd">    さらにSTOP.txtで処理を停止し,途中再開できるようにするにはtodict()とfromdictのクラスメソッドを有する必要がある.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    executor:</span>
+<span class="sd">        | 計算実行クラスオブジェクト</span>
+<span class="sd">    priority: int</span>
+<span class="sd">        | queueはタプルのリストであるが,階層の情報をリストの何番目に追加するかを指定する.</span>
+<span class="sd">        | priority=0の場合,階層の浅さが全てに優先されるため,幅優先になる</span>
+<span class="sd">        | priority&gt;0の時,深さ優先になる.</span>
+<span class="sd">    maxjob: int</span>
+<span class="sd">        | maxjob回の計算を実行したら自動で計算を停止する.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reastart_file</span> <span class="o">=</span> <span class="s2">&quot;ReStart.pkl&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">executor</span><span class="p">,</span><span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">maxjob</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">        executorにクラスを指定して使用する.</span>
+<span class="sd">        executorのクラスはrun()メソッドを必ず有する必要がある.</span>
+<span class="sd">        さらにSTOP.txtで処理を停止し,途中再開できるようにするにはtodict()とfromdictのクラスメソッドを有する必要がある.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        executor:</span>
+<span class="sd">            計算実行クラスオブジェクト</span>
+<span class="sd">        priority: int</span>
+<span class="sd">            queueはタプルのリストであるが,階層の情報をリストの何番目に追加するかを指定する.</span>
+<span class="sd">            priority=0の場合,階層の浅さが全てに優先されるため,幅優先になる</span>
+<span class="sd">            priority&gt;0の時,深さ優先になる.</span>
+<span class="sd">        maxjob: int</span>
+<span class="sd">            maxjob回の計算を実行したら自動で計算を停止する.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">executor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executor_cls</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priority</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span> <span class="o">=</span> <span class="n">maxjob</span>
+        <span class="n">heapify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span> <span class="o">=</span> <span class="p">[]</span>
+        
+    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">functions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;1回の計算が終える度に実行する関数をアタッチする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">functions</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">topkl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+            <span class="n">data_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">data_to_serializable_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data_dict</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span><span class="n">layer</span><span class="p">)</span>
+            <span class="n">data_dict_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reastart_file</span><span class="p">,</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data_dict_list</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;STOP.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">frompkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file</span><span class="p">):</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reastart_file</span><span class="p">,</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data_dict_list</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">data_dict</span> <span class="ow">in</span> <span class="n">data_dict_list</span><span class="p">:</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+            <span class="n">data_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executor_cls</span><span class="o">.</span><span class="n">data_from_serializable_obj</span><span class="p">(</span><span class="n">data_dict</span><span class="p">))</span>
+            <span class="n">data_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">queue</span>
+    
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">layer</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+            <span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span><span class="n">d</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">heappop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">))</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">layer</span>
+        
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">restart</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">restart</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frompkl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reastart_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">first_push</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">done_job</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">done_job</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxjob</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">,</span><span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">pushdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">run_and_push</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">layer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">pushdata</span><span class="p">,</span> <span class="n">layer</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="p">:</span>
+                <span class="n">function</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">done_job</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;STOP.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="c1">#保存処理処理</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">topkl</span><span class="p">()</span>
+                <span class="k">break</span></div>
+            
+            
+<span class="k">class</span> <span class="nc">Executor</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Queueクラスのインスタンス引数のexecutorのひな形クラス</span>
+<span class="sd">    </span>
+<span class="sd">    完全に自作しても良いが，必ず必要なメソッドをここに示す</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="p">[],</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+    
+    <span class="k">def</span> <span class="nf">first_push</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;一番始めにQueueに追加するデータ&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span>
+    
+    <span class="k">def</span> <span class="nf">run_and_push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">layer</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Queueからデータをもらい,新たに計算すべきデータを与える&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="k">def</span> <span class="nf">data_to_serializable_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dataをpickleできる状態に加工して返す(calculatorを消す等)&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">image</span><span class="o">.</span><span class="n">calc</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">data_from_serializable_obj</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;topyobjで加工した場合,元に戻す(calculatorを再度付け直すなど)&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span>
+    
+    <span class="k">def</span> <span class="nf">to_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_obj</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

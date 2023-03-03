@@ -1,0 +1,75 @@
+##################
+blenderモジュール
+##################
+
+
+Blenderに構造をインポートする 
+===============================================
+
+注意
+---------------
+| **Blender2.93.4** で動作確認済みであるが,他のバージョンでは動かない可能性がある.
+| Blenderはマイナーチェンジであってもスクリプトが機能しない場合がある.
+
+基本的な使い方
+-------------------
+
+Blenderへ構造をインポート, アニメーションを作成する.
+
+- 単一構造をインポートする場合
+
+    .. code-block:: python
+
+        from grrmpy.blender import make_py_script,BallAndStick
+
+        make_py_script("BallAndStick.py",BallAndStick(atoms))
+
+
+- アニメーションを作成する場合
+
+    | 拡張子は.zipとする. ローカルPC上でzipを展開する.展開するとpklファイルとpyファイルが入っている.
+    | これらのファイルと同じディレクトリ上でBlenderファイルを作成する.
+    | **Blenderファイルを作成した後に** pythonスクリプトを実行する
+
+    .. code-block:: python
+
+        from grrmpy.blender import make_py_script,Animation
+        from ase.io import Trajectory
+
+        traj = Trajectory("MD.traj")
+        make_py_script("Animation.zip",Animation(traj))
+
+- 複数のスタイルを組みわせる場合
+
+    0~8番目の原子をSpaceFilling,それ以外をStickで表現する
+
+    .. code-block:: python
+
+        from grrmpy.blender import make_py_script,Stick,SpaceFilling
+
+        indices1 = [0,1,2,3,4,5,6,7,8]
+        indices2 = [i for i in range(len(atoms)) if i not in indices] # indices1以外のindex番号
+        make_py_script("Combine.py",[SpaceFilling(atoms,indices=indices1),Stick(atoms,indices=indices2)])
+
+- 細かいパラメーターを指定する.
+
+    SpaceFillingで漫画風の描写をする
+
+    .. code-block:: python
+
+        from grrmpy.blender import make_py_script,SpaceFilling
+
+        make_py_script("-",SpaceFilling(atoms,cartoon={"apply":True}))
+
+    `file` を"-"とした場合はnotebook上にpythonスクリプトが標準出力される.
+
+.. autofunction:: grrmpy.blender.make_pyscript.make_py_script 
+
+.. autoclass:: grrmpy.blender.make_pyscript.BallAndStick
+
+.. autoclass:: grrmpy.blender.make_pyscript.Stick
+
+.. autoclass:: grrmpy.blender.make_pyscript.SpaceFilling
+
+.. autoclass:: grrmpy.blender.make_pyscript.Animation
+

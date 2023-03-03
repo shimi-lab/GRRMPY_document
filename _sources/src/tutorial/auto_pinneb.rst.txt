@@ -1,0 +1,41 @@
+###########################
+連続PinNEB計算
+###########################
+
+PinNEB計算の概要については :doc:`こちらを参照．<pin_neb>`
+
+基本操作
+===========
+
+.. code-block:: python
+
+    from grrmpy.automate import AutoPinNEB
+    # eq_listは最適化後のEQ構造のリスト
+    # connectionsは [[0,1],[4,2],[3,1]]のような GRRMのCONNECTIONSに相当するリスト
+    pin_neb = AutoPinNEB(eq_list,connections) 
+    pin_neb.run()
+
+細かいパラメータを指定する
+============================
+
+パラメータの設定については :doc:`PinNEB<pin_neb>` と同じ
+
+Tips
+================
+
+意味のあるCONNECTIONSののみを抽出する
+----------------------------------------
+
+GRRMのTS,PT_list.logから意味のあるCONNECTIONSのみを抽出する.
+
+>>> from grrmpy.io import read_connections
+>>> from grrmpy.functions import get_unique_connections
+>>> original_connections = read_connections(ts_path)
+>>> connections,idx = get_unique_connections(original_connections)
+
+この操作によって
+
+- 同じ番号のCONNECTION ([0,0],[3,3]など)
+- 既にある組み合わせ ([0,1],[2,4],[1,0]の場合,最後の[1,0]は削除する)
+
+は削除される

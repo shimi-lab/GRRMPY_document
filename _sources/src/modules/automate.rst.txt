@@ -1,0 +1,112 @@
+###########################
+Automateモジュール
+###########################
+
+.. module:: grrmpy.automate
+
+PinNEB
+==================================
+.. autoclass:: grrmpy.automate.pin_neb.PinNEB 
+    :members: default_params, set_param, get_param
+
+AutoPinNEB
+==================================
+.. autoclass:: grrmpy.automate.pin_neb.AutoPinNEB 
+    :members: default_params, set_param, get_param
+
+is_similar
+--------------------------
+.. autofunction:: grrmpy.automate.pin_neb.is_similar
+
+SinglePath
+==================================
+
+SinglePathはSNEB( :class:`grrmpy.neb.auto_neb.SNEB` ),振動数計算,IRC計算をiniとfinが繋がるまで繰り返す.
+
+.. image:: ./img/SinglePath.png
+   :scale: 20%
+   :align: center
+
+.. autoclass:: grrmpy.automate.by_neb.SinglePath 
+   :members: default_param, run
+
+AutoOpt
+==================================
+
+| 複数の構造の最適化を連続的に行うことができる.
+| 計算中のlogファイル, 最適化後の構造はそれぞれ, log, Structureフォルダに保存される.
+| 計算中にエラーが発生した場合はERROR_XXX.txtが作成され,エラーメッセージを確認することができる.
+
+基本的な使用方法
+------------------
+
+.. code-block:: python
+
+    from grrmpy.io import log2atoms
+    from grrmpy.automate import AutoOpt
+    from grrmpy.optimize import FIRELBFGS
+
+    eq_list = log2atoms("XXX_EQ_list.log","XXX.com","POSCAR")
+    opt = AutoOpt(eq_list,optimizer=FIRELBFGS)
+    opt.run()
+
+
+計算後のデータの取り出し方
+------------------------------
+計算後にはStructuresフォルダに最適化後の構造が保存されるので
+
+.. code-block:: python
+
+    from grrmpy.io import read_traj
+
+    opted_eq_list = read_traj("Structures")
+
+で構造を取り出せる.
+
+細かな条件を設定する方法
+------------------------------
+細かい計算条件は `run` の引数で設定する.
+(maxstep=0.02,steps=200)→(maxstep=0.05,steps=500)→(maxstep=0.2,steps=1000)の条件で計算する場合.
+
+.. code-block:: python
+
+    opt.run(maxstep_list=[0.02,0.05,0.2],steps_list=[200,500,10000])
+
+`maxstep_list` と `steps_list` の要素数が一致していないとエラーになるので注意する
+
+続きから計算する場合
+----------------------
+
+| XXX_EQ_list.logが更新されて,新たに追加された構造のみを計算したい場合,run()の引数のrestartを指定すればよい
+| 例えば,EQ16まで既に計算していた場合
+
+.. code-block:: python
+
+    opt.run(restart=17) # EQ17から計算を開始する
+
+.. autoclass:: grrmpy.automate.auto_opt.AutoOpt
+   :members: set_automaxstep, run
+
+
+AutoNEB
+==================================
+
+.. autoclass:: grrmpy.automate.auto_neb.AutoNEB
+   :members: run,default_param,next_i,update,attach_stop,attach
+
+AutoVib
+==================================
+
+.. code-block:: python
+
+    from grrmpy.automate import AutoVib
+
+    vib = AutoVib(ts_list)
+    vib.run()
+    vib.summary() # Summary.htmlに振動数の表を出力
+    vib.write_mode() # vibフォルダ内に虚数振動のtrajファイルが作成される
+
+.. autoclass:: grrmpy.automate.auto_vib.AutoVib
+   :members: run,write_mode,summary
+
+.. autoclass:: grrmpy.automate.queue.Queue

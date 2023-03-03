@@ -1,0 +1,58 @@
+###########################
+連続Vib計算 
+###########################
+
+複数の振動数計算を連続的に自動で行う
+
+基本操作
+=============
+
+ts_listはTS構造のAtomsのリスト
+
+.. code-block:: python
+
+    from grrmpy.automate import AutoVib
+    
+    vib = AutoVib(ts_list,indices=[0,1,2,3,4,5,6,7,8,9,10]) #indicesは動かす原子のindex番号
+    vib.summary() # htmlファイルに振動数の表が作成される
+
+虚振動の振動モードをtrajに書き出す方法
+=======================================
+
+- 全てのTSの虚振動を書き出す場合
+
+    >>> vib.write_mode()
+
+- 特定のTSの虚振動を書き出す場合(例TS5の虚振動)
+
+    虚振動がなかった場合は何も作成されない
+
+    >>> vib.write_mode(i=5)
+
+- 虚振動以外のモードのtrajファイルを作成したい場合.
+
+    >>> vib[3].write_mode(n=2) # TS3のn=2のモードのtrajファイルが作成される.
+
+
+Tips
+============
+
+- 複数のNEBイメージからTS構造のみを抽出する.
+
+    "Structures"フォルダに複数のNEBイメージのtrajファイルがある事を想定する
+
+    .. code-block:: python
+
+        from grrmpy.io import iread_traj
+        from grmpy.neb.functions import get_ts_image
+
+        neb_list,_ = iread_traj("Structures") # これでNEBのイメージを取り出す(この地点で2Dのリスト)
+        ts_list = [get_ts_image(images) for images in neb_list] # これで各NEBからTS構造のみ抽出する
+        # その後
+        vib = AutoVib(ts_list)
+        vib.run()
+
+- 各TSのVibrationsオブジェクトはgetitem(各括弧)で取得できる
+
+    >>> vib[2] # <-- TS2の構造のASEのVibrationsオブジェクト
+

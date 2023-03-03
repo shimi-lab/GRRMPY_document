@@ -1,0 +1,16 @@
+################
+Dataモジュール 
+################
+
+.. module:: grrmpy.data
+
+.. data:: grrmpy.data.zval
+
+価電子の数:
+
+>>> from grrmpy.data import zval
+>>> from ase.data import atomic_numbers
+>>> atomic_numbers['Cu']
+29
+>>> zval[29]
+11.0

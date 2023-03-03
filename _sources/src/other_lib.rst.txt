@@ -1,0 +1,47 @@
+#######################
+その他のアプリ
+#######################
+
+xlwingsを使ったアプリ
+==========================
+
+| GRRMの結果をpythonコードを書くことなく,Excelのみで解析できる. 
+| 主な機能は
+
+- 反応経路検索(もっともEaの低い経路を検索する)
+- 反応座標の作図
+- Graphmlファイルへエクスポート.
+- 構造の可視化(ExcelからJmol, VESTAを呼び出し可視化)
+- 構造の保存(xyzデータに保存する)
+
+| 反応経路検索に関してはExcel上で操作できるのはWindowsのみ.
+| Macユーザーはpythonのnotebookを利用することで使用できる.
+
+ダウンロード
+---------------------
+
+- ダウンロードファイル(.zip)
+    | :download:`Windows用 <../download/Windows.zip>`
+    | :download:`Mac用 <../download/Mac.zip>` 
+- ダウンロード方法と使用方法(.pptx)
+    | :download:`setup.pptx <../download/setup.pptx>`
+
+.. role:: strike
+    :class: strike
+
+Blender用のPythonスクリプトを作成するためのアプリ
+=====================================================
+
+| Blender上で3D化学構造を作成すつためのPythonスクリプトを作成するGUIアプリ.
+| cif,xyz,POSCARファイル等から構造からPythonスクリプトを作成することができる.
+| 基本的には :class:`make_py_script<grrmpy.blender.make_pyscript.make_py_script>` と同じ機能である. アニメーションを作成する場合,
+ 特にイメージ数の多いアニメーションを作成する場合は :class:`make_py_script<grrmpy.blender.make_pyscript.make_py_script>` を使った方が良い.
+
+`アプリはこちら <https://shimi-lab-makeblenderscriptapp-app-vrendi.streamlit.app/>`_
+
+
+MatlanticGRRM ライブラリ
+================================
+:strike:`MatlanticGRRMの機能はGRRMPYに移行中` → 移行完了
+
+https://kt19906.github.io/MatlanticGrrm/index.html

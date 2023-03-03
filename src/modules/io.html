@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I/O モジュール &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="Optimizeモジュール" href="optimize.html" />
+    <link rel="prev" title="Modules" href="../modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">I/O モジュール</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#atoms">Atomsへ変換する</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#log2atoms">log2atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#read-connections">read_connections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#frozen2atoms">frozen2atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#read-traj">read_traj</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iread-traj">iread_traj</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#list-log">list.logファイルをマージする.</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.log.Log"><code class="docutils literal notranslate"><span class="pre">Log</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#html">htmlに書き込む</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#write-html">write_html</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#badercharge">BaderChargeの読み込み</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#read-afc">read_afc</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vestaelement-inicsvclolor">VESTAのelement.iniやCSVファイルからclolorの辞書を作成する</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.read_elementsini.read_elementsini"><code class="docutils literal notranslate"><span class="pre">read_elementsini()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.read_elementsini.read_csv"><code class="docutils literal notranslate"><span class="pre">read_csv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">高圧縮でシリアライズ化する</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.compressed_pickle.loads"><code class="docutils literal notranslate"><span class="pre">loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.compressed_pickle.dumps"><code class="docutils literal notranslate"><span class="pre">dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.compressed_pickle.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.io.compressed_pickle.dump"><code class="docutils literal notranslate"><span class="pre">dump()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="optimize.html">Optimizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neb.html">NEBモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">OPTモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automate.html">Automateモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualize.html">Visualizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path.html">Pathモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometryモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conv.html">Convモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Networkモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blender.html">blenderモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html">コマンドライン</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">I/O モジュール</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/modules/io.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-grrmpy.io">
+<span id="i-o"></span><h1>I/O モジュール<a class="headerlink" href="#module-grrmpy.io" title="この見出しへのパーマリンク"></a></h1>
+<ul>
+<li><p>使用頻度の高い機能</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#grrmpy.io.read_listlog.log2atoms" title="grrmpy.io.read_listlog.log2atoms"><code class="xref py py-class docutils literal notranslate"><span class="pre">log2atoms</span></code></a></p></li>
+<li><p><a class="reference internal" href="#grrmpy.io.read_listlog.read_connections" title="grrmpy.io.read_listlog.read_connections"><code class="xref py py-class docutils literal notranslate"><span class="pre">read_connections</span></code></a></p></li>
+<li><p><a class="reference internal" href="#grrmpy.io.html.write_html" title="grrmpy.io.html.write_html"><code class="xref py py-class docutils literal notranslate"><span class="pre">write_html</span></code></a></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<section id="atoms">
+<h2>Atomsへ変換する<a class="headerlink" href="#atoms" title="この見出しへのパーマリンク"></a></h2>
+<section id="log2atoms">
+<h3>log2atoms<a class="headerlink" href="#log2atoms" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">log2atoms</span>
+
+<span class="n">eqs_list</span> <span class="o">=</span> <span class="n">log2atoms</span><span class="p">(</span><span class="s2">&quot;XXX_EQ_list.log&quot;</span><span class="p">,</span><span class="n">com</span><span class="o">=</span><span class="s2">&quot;XXX.com&quot;</span><span class="p">,</span><span class="n">poscar</span><span class="o">=</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span> <span class="c1"># GRRM-VASPで計算した場合</span>
+<span class="n">eqs_list</span> <span class="o">=</span> <span class="n">log2atoms</span><span class="p">(</span><span class="s2">&quot;XXX_EQ_list.log&quot;</span><span class="p">,</span><span class="n">com</span><span class="o">=</span><span class="s2">&quot;XXX.com&quot;</span><span class="p">)</span> <span class="c1"># クラスターモデルでGRRM計算した場合</span>
+<span class="c1"># FrozenAtomsがない場合,読み込みたくない時はcomファイルは指定しなくて良い</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_listlog.log2atoms">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_listlog.</span></span><span class="sig-name descname"><span class="pre">log2atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poscar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_listlog.html#log2atoms"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_listlog.log2atoms" title="この定義へのパーマリンク"></a></dt>
+<dd><p>logファイルからAtomsオブジェクトに変換する</p>
+<p>Parameter:</p>
+<dl>
+<dt>logfile: str or Path</dt><dd><p>_list.logファイルパス.</p>
+</dd>
+<dt>com:  str or Path</dt><dd><div class="line-block">
+<div class="line">FrozenAtomsを追加する場合にcomファイルを指定.</div>
+<div class="line">その他comファイルの情報を確認したい時はgrrmpy.structure.comfile.COMを参照</div>
+</div>
+</dd>
+<dt>poscar: str or Path</dt><dd><p>POSCARパスを設定した場合.セル情報を読み取りAtomsオブジェクトに適用する.</p>
+</dd>
+<dt>constraints: ase.constraints</dt><dd><div class="line-block">
+<div class="line">与えたconstraintsは全てのAtomsに適用される.</div>
+<div class="line">複数のconstraintsを与えたい場合はリストで与える</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>Atomsオブジェクト</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>Atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="read-connections">
+<h3>read_connections<a class="headerlink" href="#read-connections" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">read_connections</span>
+<span class="n">connections</span> <span class="o">=</span> <span class="n">read_connections</span><span class="p">(</span><span class="s2">&quot;XXX_TS_list.log&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">connections</span><span class="p">)</span><span class="c1"># --&gt; [[0,1],[5,4],[4,6],[30,2],[&quot;??&quot;,1]]</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_listlog.read_connections">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_listlog.</span></span><span class="sig-name descname"><span class="pre">read_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_listlog.html#read_connections"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_listlog.read_connections" title="この定義へのパーマリンク"></a></dt>
+<dd><p>logファイルからCONNECTIONSを取得する</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>logfile: string</dt><dd><p>TS or PT_list.logファイルパス</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>CONNECTIONのリスト</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="frozen2atoms">
+<h3>frozen2atoms<a class="headerlink" href="#frozen2atoms" title="この見出しへのパーマリンク"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_com.frozen2atoms">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_com.</span></span><span class="sig-name descname"><span class="pre">frozen2atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poscar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_com.html#frozen2atoms"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_com.frozen2atoms" title="この定義へのパーマリンク"></a></dt>
+<dd><p>COMファイルのFrozenAtomsをAtomsオブジェクトに変換する</p>
+<p>Parameters:</p>
+<dl>
+<dt>comfile: str or Path</dt><dd><div class="line-block">
+<div class="line">comファイルパス.</div>
+</div>
+</dd>
+<dt>poscar: str or Path</dt><dd><div class="line-block">
+<div class="line">POSCARパスを設定した場合.セル情報を読み取りAtomsオブジェクトに適用する.</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>FrozenAtomsのAtomsオブジェクト</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>Atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="read-traj">
+<h3>read_traj<a class="headerlink" href="#read-traj" title="この見出しへのパーマリンク"></a></h3>
+<p><a class="reference internal" href="automate.html#grrmpy.automate.auto_opt.AutoOpt" title="grrmpy.automate.auto_opt.AutoOpt"><code class="xref py py-class docutils literal notranslate"><span class="pre">grrmpy.automate.auto_opt.AutoOpt</span></code></a> で計算を行なった後,計算後の構造を一括でAtomsに変換する際に用いる.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_traj.read_traj">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_traj.</span></span><span class="sig-name descname"><span class="pre">read_traj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_traj.html#read_traj"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_traj.read_traj" title="この定義へのパーマリンク"></a></dt>
+<dd><div class="line-block">
+<div class="line">フォルダ内のtrajファイルを検索し,Atomsのリストする.</div>
+<div class="line">trajファイル名には必ず数字が含まれている必要がある.</div>
+<div class="line">例えば,0.traj, 3.traj, 2.trajファイルが存在する場合, 0.traj, 2.traj, 3.trajの順でファイルの読み込みを行ない,</div>
+<div class="line">blank=Trueの場合,[Atoms,None,Atoms,Atoms]のように数字の存在しないファイルはNoneの要素になる.</div>
+<div class="line">blank=Flaseの場合,None要素は作成されない.</div>
+</div>
+<div class="line-block">
+<div class="line">ファイル名には数字を含む必要があるが,例えばsample_1_1.trajの場合,始めの数字である&quot;1&quot;のみに注目しソートされる.</div>
+<div class="line">従って,blank=Trueの際にsample_1_1.traj, sample_1_2.trajの2つのファイルが存在するとき&quot;1&quot;のファイルが2つ存在すると判断されるためエラーとなる.</div>
+<div class="line">blank=Falseの場合このような問題は起きず,sample_1_1.traj, sample_1_2.trajの順で読み込まれる.</div>
+</div>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>folder: str or Path</dt><dd><p>フォルダ名</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>Atomsのリスト,元々のファイルパス</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="iread-traj">
+<h3>iread_traj<a class="headerlink" href="#iread-traj" title="この見出しへのパーマリンク"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_traj.iread_traj">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_traj.</span></span><span class="sig-name descname"><span class="pre">iread_traj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_traj.html#iread_traj"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_traj.iread_traj" title="この定義へのパーマリンク"></a></dt>
+<dd><p>read_trajのimages版</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="list-log">
+<h2>list.logファイルをマージする.<a class="headerlink" href="#list-log" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.io.log.Log">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.io.log.</span></span><span class="sig-name descname"><span class="pre">Log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eqfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tsfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/log.html#Log"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.log.Log" title="この定義へのパーマリンク"></a></dt>
+<dd><p>logファイルを与えた場合それをLogオブジェクトとして格納する.</p>
+<p>Paramaters:</p>
+<dl>
+<dt>eqfile: str or Path</dt><dd><div class="line-block">
+<div class="line">XXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+<dt>tsfile: str or Path</dt><dd><div class="line-block">
+<div class="line">XXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+<dt>ptfile: str or Path</dt><dd><div class="line-block">
+<div class="line">XXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+</dl>
+<p class="rubric">サンプル</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log1</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="s2">&quot;XXX_EQ_list.log&quot;</span><span class="p">,</span><span class="n">ts</span><span class="o">=</span><span class="s2">&quot;XXX_TS_list.log&quot;</span><span class="p">,</span> <span class="n">pt</span><span class="o">=</span><span class="s2">&quot;XXX_PT_list.log&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log2</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="s2">&quot;YYY_EQ_list.log&quot;</span><span class="p">,</span><span class="n">ts</span><span class="o">=</span><span class="s2">&quot;YYY_TS_list.log&quot;</span><span class="p">,</span> <span class="n">pt</span><span class="o">=</span><span class="s2">&quot;YYY_PT_list.log&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marge_log</span> <span class="o">=</span> <span class="n">log1</span> <span class="o">+</span> <span class="n">log2</span> <span class="c1"># マージ</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">marge_log</span><span class="o">.</span><span class="n">write_log</span><span class="p">(</span><span class="s2">&quot;margedEQ.log&quot;</span><span class="p">,</span> <span class="s2">&quot;margedTS.log&quot;</span><span class="p">,</span> <span class="s2">&quot;margedPT.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.io.log.Log.write_log">
+<span class="sig-name descname"><span class="pre">write_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eqfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'margedEQ.log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tsfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'margedTS.log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'margedPT.log'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/log.html#Log.write_log"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.log.Log.write_log" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Logオブジェクトからlogファイルを書き出す.</p>
+<p>Paramaters:</p>
+<dl>
+<dt>eqfile: str or Path</dt><dd><div class="line-block">
+<div class="line">保存するXXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+<dt>tsfile: str or Path</dt><dd><div class="line-block">
+<div class="line">保存するXXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+<dt>ptfile: str or Path</dt><dd><div class="line-block">
+<div class="line">保存するXXX_EQ_list.logファイルのパス.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="html">
+<h2>htmlに書き込む<a class="headerlink" href="#html" title="この見出しへのパーマリンク"></a></h2>
+<section id="write-html">
+<h3>write_html<a class="headerlink" href="#write-html" title="この見出しへのパーマリンク"></a></h3>
+<ul>
+<li><dl>
+<dt>NEBイメージのエネルギーダイアグラムを作成</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">write_html</span>
+<span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span>
+
+<span class="n">neb</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">FIRE</span><span class="p">(</span><span class="n">neb</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="hll"><span class="n">opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;NEB.html&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">),</span><span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># 10イタレーション毎に逐次書き込み</span>
+</span><span class="hll"><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;NEB.html&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span> <span class="c1"># 書き込み</span>
+</span></pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>振動のエネルギーダイアグラムを作成</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">ase.vibrations</span> <span class="kn">import</span> <span class="n">Vibrations</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span>
+
+<span class="n">vib</span> <span class="o">=</span> <span class="n">Vibrations</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+<span class="n">vib</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">vib</span><span class="o">.</span><span class="n">write_mode</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># --&gt; vib.0.trajが作成される</span>
+<span class="n">vib_images</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="s2">&quot;vib.0.traj&quot;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">vib_images</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">pfp_calculator</span><span class="p">()</span>
+<span class="hll"><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Vib.html&quot;</span><span class="p">,</span><span class="n">vib_images</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>追記モード</dt><dd><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">write_html</span>
+<span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span>
+
+<span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;NEB.html&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">)</span> <span class="c1"># 計算前のNEBイメージを書き込み</span>
+<span class="n">neb</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">FIRE</span><span class="p">(</span><span class="n">neb</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="hll"><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;NEB.html&quot;</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># 同一ファイル上にのNEBイメージを追記</span>
+</span></pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.html.write_html">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.html.</span></span><span class="sig-name descname"><span class="pre">write_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/html.html#write_html"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.html.write_html" title="この定義へのパーマリンク"></a></dt>
+<dd><p>htmlファイルとして保存する</p>
+<p>Parameters:</p>
+<dl>
+<dt>html: string</dt><dd><p>保存ファイル名</p>
+</dd>
+<dt>obj: object</dt><dd><div class="line-block">
+<div class="line">objの引数には次のオブジェクトを指定できる</div>
+<div class="line">- NEB</div>
+<div class="line-block">
+<div class="line">NEBのエネルギーダイアグラムを作成</div>
+</div>
+<div class="line">- Vibrations</div>
+<div class="line-block">
+<div class="line">エネルギーダイアグラムと振動数表を作成</div>
+</div>
+<div class="line">- trajファイル</div>
+<div class="line-block">
+<div class="line">エネルギーダイアグラムを作成</div>
+</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="badercharge">
+<h2>BaderChargeの読み込み<a class="headerlink" href="#badercharge" title="この見出しへのパーマリンク"></a></h2>
+<section id="read-afc">
+<h3>read_afc<a class="headerlink" href="#read-afc" title="この見出しへのパーマリンク"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_acfdat.read_acf">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_acfdat.</span></span><span class="sig-name descname"><span class="pre">read_acf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ACF.dat'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/grrmpy/io/read_acfdat.html#read_acf"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_acfdat.read_acf" title="この定義へのパーマリンク"></a></dt>
+<dd><p>ACF.datファイルの中身をDataFrameにして返す.</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>fileobj: Union[str, Path]</dt><dd><p>ACF.dataファイルパス</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>ACF.datのデータフレーム</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>np.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_acfdat.get_dader">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_acfdat.</span></span><span class="sig-name descname"><span class="pre">get_dader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ACF.dat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../../_modules/grrmpy/io/read_acfdat.html#get_dader"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_acfdat.get_dader" title="この定義へのパーマリンク"></a></dt>
+<dd><div class="line-block">
+<div class="line">ACF.datファイルからBaderChargeを計算する.</div>
+<div class="line">BaderCharge = ZVAL - Charge(ACF.dat内に記載の)</div>
+<div class="line">で計算される.</div>
+</div>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>atoms: Atoms</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>file: Union[str, Path, DataFrame]</dt><dd><p>ACF.dataファイルパス, DataFrame.</p>
+</dd>
+<dt>displacement: float</dt><dd><p>原子の順番がACF.datとAtomsとで同じか検証するため.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>BaderChargeのリスト</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="vestaelement-inicsvclolor">
+<h2>VESTAのelement.iniやCSVファイルからclolorの辞書を作成する<a class="headerlink" href="#vestaelement-inicsvclolor" title="この見出しへのパーマリンク"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_elementsini.read_elementsini">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_elementsini.</span></span><span class="sig-name descname"><span class="pre">read_elementsini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements_ini_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_elementsini.html#read_elementsini"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_elementsini.read_elementsini" title="この定義へのパーマリンク"></a></dt>
+<dd><p>構造をViewerで可視化する際の原子の色を規定する辞書を作成する.</p>
+<p>Parameters:</p>
+<dl>
+<dt>elements_ini_path: Union[str, Path]</dt><dd><div class="line-block">
+<div class="line">elements.ini(VESTAで使われるやつ)のパス</div>
+</div>
+</dd>
+<dt>rgba: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合, (r,g,b,a) のタプル,RGBは最大値が1で規格化される</div>
+<div class="line">Falseの場合, 0xから始めるHEXで与えられる</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>元素名,hexカラーコードの辞書.{'H':'0xffffff'}</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.read_elementsini.read_csv">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.read_elementsini.</span></span><span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/read_elementsini.html#read_csv"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.read_elementsini.read_csv" title="この定義へのパーマリンク"></a></dt>
+<dd><p>原子の色を規定したcsvファイルを読み込みcolor_dictを返す</p>
+<p>Parameters:</p>
+<dl>
+<dt>filename: str</dt><dd><div class="line-block">
+<div class="line">csvファイル</div>
+</div>
+</dd>
+<dt>rgba: bool</dt><dd><div class="line-block">
+<div class="line">Trueの場合, (r,g,b,a) のタプル,RGBは最大値が1で規格化される</div>
+<div class="line">Falseの場合, 0xから始めるHEXで与えられる</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値</dt>
+<dd class="field-odd"><p>元素名,hexカラーコードの辞書.{'H':'0xffffff'}</p>
+</dd>
+<dt class="field-even">戻り値の型</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="id1">
+<h2>高圧縮でシリアライズ化する<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<p>pickleのバイナリデータをbz2にさらに圧縮することでpythonオブジェクトを高い圧縮率でシリアライズ化する.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.compressed_pickle.loads">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.compressed_pickle.</span></span><span class="sig-name descname"><span class="pre">loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/compressed_pickle.html#loads"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.compressed_pickle.loads" title="この定義へのパーマリンク"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.compressed_pickle.dumps">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.compressed_pickle.</span></span><span class="sig-name descname"><span class="pre">dumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/compressed_pickle.html#dumps"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.compressed_pickle.dumps" title="この定義へのパーマリンク"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.compressed_pickle.load">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.compressed_pickle.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/compressed_pickle.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.compressed_pickle.load" title="この定義へのパーマリンク"></a></dt>
+<dd><p>dumpで圧縮したbz2ファイルをpythonオブジェクトとして展開する</p>
+<p>Parameters</p>
+<dl class="simple">
+<dt>fname:</dt><dd><p>入力ファイル名(bz2ファイル)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.io.compressed_pickle.dump">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.io.compressed_pickle.</span></span><span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/io/compressed_pickle.html#dump"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.io.compressed_pickle.dump" title="この定義へのパーマリンク"></a></dt>
+<dd><p>pythonオブジェクトをbz2ファイルに圧縮しつつ,シリアライズ化する</p>
+<p>Parameter:</p>
+<dl class="simple">
+<dt>obj: obj</dt><dd><p>Pythonオブジェクト</p>
+</dd>
+<dt>fname:</dt><dd><p>出力ファイル名</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../modules.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="optimize.html" class="btn btn-neutral float-right" title="Optimizeモジュール" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

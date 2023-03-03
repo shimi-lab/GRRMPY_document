@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.io.read_traj &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.io.read_traj</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.io.read_traj のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">natsort</span> <span class="kn">import</span> <span class="n">natsorted</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span><span class="p">,</span><span class="n">iread</span>
+
+<div class="viewcode-block" id="read_traj"><a class="viewcode-back" href="../../../src/modules/io.html#grrmpy.io.read_traj.read_traj">[ドキュメント]</a><span class="k">def</span> <span class="nf">read_traj</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    | フォルダ内のtrajファイルを検索し,Atomsのリストする.</span>
+<span class="sd">    | trajファイル名には必ず数字が含まれている必要がある.</span>
+<span class="sd">    | 例えば,0.traj, 3.traj, 2.trajファイルが存在する場合, 0.traj, 2.traj, 3.trajの順でファイルの読み込みを行ない,</span>
+<span class="sd">    | blank=Trueの場合,[Atoms,None,Atoms,Atoms]のように数字の存在しないファイルはNoneの要素になる.</span>
+<span class="sd">    | blank=Flaseの場合,None要素は作成されない.</span>
+<span class="sd">    </span>
+<span class="sd">    | ファイル名には数字を含む必要があるが,例えばsample_1_1.trajの場合,始めの数字である&quot;1&quot;のみに注目しソートされる.</span>
+<span class="sd">    | 従って,blank=Trueの際にsample_1_1.traj, sample_1_2.trajの2つのファイルが存在するとき&quot;1&quot;のファイルが2つ存在すると判断されるためエラーとなる.</span>
+<span class="sd">    | blank=Falseの場合このような問題は起きず,sample_1_1.traj, sample_1_2.trajの順で読み込まれる.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    folder: str or Path</span>
+<span class="sd">        フォルダ名</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Atomsのリスト,元々のファイルパス</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_read_traj_in_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span><span class="n">read</span><span class="p">,</span><span class="n">blank</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="iread_traj"><a class="viewcode-back" href="../../../src/modules/io.html#grrmpy.io.read_traj.iread_traj">[ドキュメント]</a><span class="k">def</span> <span class="nf">iread_traj</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;read_trajのimages版&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_read_traj_in_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span><span class="k">lambda</span> <span class="n">file</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="n">file</span><span class="p">)),</span><span class="n">blank</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_read_traj_in_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span><span class="n">read_func</span><span class="p">,</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">フォルダが存在しません&quot;</span><span class="p">)</span>
+
+    <span class="n">traj_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*traj&quot;</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">blank</span><span class="p">:</span>
+        <span class="n">file_num</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">())</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">traj_files</span><span class="p">]</span>
+        <span class="n">max_i</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">file_num</span><span class="p">)</span>
+        <span class="n">file_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">file_num</span><span class="p">,</span><span class="n">traj_files</span><span class="p">))</span> <span class="c1">#{数字:ファイルパス}</span>
+        <span class="n">traj_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">read_func</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">traj_files</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">traj_files</span> <span class="o">=</span> <span class="n">natsorted</span><span class="p">(</span><span class="n">traj_files</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">read_func</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">traj_files</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">atoms_list</span><span class="p">,</span><span class="n">traj_files</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+###########################
+NEBモジュール 
+###########################
+
+.. module:: grrmpy.neb.auto_neb
+
+RepetitiveNEB
+=================
+
+| (climb=False,mastep=0.05,step=300)→(climb=False,mastep=0.1,step=2000)→(climb=True,mastep=0.25,step=2000)
+| の条件でNEB計算を行ないたい時は.
+
+.. code-block:: python
+
+   from ase.io import write
+   from grrmpy.neb import RepetitiveNEB
+   from grrmpy.io import write_html
+
+   rneb = RepetitiveNEB(images)
+   rneb.attach(lambda:write("NEB.traj",rneb.images))
+   rneb.attach(lambda:write_html("NEB_Diagram.traj",rneb.images))
+
+   # ある条件でNEB計算がを終えるたびに構造を保存する場合(上書きせず別ファイルへ保存).
+   # 3回NEB計算するのでrange(3). それぞれNEB_0.traj,NEB_1.traj,NEB_2.trajに保存される.
+   rneb.update(lambda func:iter([write(f"NEB_{i}.traj",rneb.images) for i in range(3)]):next(func))
+
+   rneb.run(
+      climb_list = [False,False,True],
+      maxstep_list = [0.05,0.1,0.25],
+      fmax_list = [0.05,0.05,0.05],
+      steps_list = [300,2000,2000]
+   )
+
+.. autoclass:: grrmpy.neb.repetitive_neb.RepetitiveNEB
+   :members: run, attach, attach_stop, update, default_param
+
+SNEB
+==================================
+
+- Step1:
+   緩い収束条件でNEB計算を行ない,最もエネルギーの高い点をTSとする.
+- Step2: 
+   | TS構造の両隣の構造のエネルギーを順次確認し,エネルギーの谷間があった場合,その点をnew_ini,new_fin構造とする(青点).
+   | この時浅い谷間は無視する.具体的にはtolerance kJ/mol以下の谷間は無視する.
+- Step3: 
+   | TSとnew_ini,TSとfin_iniのエネルギー差をそれぞれ100とした時,threshold以下の点を切り捨てて新たにNEW_INI,NEW_FINを設定する.
+   | (これはTS付近にimageを集中させNEB計算を早く終わらせるために行う.)
+- Step4:
+   NEW_INIとNEW_FINを新たな始構造,終構造とし,NEB計算を行なう.
+- Step5:
+   Step1-Step4の操作を繰り返す(デフォルトでは4回行なう)
+
+.. image:: ./img/SNEB.png
+   :scale: 20%
+   :align: center
+
+
+.. important:: 
+
+   | 通常のNEB計算とは異なり,計算後のTS構造を **必ずIRC計算する必要がある** ので注意. 
+   | 引数 ``html`` を設定すると **NEBのエネルギーダイアグラムを表示できる** が,
+     この活性化エネルギーはあくまで目安であり,本当の活性化エネルギーはIRCするまで分からない.
+   | 通常 **活性化エネルギーは低く見積もられる.**
+ 
+
+.. autoclass:: grrmpy.neb.auto_neb.SNEB
+   :members: run, imax 
+   
+   Propertes:
+
+   .. autoattribute:: archive 
+
+   .. autoattribute:: images
+
+ANEB
+==================================
+
+TSから ``nsampling`` 離れた点を新たな始構造,終構造(new_ini,new_fin)としてNEB計算を行なう.
+
+.. image:: ./img/ANEB.png
+   :scale: 20%
+   :align: center
+   
+.. autoclass:: grrmpy.neb.auto_neb.ANEB
+   :members: run, imax 
+   
+   Propertes:
+
+   .. autoattribute:: archive 
+
+   .. autoattribute:: images
+      

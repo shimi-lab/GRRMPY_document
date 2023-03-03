@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.optimize.attach &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.optimize.attach</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.optimize.attach のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span>  <span class="n">NEB</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">Trajectory</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">mol</span><span class="p">,</span><span class="n">kJ</span><span class="p">,</span><span class="n">Hartree</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span> 
+
+<span class="c1"># User</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">get_diff</span><span class="p">,</span><span class="n">get_fmax</span>
+
+<div class="viewcode-block" id="optimize_eq"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.attach.optimize_eq">[ドキュメント]</a><span class="k">def</span> <span class="nf">optimize_eq</span><span class="p">(</span><span class="n">neb</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;iniとfinを最適化しながらNEB計算を行なう</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    neb: neb object</span>
+<span class="sd">        NEBオブジェクト</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        calculatorを返す関数</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">if</span> <span class="n">get_fmax</span><span class="p">(</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">get_fmax</span><span class="p">(</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">ini</span> <span class="o">=</span> <span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ini</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+        <span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ini</span>
+    <span class="k">if</span> <span class="n">get_fmax</span><span class="p">(</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">get_fmax</span><span class="p">(</span><span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">fin</span> <span class="o">=</span> <span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">fin</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+        <span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fin</span></div>
+
+     
+<span class="n">neb_maxstep_climb_false</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">10</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span><span class="mf">0.07</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="mf">0.1</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="mf">0.07</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="mf">0.06</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">neb_maxstep_climb_true</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">opt_maxstep</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">10</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">:</span><span class="mf">0.35</span><span class="p">,</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="automate_maxstep"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.attach.automate_maxstep">[ドキュメント]</a><span class="k">def</span> <span class="nf">automate_maxstep</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;maxstepの値を変更しながら最適化を行なう</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    opt: optimizer object</span>
+<span class="sd">        Optimizerオブジェクト</span>
+<span class="sd">    maxstep (_type_, optional)</span>
+<span class="sd">        | {fmax:maxstep}の辞書で与える.</span>
+<span class="sd">        | Noneの場合はNEB(climb=True,False),opt等に合わせて自動で設定する</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">maxstep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span> <span class="o">==</span> <span class="n">NEB</span><span class="p">:</span>
+            <span class="n">maxstep</span> <span class="o">=</span> <span class="n">neb_maxstep_climb_true</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">climb</span> <span class="k">else</span> <span class="n">neb_maxstep_climb_false</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maxstep</span> <span class="o">=</span> <span class="n">opt_maxstep</span>
+            
+    <span class="n">maxstep</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">maxstep</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">now_fmax</span> <span class="o">=</span> <span class="n">get_fmax</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fmax</span><span class="p">,</span><span class="n">step</span> <span class="ow">in</span> <span class="n">maxstep</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">now_fmax</span> <span class="o">&gt;</span> <span class="n">fmax</span><span class="p">:</span>
+            <span class="n">opt</span><span class="o">.</span><span class="n">maxstep</span> <span class="o">=</span> <span class="n">step</span>
+            <span class="k">break</span></div>
+
+
+<div class="viewcode-block" id="write_traj"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.attach.write_traj">[ドキュメント]</a><span class="k">def</span> <span class="nf">write_traj</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span><span class="n">opt</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;最適化中の構造をある条件に従って保存する.</span>
+<span class="sd">    </span>
+<span class="sd">    | IRC Pathのようなものを作成することができる</span>
+<span class="sd">    | </span>
+<span class="sd">    | method=0 : TS構造からの距離がdistずつ離れるたびに記録</span>
+<span class="sd">    | method=1 : 緩和中の移動距離がdistずつ移動するたびに記録</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    outfile: str</span>
+<span class="sd">        保存先のtrajファイルパス.既に存在するファイルを設定するとエラー</span>
+<span class="sd">    opt: Optimizer object</span>
+<span class="sd">        Optimizer</span>
+<span class="sd">    dist: float</span>
+<span class="sd">        dist Å構造が変化する度に構造を保存する.</span>
+<span class="sd">    mic:</span>
+<span class="sd">        | 周期境界条件で最小移動規則を適用し距離を算出する場合,True</span>
+<span class="sd">        | Noneの場合,計算する構造が周期境界を持っている場合は自動でTrueにする.</span>
+<span class="sd">    method: Int</span>
+<span class="sd">        メソッド</span>
+<span class="sd">        </span>
+<span class="sd">    Note:</span>
+<span class="sd">        | 他のattachとは異なりlambda文でのattachを行なわないことに注意する.</span>
+<span class="sd">        | Exampleを参照する.</span>
+<span class="sd">        </span>
+<span class="sd">    Example:</span>
+<span class="sd">    </span>
+<span class="sd">        &gt;&gt;&gt; opt = LBFGS(atoms)</span>
+<span class="sd">        &gt;&gt;&gt; opt.attach(write_traj(&#39;forward_path.traj&#39;,opt))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">_write_traj</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">HoldAtoms</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mic</span><span class="p">),</span> <span class="n">dist</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_write_traj</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span><span class="n">holdatoms</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    maxstepを変えて再計算した時にも追記できるような発展的な使用にはこれを使った方がいいかも</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">holdatoms</span><span class="o">.</span><span class="n">first_write</span><span class="p">:</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span>
+        <span class="n">holdatoms</span><span class="o">.</span><span class="n">first_write</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>
+    <span class="n">atoms1</span> <span class="o">=</span> <span class="n">holdatoms</span><span class="o">.</span><span class="n">atoms</span>
+    <span class="n">atoms2</span> <span class="o">=</span> <span class="n">holdatoms</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">method0</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">holdatoms</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">method1</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">holdatoms</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">method0</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">holdatoms</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mode</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">get_diff</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="n">holdatoms</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">holdatoms</span><span class="o">.</span><span class="n">dist</span><span class="p">:</span>
+        <span class="n">Trajectory</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">atoms</span><span class="o">=</span><span class="n">atoms2</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="n">holdatoms</span><span class="o">.</span><span class="n">dist</span> <span class="o">+=</span> <span class="n">dist</span>
+        
+<span class="k">def</span> <span class="nf">method1</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">holdatoms</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mode</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">get_diff</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="n">holdatoms</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">dist</span><span class="p">:</span>
+        <span class="n">Trajectory</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">atoms</span><span class="o">=</span><span class="n">atoms2</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="n">holdatoms</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">HoldAtoms</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;最適化時に構造を保持するためのクラス</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">opt</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">mic</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_write</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="n">opt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+            
+
+<div class="viewcode-block" id="same_energy_and_fmax"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.attach.same_energy_and_fmax">[ドキュメント]</a><span class="k">def</span> <span class="nf">same_energy_and_fmax</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">times</span><span class="p">,</span><span class="n">row</span><span class="p">,</span><span class="n">force_digit</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">energy_digit</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;同じEnergyとfmaxを繰り返す場合に停止する.</span>
+
+<span class="sd">    OptWithCondと上で使用する.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    opt: optimizer</span>
+<span class="sd">        Optimizer(OptWithCond)</span>
+<span class="sd">    times: int</span>
+<span class="sd">        times回連続で同じfmax,energy繰り返す事態がrow回あれば停止する.</span>
+<span class="sd">    row: int</span>
+<span class="sd">        times回連続で同じfmax,energy繰り返す事態がrow回あれば停止する.</span>
+<span class="sd">    force_digit: int</span>
+<span class="sd">        小数点以下force_digit桁が一致するか</span>
+<span class="sd">    energy_digit: integer</span>
+<span class="sd">        小数点以下energy_digit桁が一致するか</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    </span>
+<span class="sd">        &gt;&gt;&gt; from grrmpy.optimize import OptWithCond</span>
+<span class="sd">        &gt;&gt;&gt; opt = OptWithCond(FIRE,atoms,maxstep=0.2)</span>
+<span class="sd">        &gt;&gt;&gt; opt.attach_stop(same_energy_and_fmax(opt,10,2))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">data_class</span><span class="p">():</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">opt</span><span class="p">,</span><span class="n">times</span><span class="p">,</span><span class="n">row</span><span class="p">,</span><span class="n">force_digit</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">energy_digit</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmax</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="n">opt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">times</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times_cont</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">row_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force_digit</span> <span class="o">=</span> <span class="n">force_digit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_digit</span> <span class="o">=</span> <span class="n">energy_digit</span>
+
+        <span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">pre_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax</span>
+            <span class="n">now_f</span> <span class="o">=</span> <span class="n">get_fmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+            <span class="n">pre_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span>
+            <span class="n">now_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+            <span class="n">fd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_digit</span>
+            <span class="n">ed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_digit</span>
+            <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">pre_f</span><span class="p">,</span><span class="n">fd</span><span class="p">)</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">now_f</span><span class="p">,</span><span class="n">fd</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">round</span><span class="p">(</span><span class="n">pre_e</span><span class="p">,</span><span class="n">ed</span><span class="p">)</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">now_e</span><span class="p">,</span><span class="n">ed</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">times_cont</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">times_cont</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_count</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">:</span>       
+                        <span class="k">return</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">row_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">times_cont</span><span class="o">+=</span><span class="mi">1</span>  
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fmax</span> <span class="o">=</span> <span class="n">now_f</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">now_e</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_same_energy_and_fmax</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">data_class</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data_class</span><span class="o">.</span><span class="n">compare</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="o">=</span><span class="n">data_class</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">times</span><span class="p">,</span><span class="n">row</span><span class="p">,</span><span class="n">force_digit</span><span class="p">,</span><span class="n">energy_digit</span><span class="p">):</span><span class="n">_same_energy_and_fmax</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">data_class</span><span class="o">=</span><span class="n">c</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="steep_peak"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.attach.steep_peak">[ドキュメント]</a><span class="k">def</span> <span class="nf">steep_peak</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="n">max_ea</span><span class="p">,</span><span class="n">nsteps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    | NEB計算中にあるイメージと隣のイメージとのエネルギー差がmax_ea(kJ/mol)以上になれば計算を停止する.</span>
+<span class="sd">    | 計算初期はイメージが高く出るのでnsteps(回)イタレーションが終わった後から計測を始める.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    opt: optimizer</span>
+<span class="sd">        Optimizerオブジェクト   </span>
+<span class="sd">    max_ea: float</span>
+<span class="sd">        隣のイメージとのエネルギー差がmax_ea(kJ/mol)以上になれば計算を停止する</span>
+<span class="sd">    nsteps (_type_):</span>
+<span class="sd">        始めのnsteps回のあとから計測を始める</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    </span>
+<span class="sd">        &gt;&gt;&gt; from grrmpy.optimize import OptWithCond</span>
+<span class="sd">        &gt;&gt;&gt; neb = NEB(images,climb=False,parallel=True)</span>
+<span class="sd">        &gt;&gt;&gt; opt = OptWithCond(FIRE,neb,maxstep=0.2)</span>
+<span class="sd">        &gt;&gt;&gt; opt.attach_stop(lambda:steep_peak(opt,300,30))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">opt</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">images</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">&gt;</span> <span class="n">nsteps</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">energy_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">energy_list</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_ea</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

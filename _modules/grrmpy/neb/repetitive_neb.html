@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.neb.repetitive_neb &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.neb.repetitive_neb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.neb.repetitive_neb のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span><span class="p">,</span><span class="n">LBFGS</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span><span class="p">,</span><span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">kJ</span><span class="p">,</span> <span class="n">mol</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">argrelmax</span><span class="p">,</span><span class="n">argrelmin</span>
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.functions</span> <span class="kn">import</span> <span class="n">to_html_nebgraph</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">copy_images</span><span class="p">,</span> <span class="n">set_calc2images</span><span class="p">,</span> <span class="n">set_const2images</span><span class="p">,</span> <span class="n">get_energy_list</span><span class="p">,</span> <span class="n">n_sampling</span>
+<span class="kn">from</span> <span class="nn">grrmpy.optimize.attach</span> <span class="kn">import</span> <span class="n">automate_maxstep</span><span class="p">,</span><span class="n">same_energy_and_fmax</span><span class="p">,</span><span class="n">steep_peak</span>
+<span class="kn">from</span> <span class="nn">grrmpy.optimize.optimizer</span> <span class="kn">import</span> <span class="n">OptWithCond</span>
+
+<span class="n">NEB_MAXSTEP_CLIMB_FALSE</span> <span class="o">=</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span><span class="mi">5</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.07</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.07</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.06</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,}</span>
+<span class="n">NEB_MAXSTEP_CLIMB_TRUE</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,}</span>
+<span class="n">OPT_MAXSTEP</span> <span class="o">=</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">5</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mf">0.35</span><span class="p">,}</span>
+
+
+<div class="viewcode-block" id="RepetitiveNEB"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.repetitive_neb.RepetitiveNEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">RepetitiveNEB</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    | 一つのNEBイメージに対して,異なる条件で複数回NEB計算を行なうためのクラス.</span>
+<span class="sd">    | デフォルトではclimb,maxsteps,fmax,stepsなど,NEBやOptimizerの引数を変えられる.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        | Atomsのリスト</span>
+<span class="sd">    constraints: ASE Constraint</span>
+<span class="sd">        | constrainオブジェクト,複数制約をかける場合リストで与える.</span>
+<span class="sd">    parallel: bool</span>
+<span class="sd">        | 並列計算を行なう場合True.</span>
+<span class="sd">    mic: bool</span>
+<span class="sd">        | 最小イメージ規則にする場合True. デフォルトでは周期境界条件の場合自動でTrueにする.</span>
+<span class="sd">    calc_func: functions object</span>
+<span class="sd">        | claculatorを返す関数</span>
+<span class="sd">    name:</span>
+<span class="sd">        | 指定した名前でlogファイルが作成される.</span>
+<span class="sd">            </span>
+<span class="sd">    Properties:</span>
+<span class="sd">    </span>
+<span class="sd">    | RepetitiveNEBのプロパティ(の一部).</span>
+<span class="sd">    | このクラスを継承するし, 新たなクラスを作成することでカスタマイズされたNEBを作成することができる.</span>
+<span class="sd">    | 例えば,updateにイメージを切断,挿入する関数を与えることでSNEBは作成された.</span>
+<span class="sd">        </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        | 現在実行中のNEBのimages</span>
+<span class="sd">    neb: NEB</span>
+<span class="sd">        | 現在実行中のneb</span>
+<span class="sd">    opt: Optimizer</span>
+<span class="sd">        | 現在実行中のOptimizer</span>
+<span class="sd">    converged: bool</span>
+<span class="sd">        | 直近のNEBの収束状況</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_default_param</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;base_optimizer&quot;</span><span class="p">:</span><span class="n">FIRE</span><span class="p">,</span>
+            <span class="s2">&quot;climb_list&quot;</span><span class="p">:[</span><span class="kc">False</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">True</span><span class="p">],</span>
+            <span class="s2">&quot;maxstep_list&quot;</span><span class="p">:[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="kc">None</span><span class="p">],</span>
+            <span class="s2">&quot;fmax_list&quot;</span><span class="p">:[</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],</span>
+            <span class="s2">&quot;steps_list&quot;</span><span class="p">:[</span><span class="mi">200</span><span class="p">,</span><span class="mi">2000</span><span class="p">,</span><span class="mi">2000</span><span class="p">],</span>
+            <span class="s2">&quot;neb_kwargs&quot;</span><span class="p">:{},</span>
+            <span class="s2">&quot;opt_kwargs&quot;</span><span class="p">:{},</span>
+            <span class="s2">&quot;automate_maxstep_true&quot;</span><span class="p">:</span><span class="n">NEB_MAXSTEP_CLIMB_TRUE</span><span class="p">,</span>
+            <span class="s2">&quot;automate_maxstep_false&quot;</span><span class="p">:</span><span class="n">NEB_MAXSTEP_CLIMB_FALSE</span><span class="p">,</span>
+            <span class="s2">&quot;same_energy_and_fmax_arg&quot;</span><span class="p">:{</span><span class="s2">&quot;times&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="s2">&quot;row&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;force_digit&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;energy_digit&quot;</span><span class="p">:</span><span class="mi">6</span><span class="p">},</span>
+            <span class="s2">&quot;steep_peak_arg&quot;</span><span class="p">:{</span><span class="s2">&quot;max_ea&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;nsteps&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">},</span>
+        <span class="p">}</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="p">[],</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot;異なる条件で繰り返しNEB計算を行なう</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        images: list of Atoms</span>
+<span class="sd">            Atomsのリスト</span>
+<span class="sd">        constraints: ASE Constraint</span>
+<span class="sd">            constrainオブジェクト,複数制約をかける場合リストで与える.</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並列計算を行なう場合True.</span>
+<span class="sd">        mic: bool</span>
+<span class="sd">            最小イメージ規則にする場合True. デフォルトでは周期境界条件の場合自動でTrueにする.</span>
+<span class="sd">        calc_func: functions object</span>
+<span class="sd">            claculatorを返す関数</span>
+<span class="sd">        name:</span>
+<span class="sd">            指定した名前でlogファイルが作成される.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">copy_images</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="n">set_calc2images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="n">set_const2images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;run()実行時のデフォルトの引数&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_param</span>
+    
+    <span class="k">def</span> <span class="nf">check_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">neb</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;climb_list&quot;</span><span class="p">,</span><span class="s2">&quot;maxstep_list&quot;</span><span class="p">,</span><span class="s2">&quot;fmax_list&quot;</span><span class="p">,</span><span class="s2">&quot;steps_list&quot;</span><span class="p">]</span>
+        <span class="n">neb_len</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span><span class="o">==</span><span class="n">neb_len</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb_len</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">neb</span><span class="p">)</span><span class="si">}</span><span class="s2">は同じ要素数である必要があります&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">param</span><span class="p">):</span>
+        <span class="n">default_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_param</span>
+        <span class="n">unexpected_argument</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">-</span><span class="nb">set</span><span class="p">(</span><span class="n">default_param</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unexpected_argument</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;予期しない引数(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unexpected_argument</span><span class="p">)</span><span class="si">}</span><span class="s2">)が存在します.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                            <span class="sa">f</span><span class="s2">&quot;&#39;self.default_param??&#39;で引数を確認できます</span><span class="se">\n</span><span class="s2">&quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;Parameters:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_param</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">default_param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">default_param</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                
+    <span class="k">def</span> <span class="nf">run_neb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">climb_list</span><span class="p">,</span> <span class="n">maxstep_list</span><span class="p">,</span> <span class="n">fmax_list</span><span class="p">,</span> <span class="n">steps_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">climb</span><span class="p">,</span><span class="n">maxstep</span><span class="p">,</span><span class="n">fmax</span><span class="p">,</span><span class="n">steps</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">climb_list</span><span class="p">,</span><span class="n">maxstep_list</span><span class="p">,</span><span class="n">fmax_list</span><span class="p">,</span><span class="n">steps_list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neb</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="n">climb</span><span class="p">,</span><span class="n">parallel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="n">OptWithCond</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_optimizer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">,</span>
+                                   <span class="n">logfile</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">,</span>
+                                   <span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span> <span class="k">if</span> <span class="n">maxstep</span> <span class="k">else</span> <span class="mf">0.2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach_stop</span><span class="p">(</span><span class="n">same_energy_and_fmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="p">,</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">same_energy_and_fmax_arg</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach_stop</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">steep_peak</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="p">,</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">steep_peak_arg</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">maxstep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span>
+                    <span class="k">lambda</span><span class="p">:</span><span class="n">automate_maxstep</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">automate_maxstep_true</span> <span class="k">if</span> <span class="n">climb</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">automate_maxstep_false</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">args</span><span class="p">,</span><span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">args</span><span class="p">,</span><span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach_stop</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">do_update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
+    
+<div class="viewcode-block" id="RepetitiveNEB.attach"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.repetitive_neb.RepetitiveNEB.attach">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ASEのOptimizerと同じ&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">args</span><span class="p">,</span><span class="n">kwargs</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="RepetitiveNEB.attach_stop"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.repetitive_neb.RepetitiveNEB.attach_stop">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">attach_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | True or Falseを与える関数を設定する</span>
+<span class="sd">        | ASEのoptimizerのようにイタレーション毎に与えた関数が実行される.</span>
+<span class="sd">        | 関数の戻り値がTrueになった場合, 計算が停止する.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">args</span><span class="p">,</span><span class="n">kwargs</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="RepetitiveNEB.update"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.repetitive_neb.RepetitiveNEB.update">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;1回のNEB計算が終了する毎に実行される関数を指定できる&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function</span><span class="p">)</span></div>
+        
+    <span class="k">def</span> <span class="nf">do_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span><span class="p">:</span>
+            <span class="n">function</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="RepetitiveNEB.run"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.repetitive_neb.RepetitiveNEB.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | 計算を実行する</span>
+<span class="sd">        | 設定可能な引数がdefault_paramで確認できる.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        base_optimizer: Optimizer</span>
+<span class="sd">            | NEB計算に使用するOptimizer.</span>
+<span class="sd">            | ここで指定したOptimizerを継承して作成されるOptWithCondオプティマイザーが実際には使用される.</span>
+<span class="sd">        climb_list: list of bool</span>
+<span class="sd">            毎回のNEB計算のclib</span>
+<span class="sd">        maxstep_list: list of float</span>
+<span class="sd">            | 毎回のNEB計算のmaxstep_list</span>
+<span class="sd">            | 要素にNoneを指定した場合,forceに合わせて自動でmaxstepを変化させる.</span>
+<span class="sd">            | どのように変化させるかはautomate_maxstep_true,automate_maxstep_falseで指定できる.</span>
+<span class="sd">        fmax_list: list of float</span>
+<span class="sd">            | 毎回のNEB計算のfmax</span>
+<span class="sd">        steps_list: list of int</span>
+<span class="sd">            | 毎回のNEB計算のsteps</span>
+<span class="sd">        neb_kwargs: dict</span>
+<span class="sd">            | NEBのインスタンス時の引数を指定したい場合に用いる</span>
+<span class="sd">            | 例えばばね定数kを変えたい場合{&quot;k&quot;=0.2}のようにする</span>
+<span class="sd">            | ここで指定した値は全てのNEB計算に適用される</span>
+<span class="sd">        opt_kwargs: dict</span>
+<span class="sd">            | Optimizerのインスタンス引数を指定したい場合に用いる.</span>
+<span class="sd">        automate_maxstep_true: dict</span>
+<span class="sd">            | climb=True時にautomaxstepを使用した際のmaxstep値</span>
+<span class="sd">        automate_maxstep_false: dict</span>
+<span class="sd">            | climb=False時にautomaxstepを使用した際のmaxstep値</span>
+<span class="sd">        same_energy_and_fmax_arg: dict</span>
+<span class="sd">            | 停止基準</span>
+<span class="sd">        steep_peak_arg:</span>
+<span class="sd">            | 停止基準</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_param</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_neb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">climb_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxstep_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmax_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_list</span><span class="p">)</span></div></div>
+    
+    
+<span class="k">class</span> <span class="nc">CutNEB</span><span class="p">(</span><span class="n">RepetitiveNEB</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="p">[],</span><span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">grrmpy.io.html</span> <span class="kn">import</span> <span class="n">write_html</span> <span class="c1">#循環インポートになるため</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">constraints</span><span class="p">,</span><span class="n">parallel</span><span class="p">,</span><span class="n">calc_func</span><span class="p">,</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrierless</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+            
+    <span class="k">def</span> <span class="nf">adjust_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">,</span><span class="n">final_nimages</span><span class="p">,</span><span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        imagesに新らたにimageを追加したり,削除したりしてfinal_nimages+1個のイメージになるように調節する</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">final_nimages</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">copy_images</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">final_nimages</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
+            <span class="c1"># イメージを削除する</span>
+            <span class="n">new_images</span> <span class="o">=</span> <span class="n">copy_images</span><span class="p">(</span><span class="n">n_sampling</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">final_nimages</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">add_n</span> <span class="o">=</span> <span class="n">final_nimages</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="c1"># 新たに追加するimages数</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># imageとimegeの間の数(この間に新たなimageを挿入する)</span>
+            <span class="n">basic_n</span> <span class="o">=</span> <span class="n">add_n</span> <span class="o">//</span> <span class="n">box</span>
+            <span class="n">extra_n</span> <span class="o">=</span> <span class="n">add_n</span> <span class="o">%</span> <span class="n">box</span>
+            <span class="n">insert_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">basic_n</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">box</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">extra_n</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="o">-</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">insert_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">new_images</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">insert_list</span><span class="p">):</span>
+                <span class="n">p_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+                <span class="n">interpolate</span><span class="p">(</span><span class="n">p_images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span>
+                <span class="n">new_images</span><span class="o">+=</span><span class="n">p_images</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">new_images</span><span class="o">+=</span><span class="p">[</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">new_images</span>
+
+    <span class="k">def</span> <span class="nf">cut_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">threshold</span><span class="p">,</span><span class="n">nimages</span><span class="p">):</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">get_energy_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">energy</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">energy_list</span><span class="p">])</span> <span class="c1"># 単位換算&amp;np.array化</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrierless</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="c1"># バリアレスの場合</span>
+        
+        <span class="c1"># 削除するindex番号を調べる</span>
+        <span class="n">ts_i</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span> <span class="c1"># 両端以外で最大値を探す</span>
+        <span class="n">ini_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[:</span><span class="n">ts_i</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">ts_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">ts_i</span><span class="p">]</span>
+        <span class="n">fin_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">ts_i</span><span class="p">:]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">ini_threshold_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">ts_e</span><span class="o">-</span><span class="n">ini_e</span><span class="p">)</span><span class="o">*</span><span class="n">threshold</span><span class="o">*</span><span class="mf">0.01</span> <span class="o">+</span> <span class="n">ini_e</span>
+        <span class="n">fin_threshold_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">ts_e</span><span class="o">-</span><span class="n">fin_e</span><span class="p">)</span><span class="o">*</span><span class="n">threshold</span><span class="o">*</span><span class="mf">0.01</span> <span class="o">+</span> <span class="n">fin_e</span>
+        
+        <span class="n">ini_del_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">energy_list</span><span class="o">&lt;</span><span class="n">ini_threshold_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">and</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">ts_i</span><span class="p">]</span> <span class="c1"># 削るindex番号</span>
+        <span class="n">fin_del_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">energy_list</span><span class="o">&lt;</span><span class="n">fin_threshold_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">and</span> <span class="n">i</span><span class="o">&gt;</span><span class="n">ts_i</span><span class="p">]</span> <span class="c1"># 削るindex番号</span>
+
+        <span class="c1"># いき過ぎたイメージの削除を阻止する</span>
+        <span class="k">if</span> <span class="n">ts_i</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ini_del_idxes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># 削除するindex番号</span>
+        <span class="k">elif</span> <span class="n">ts_i</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span> <span class="ow">in</span> <span class="n">ini_del_idxes</span><span class="p">:</span>
+            <span class="n">ini_del_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ts_i</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span><span class="p">)]</span>
+            
+        <span class="k">if</span> <span class="n">ts_i</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">fin_del_idxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="n">ts_i</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span> <span class="ow">in</span> <span class="n">fin_del_idxes</span><span class="p">:</span>
+            <span class="n">fin_del_idxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ts_i</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">neighborhood</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">energy_list</span><span class="p">))]</span>
+   
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_ini_idx</span> <span class="o">=</span> <span class="n">ini_del_idxes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span> <span class="k">if</span> <span class="n">ini_del_idxes</span> <span class="o">!=</span> <span class="p">[]</span> <span class="k">else</span> <span class="mi">0</span> <span class="c1"># write_progress_htmlに伝えるため</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_fin_idx</span> <span class="o">=</span> <span class="n">fin_del_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">ini_del_idxes</span> <span class="o">!=</span> <span class="p">[]</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># 両端を削る</span>
+        <span class="n">ini_deleted_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[:</span><span class="n">ts_i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ini_del_idxes</span><span class="p">]</span>
+        <span class="n">fin_deleted_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ts_i</span><span class="p">:],</span><span class="n">start</span><span class="o">=</span><span class="n">ts_i</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fin_del_idxes</span><span class="p">]</span>
+        <span class="c1"># nimagesに合わせ新たにimagesを追加または削除</span>
+        <span class="n">ini_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjust_images</span><span class="p">(</span><span class="n">ini_deleted_images</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">fin_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjust_images</span><span class="p">(</span><span class="n">fin_deleted_images</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">ini_images</span> <span class="o">+</span> <span class="n">fin_images</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">set_calc2images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="n">set_const2images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+                
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default_param</span>
+        <span class="n">this_param</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;nimages_list&quot;</span><span class="p">:[</span><span class="mi">13</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;climb_list&quot;</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="c1">#親クラスのデフォルト値が変更されてもいいように</span>
+            <span class="s2">&quot;threshold_list&quot;</span><span class="p">:[</span><span class="mi">10</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s2">&quot;climb_list&quot;</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">)],</span>
+            <span class="s2">&quot;neighborhood&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">this_param</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">param</span>
+    
+    <span class="k">def</span> <span class="nf">write_progress_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_progress.html&quot;</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">html_text</span> <span class="o">=</span> <span class="n">to_html_nebgraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">new_ini_idx</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">new_fin_idx</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_text</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">check_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_param</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">climb_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages_list</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">climb_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold_list</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;len(climb_list)==len(nimages_list)+1==len(threshold_list)+1を満たす必要があります&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimages_list</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nimages_listは奇数のリストです&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">set_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">image_change_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span>
+            <span class="p">[</span><span class="k">lambda</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_images</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span><span class="n">nimages</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">threshold</span><span class="p">,</span><span class="n">nimages</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold_list</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages_list</span><span class="p">)]</span><span class="o">+</span>
+            <span class="p">[</span><span class="k">lambda</span><span class="p">:</span><span class="kc">None</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="nb">next</span><span class="p">(</span><span class="n">image_change_iter</span><span class="p">)())</span>
+        <span class="n">write_html_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span>
+            <span class="p">[</span><span class="k">lambda</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">write_progress_html</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_list</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="k">lambda</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">write_progress_html</span><span class="p">(</span><span class="kc">False</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="nb">next</span><span class="p">(</span><span class="n">write_html_iter</span><span class="p">)())</span>
+
+<span class="k">class</span> <span class="nc">SNEB</span><span class="p">(</span><span class="n">RepetitiveNEB</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">updata_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">images</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">images</span>
+
+    <span class="k">def</span> <span class="nf">check_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check_param</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">climb_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages_list</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;len(climb_list)==len(nimages_list)+1を満たす必要があります&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">set_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">attach_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)},</span>
+                       <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span><span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)}]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span> <span class="o">+=</span> <span class="n">attach_list</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

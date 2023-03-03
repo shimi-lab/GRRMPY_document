@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pathモジュール &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="Geometryモジュール" href="geometry.html" />
+    <link rel="prev" title="Visualizeモジュール" href="visualize.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io.html">I/O モジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimize.html">Optimizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neb.html">NEBモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">OPTモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automate.html">Automateモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualize.html">Visualizeモジュール</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pathモジュール</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reactpath">ReactPath</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">インスタンス化方法</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">プレビュー</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#excel">Excelへ保存</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#html">htmlへ保存</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#create-reactpath">create_reactpath</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grrmpy.path.create_reactpath.create_reactpath"><code class="docutils literal notranslate"><span class="pre">create_reactpath()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometryモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conv.html">Convモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Networkモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blender.html">blenderモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html">コマンドライン</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">Pathモジュール</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/modules/path.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-grrmpy.path">
+<span id="path"></span><h1>Pathモジュール<a class="headerlink" href="#module-grrmpy.path" title="この見出しへのパーマリンク"></a></h1>
+<section id="reactpath">
+<h2>ReactPath<a class="headerlink" href="#reactpath" title="この見出しへのパーマリンク"></a></h2>
+<section id="id1">
+<h3>インスタンス化方法<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h3>
+<ul class="simple">
+<li><p>nameとAtomsを与える方法</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.path</span> <span class="kn">import</span> <span class="n">ReactPath</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span>
+
+<span class="n">atoms_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">atoms</span> <span class="n">fro</span> <span class="n">atoms</span> <span class="ow">in</span> <span class="n">iread</span><span class="p">(</span><span class="n">atoms</span><span class="p">)]</span> <span class="c1"># 5つのAtomsが格納されている</span>
+<span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EQ0&quot;</span><span class="p">,</span><span class="s2">&quot;TS0&quot;</span><span class="p">,</span><span class="s2">&quot;EQ1&quot;</span><span class="p">,</span><span class="s2">&quot;TS1&quot;</span><span class="p">,</span><span class="s2">&quot;EQ2&quot;</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;:name&quot;</span><span class="p">:</span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;atoms&quot;</span><span class="p">:</span><span class="n">atoms</span><span class="p">}</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">ReactPath</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><span class="strike">nameとenergyを与える方法</span> → <span class="red">この方法は現在,非推奨. ReactPathは機能するがReactPathsが機能しない.この方法でインスタンス化したReactPathからReactPathsをインスタンス化しようとするとエラーになる</span></p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.path</span> <span class="kn">import</span> <span class="n">ReactPath</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">iread</span>
+
+<span class="n">energy</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">201.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">123.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">222.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">192.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">200.1</span><span class="p">]</span> <span class="c1"># Hartree単位</span>
+<span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EQ0&quot;</span><span class="p">,</span><span class="s2">&quot;TS0&quot;</span><span class="p">,</span><span class="s2">&quot;EQ1&quot;</span><span class="p">,</span><span class="s2">&quot;TS1&quot;</span><span class="p">,</span><span class="s2">&quot;EQ2&quot;</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span><span class="n">energy</span><span class="p">}</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">ReactPath</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;Hartree&quot;</span><span class="p">)</span> <span class="c1"># eV単位以外の場合は単位を設定する</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>プレビュー<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">.</span><span class="n">preview</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/preview.png"><img alt="../../_images/preview.png" class="align-center" src="../../_images/preview.png" style="width: 520.8px; height: 378.59999999999997px;" /></a>
+</section>
+<section id="excel">
+<h3>Excelへ保存<a class="headerlink" href="#excel" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">.</span><span class="n">write_excel</span><span class="p">(</span><span class="s2">&quot;Sample.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/excel.png"><img alt="../../_images/excel.png" class="align-center" src="../../_images/excel.png" style="width: 772.8px; height: 370.8px;" /></a>
+</section>
+<section id="html">
+<h3>htmlへ保存<a class="headerlink" href="#html" title="この見出しへのパーマリンク"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Sample.html&quot;</span><span class="p">)</span> <span class="c1"># Sample.htmlに保存</span>
+<span class="n">path</span><span class="o">.</span><span class="n">write_html</span><span class="p">()</span> <span class="c1"># 標準出力 空白が表示される場合,path.write_html().show(renderer=&quot;sphinx_gallery&quot;)</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/path_html.png"><img alt="../../_images/path_html.png" class="align-center" src="../../_images/path_html.png" style="width: 815.4px; height: 380.4px;" /></a>
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.path.reaction_path.</span></span><span class="sig-name descname"><span class="pre">ReactPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data:</span> <span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions:</span> <span class="pre">~typing.Optional[list]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barrier_less_index=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit='eV'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Parameters:</p>
+<dl>
+<dt>data: dict or DataFrame</dt><dd><p>energyとnameまたはatomsとnameの2つのキーを持つ辞書.</p>
+<ul>
+<li><dl>
+<dt>'energy': list of float</dt><dd><div class="line-block">
+<div class="line">エネルギーをリストで与える</div>
+<div class="line">単位はkJ/mol, eV単位で与える場合,unit='eV'とする</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>'atoms': list of Atoms</dt><dd><div class="line-block">
+<div class="line">Atomsのリスト</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>'name'<span class="classifier">list of str</span></dt><dd><div class="line-block">
+<div class="line">Ex) ['EQ0','TS1','EQ3','TS3','EQ2','PT2','EQ5']</div>
+<div class="line">'TS','PT'の文字列を含んでいる場合,それぞれグラフ描写時に赤色,緑色で表示される</div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>title: srt</dt><dd><div class="line-block">
+<div class="line">Pathを識別するためにタイトルを付ける事が可能.</div>
+<div class="line">デフォルトはNone</div>
+</div>
+</dd>
+<dt>positions: list of bool</dt><dd><div class="line-block">
+<div class="line">solidラインの位置をカスタマイズする</div>
+<div class="line">使用方法は   を参照</div>
+<div class="line">指定しない場合はすべてTrueリストが作成される</div>
+</div>
+</dd>
+<dt>unit: string</dt><dd><p>dataの設定の際に'energy'で設定した場合,与えたエネルギーの単位を記入する
+'kJ/mol','Hartree','eV'のいずれか</p>
+</dd>
+<dt>clac_funct: function object</dt><dd><div class="line-block">
+<div class="line">dataの設定の際に'atoms'で設定した場合,calculatorを与える関数が必要.</div>
+<div class="line">デフォルトではPFP.</div>
+</div>
+</dd>
+<dt>mask: list of bool</dt><dd><p>dot線を書かない部分をFalseにする.Noneの場合全てTrueのリスト</p>
+</dd>
+<dt>barrier_less_index: list of int</dt><dd><div class="line-block">
+<div class="line">バリアレスの部分のindex番号(設定は任意)</div>
+<div class="line">EQ1-TS0-EQ2-EQ3でEQ2-EQ3の部分がバリアレスの場合,barrier_less_index=[2]</div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>constraintsはFixAtomsだけfromdict,frompkl変換できる</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.frompkl">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frompkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">openfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_func=&lt;function</span> <span class="pre">pfp_calculator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.frompkl"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.frompkl" title="この定義へのパーマリンク"></a></dt>
+<dd><p>topklで作成したpickleファイルからオブジェクト再生する</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">ReactPath</span><span class="o">.</span><span class="n">frompkl</span><span class="p">(</span><span class="s2">&quot;Path.pickle&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.get_fig">
+<span class="sig-name descname"><span class="pre">get_fig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.get_fig"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.get_fig" title="この定義へのパーマリンク"></a></dt>
+<dd><p>matplotlibのfigを返す</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.preview">
+<span class="sig-name descname"><span class="pre">preview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.preview"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.preview" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Notebook上でグラフを表示(matplotlib)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.topkl">
+<span class="sig-name descname"><span class="pre">topkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.topkl"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.topkl" title="この定義へのパーマリンク"></a></dt>
+<dd><p>現在のオブジェクトをpickle化する</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">topkl</span><span class="p">(</span><span class="s2">&quot;Path.pickle&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.write_excel">
+<span class="sig-name descname"><span class="pre">write_excel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.write_excel"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.write_excel" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Excellにグラフを作成する</p>
+<p>その他の引数はreaction_path.functions.to_excell()を参照</p>
+<p>Parameters:</p>
+<dl>
+<dt>outfile: str</dt><dd><div class="line-block">
+<div class="line">Excelファイル名</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grrmpy.path.reaction_path.ReactPath.write_html">
+<span class="sig-name descname"><span class="pre">write_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barrier_less_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/reaction_path.html#ReactPath.write_html"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.reaction_path.ReactPath.write_html" title="この定義へのパーマリンク"></a></dt>
+<dd><p>反応座標グラフをhtmlに保存する</p>
+<p>Parameters:</p>
+<dl>
+<dt>outfile: str or Path</dt><dd><div class="line-block">
+<div class="line">出力先のhtmlファイル</div>
+<div class="line">Noneの場合は標準出力する</div>
+</div>
+</dd>
+</dl>
+<p class="rubric">サンプル</p>
+<p>通常</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Sample.html&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>アノテーション(x座標が14.5の部分に&quot;Sample text&quot;と入力)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Sample.html&quot;</span><span class="p">,</span><span class="n">annotation</span><span class="o">=</span><span class="p">[(</span><span class="mf">14.5</span><span class="p">,</span><span class="s2">&quot;Sample text&quot;</span><span class="p">)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="create-reactpath">
+<h2>create_reactpath<a class="headerlink" href="#create-reactpath" title="この見出しへのパーマリンク"></a></h2>
+<p>テキストファイルからReactPathオブジェクトを作成する</p>
+<div class="line-block">
+<div class="line">例としてEQ_Listフォルダに0.traj,1.traj...のEQ構造が,TS_Listフォルダに0.traj,1.traj...のTS構造がある事を想定する.</div>
+<div class="line">Path.datファイルの中身は</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Dir</span><span class="p">]</span>
+<span class="n">EQ</span><span class="p">:</span> <span class="o">./</span><span class="n">EQ_List</span><span class="o">/</span>
+<span class="n">TS</span><span class="p">:</span> <span class="o">./</span><span class="n">TS_List</span><span class="o">/</span>
+<span class="n">PT</span><span class="p">:</span>
+
+<span class="p">[</span><span class="n">ReactPath</span><span class="p">]</span>
+<span class="n">path</span><span class="p">:</span> <span class="n">EQ0</span><span class="p">;</span><span class="n">TS1</span><span class="p">;</span><span class="n">EQ2</span><span class="p">;</span><span class="n">TS0</span><span class="p">;</span><span class="n">EQ1</span><span class="o">~</span><span class="n">EQ5</span><span class="o">|</span><span class="n">EQ3</span>
+</pre></div>
+</div>
+<p>上のファイルは次のように表記することもできる</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[ReactPath]
+EQ: ./EQ_List/
+TS: ./TS_List/
+PT:
+path: ${EQ}0;${TS}1;${EQ}2;${TS}0;${EQ}1~${EQ}5|${EQ}3
+name: [&quot;EQ0&quot;,&quot;TS1&quot;,&quot;EQ2&quot;,&quot;TS0&quot;,&quot;EQ1&quot;,&quot;EQ2&quot;,&quot;EQ0&quot;]
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.path</span> <span class="kn">import</span> <span class="n">create_reactpath</span>
+<span class="n">react_path</span> <span class="o">=</span> <span class="n">create_reactpath</span><span class="p">(</span><span class="s2">&quot;Path.dat&quot;</span><span class="p">)</span>
+<span class="n">react_path</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Sample.html&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.path.create_reactpath.create_reactpath">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.path.create_reactpath.</span></span><span class="sig-name descname"><span class="pre">create_reactpath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/path/create_reactpath.html#create_reactpath"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.path.create_reactpath.create_reactpath" title="この定義へのパーマリンク"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="visualize.html" class="btn btn-neutral float-left" title="Visualizeモジュール" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geometry.html" class="btn btn-neutral float-right" title="Geometryモジュール" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

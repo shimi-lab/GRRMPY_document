@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.automate.auto_neb &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.automate.auto_neb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.automate.auto_neb のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span><span class="p">,</span><span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm_notebook</span> <span class="k">as</span> <span class="n">tqdm</span>
+
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">set_calc2images</span><span class="p">,</span><span class="n">set_const2images</span><span class="p">,</span><span class="n">copy_images</span><span class="p">,</span><span class="n">get_unique_connections</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.repetitive_neb</span> <span class="kn">import</span> <span class="n">RepetitiveNEB</span>
+<span class="kn">from</span> <span class="nn">grrmpy.io</span> <span class="kn">import</span> <span class="n">write_html</span>
+
+<div class="viewcode-block" id="AutoNEB"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">AutoNEB</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;連続的にNEB計算を行なう</span>
+<span class="sd">    </span>
+<span class="sd">    | attach(),attach_stop(),update(),next_i()に関数を与える事ができる.</span>
+<span class="sd">    | attach()とattach_stop()はイタレーション毎に実行される.</span>
+<span class="sd">    | update()はNEB計算が終了する毎に実行される.</span>
+<span class="sd">    | next_i()は1サンプルの計算を終える毎に実行される.</span>
+<span class="sd">    </span>
+<span class="sd">    | STOP.txtファイルをディレクトリ中に設置すると計算を一時停止,またはスキップできる.</span>
+<span class="sd">    | STOP.txtの中に</span>
+<span class="sd">    | STOP = TUREとすると,計算が一時停止される.</span>
+<span class="sd">    | SKIP = TRUEとすると現在実行中サンプルの計算が中止される.</span>
+<span class="sd">    </span>
+<span class="sd">    | STOP.txtで停止を行なうとRESTART.txtが作成される.</span>
+<span class="sd">    | ディレクトリ中にRESTART.txtが存在する場合,途中から再開する.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    eq_list: list of Atoms</span>
+<span class="sd">        | EQのリスト(Atoms)</span>
+<span class="sd">    connections:</span>
+<span class="sd">        | CONNECTiONS情報</span>
+<span class="sd">        | Ex) [[0,1],[2,4],[3,5],...]</span>
+<span class="sd">    constraints: Constraintオブジェクト </span>
+<span class="sd">        | FixAtomsなどの制約.</span>
+<span class="sd">    parallel: bool</span>
+<span class="sd">        | NEBで並列計算を行なう場合True.</span>
+<span class="sd">    mic: bool</span>
+<span class="sd">        | 最小イメージ規則を適用する場合,True.</span>
+<span class="sd">        | デフォルトでは周期境界条件で計算する場合自動でTrueにする.</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        | calculatorを返す関数</span>
+<span class="sd">    savefolder: str</span>
+<span class="sd">        | 収束した構造を保存するためのフォルダ</span>
+<span class="sd">    unconvergedfolder: str</span>
+<span class="sd">        | 収束しなかった構造を保存するためのフォルダ</span>
+<span class="sd">    logfolder: str</span>
+<span class="sd">        | logファイルを格納するフォルダ</span>
+<span class="sd">    htmlfolder:</span>
+<span class="sd">        | エネルギーダイアグラムのhtmlを保存するためのフォルダ</span>
+<span class="sd">    errorfile:</span>
+<span class="sd">        | ERRORファイルのパス</span>
+<span class="sd">        | 計算中にエラーが発生した場合,ERRORファイルに書き込まれる.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq_list</span><span class="p">,</span> <span class="n">connections</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="p">[],</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mic</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span> <span class="n">savefolder</span><span class="o">=</span><span class="s2">&quot;Structures&quot;</span><span class="p">,</span><span class="n">unconvergedfolder</span><span class="o">=</span><span class="s2">&quot;unconv&quot;</span><span class="p">,</span>
+                 <span class="n">logfolder</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">htmlfolder</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">errorfile</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;連続的にNEB計算を行なう</span>
+<span class="sd">        </span>
+<span class="sd">        attach(),attach_stop(),update(),next_i()に関数を与える事ができる.</span>
+<span class="sd">        attach()とattach_stop()はイタレーション毎に実行される.</span>
+<span class="sd">        update()はNEB計算が終了する毎に実行される.</span>
+<span class="sd">        next_i()は1サンプルの計算を終える毎に実行される.</span>
+<span class="sd">        </span>
+<span class="sd">        STOP.txtファイルをディレクトリ中に設置すると計算を一時停止,またはスキップできる.</span>
+<span class="sd">        STOP.txtの中に</span>
+<span class="sd">        STOP = TUREとすると,計算が一時停止される.</span>
+<span class="sd">        SKIP = TRUEとすると現在実行中サンプルの計算が中止される.</span>
+<span class="sd">        </span>
+<span class="sd">        STOP.txtで停止を行なうとRESTART.txtが作成される.</span>
+<span class="sd">        ディレクトリ中にRESTART.txtが存在する場合,途中から再開する.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        eq_list: list of Atoms</span>
+<span class="sd">            EQのリスト(Atoms)</span>
+<span class="sd">        connections:</span>
+<span class="sd">            CONNECTiONS情報</span>
+<span class="sd">            Ex) [[0,1],[2,4],[3,5],...]</span>
+<span class="sd">        constraints: Constraintオブジェクト </span>
+<span class="sd">            FixAtomsなどの制約.</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            NEBで並列計算を行なう場合True.</span>
+<span class="sd">        mic: bool</span>
+<span class="sd">            最小イメージ規則を適用する場合,True.</span>
+<span class="sd">            デフォルトでは周期境界条件で計算する場合自動でTrueにする.</span>
+<span class="sd">        calc_func: function object</span>
+<span class="sd">            calculatorを返す関数</span>
+<span class="sd">        savefolder: str</span>
+<span class="sd">            収束した構造を保存するためのフォルダ</span>
+<span class="sd">        unconvergedfolder: str</span>
+<span class="sd">            収束しなかった構造を保存するためのフォルダ</span>
+<span class="sd">        logfolder: str</span>
+<span class="sd">            logファイルを格納するフォルダ</span>
+<span class="sd">        htmlfolder:</span>
+<span class="sd">            エネルギーダイアグラムのhtmlを保存するためのフォルダ</span>
+<span class="sd">        errorfile:</span>
+<span class="sd">            ERRORファイルのパス</span>
+<span class="sd">            計算中にエラーが発生した場合,ERRORファイルに書き込まれる.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_connections</span><span class="p">(</span><span class="n">connections</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span> <span class="o">=</span> <span class="n">copy_images</span><span class="p">(</span><span class="n">eq_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span> <span class="o">=</span> <span class="n">logfolder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errorfile</span> <span class="o">=</span> <span class="n">errorfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">savefolder</span> <span class="o">=</span> <span class="n">savefolder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">htmlfolder</span> <span class="o">=</span> <span class="n">htmlfolder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unconvergedfolder</span> <span class="o">=</span> <span class="n">unconvergedfolder</span>
+        
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_i_list</span> <span class="o">=</span> <span class="p">[]</span>
+        
+    <span class="k">def</span> <span class="nf">make_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">nimage</span><span class="p">):</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimage</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fin</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="n">interpolate</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">)</span>
+        <span class="n">set_calc2images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+        <span class="n">set_const2images</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span>
+    
+    <span class="k">def</span> <span class="nf">gen_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">connections</span><span class="p">):</span>
+        <span class="n">new_connections</span><span class="p">,</span><span class="n">idx</span> <span class="o">=</span> <span class="n">get_unique_connections</span><span class="p">(</span><span class="n">connections</span><span class="p">)</span>
+        <span class="n">new_connections</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">connections</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">new_connections</span>
+    
+    <span class="k">def</span> <span class="nf">make_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">foldername</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">foldername</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># フォルダが存在しなければ作成</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">check_stop_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;STOP.txt&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">pass</span>
+                
+<div class="viewcode-block" id="AutoNEB.attach"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB.attach">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | ASEのOptimizerのattachと同じ.</span>
+<span class="sd">        | イタレーション毎にattachで与えた関数が実行される.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">args</span><span class="p">,</span><span class="n">kwargs</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="AutoNEB.attach_stop"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB.attach_stop">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">attach_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | grrmpy.optimize.optimizer.OptWithCondのattach_stopと同じ</span>
+<span class="sd">        | True,Falseを返す関数を設定する.</span>
+<span class="sd">        | イタレーション毎に関数が実行されTrueを返した時に計算が停止する</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">args</span><span class="p">,</span><span class="n">kwargs</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="AutoNEB.update"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB.update">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | grrmpy.neb.repetitive_neb.RepetitiveNEBのuodateと同じ</span>
+<span class="sd">        | updateに関数を与えると,NEBの計算が終わるごとに実行される</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="AutoNEB.next_i"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB.next_i">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">next_i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        1サンプル計算が終える度に実行される関数を与えられる.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_i_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function</span><span class="p">)</span></div>
+        
+    <span class="k">def</span> <span class="nf">write_errorlog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">errorfile</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>    
+        
+    <span class="k">def</span> <span class="nf">make_nimages_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nimages</span><span class="p">):</span>
+        <span class="n">nimages_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">nimages</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">))]</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">==</span><span class="nb">int</span> <span class="k">else</span> <span class="n">nimages</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;nimagesの要素数がconnectionの要素数と一致しません&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nimages_list</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;run()の際に使用されるデフォルトの引数.</span>
+<span class="sd">        </span>
+<span class="sd">        climb_list,maxstep_list,fmax_list,steps_listの要素数は一致している必要がある.</span>
+<span class="sd">        </span>
+<span class="sd">        base_optimizer: Optimizer</span>
+<span class="sd">            | NEB計算に使用するOptimizer.</span>
+<span class="sd">            | ここで指定したOptimizerを継承して作成されるOptWithCondオプティマイザーが実際には使用される.</span>
+<span class="sd">        climb_list: list of bool</span>
+<span class="sd">            毎回のNEB計算のclib</span>
+<span class="sd">        maxstep_list: list of float</span>
+<span class="sd">            | 毎回のNEB計算のmaxstep_list</span>
+<span class="sd">            | 要素にNoneを指定した場合,forceに合わせて自動でmaxstepを変化させる.</span>
+<span class="sd">            | どのように変化させるかはautomate_maxstep_true,automate_maxstep_falseで指定できる.</span>
+<span class="sd">        fmax_list: list of float</span>
+<span class="sd">            | 毎回のNEB計算のfmax</span>
+<span class="sd">        steps_list: list of int</span>
+<span class="sd">            | 毎回のNEB計算のsteps</span>
+<span class="sd">        neb_kwargs: dict</span>
+<span class="sd">            | NEBのインスタンス時の引数を指定したい場合に用いる</span>
+<span class="sd">            | 例えばばね定数kを変えたい場合{&quot;k&quot;=0.2}のようにする</span>
+<span class="sd">            | ここで指定した値は全てのNEB計算に適用される</span>
+<span class="sd">        opt_kwargs: dict</span>
+<span class="sd">            | Optimizerのインスタンス引数を指定したい場合に用いる.</span>
+<span class="sd">        automate_maxstep_true: dict</span>
+<span class="sd">            | climb=True時にautomaxstepを使用した際のmaxstep値</span>
+<span class="sd">        automate_maxstep_false: dict</span>
+<span class="sd">            | climb=False時にautomaxstepを使用した際のmaxstep値</span>
+<span class="sd">        same_energy_and_fmax_arg: dict</span>
+<span class="sd">            | 停止基準</span>
+<span class="sd">        steep_peak_arg:</span>
+<span class="sd">            | 停止基準  </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RepetitiveNEB</span><span class="o">.</span><span class="n">_default_param</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">images</span>
+    
+<div class="viewcode-block" id="AutoNEB.run"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.auto_neb.AutoNEB.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nimages</span><span class="p">,</span><span class="n">restart</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        nimages: int or list of int</span>
+<span class="sd">            NEBのイメージの数. listで指定した場合はサンプル毎に違うイメージ数でNEB計算できる.</span>
+<span class="sd">            </span>
+<span class="sd">        その他の引数はdefault_paramで確認する</span>
+<span class="sd">        </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; auto_neb.run(16,steps_list=[100,1000,1500])</span>
+<span class="sd">            </span>
+<span class="sd">            以下のコードでも同じ処理を行なえる</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; param = auto_neb.default_param</span>
+<span class="sd">            &gt;&gt;&gt; param[&quot;steps_list&quot;] = [100,1000,1500]</span>
+<span class="sd">            &gt;&gt;&gt; auto_neb.run(16,**param)</span>
+<span class="sd">            </span>
+<span class="sd">            途中から計算を再開するには</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; auto_neb.run(16,restart=8) # NEB8から計算を開始する</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">savefolder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">htmlfolder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unconvergedfolder</span><span class="p">)</span>
+        <span class="n">nimages_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_nimages_list</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span>
+        <span class="n">nimages_list</span> <span class="o">=</span> <span class="n">nimages_list</span><span class="p">[</span><span class="n">restart</span><span class="p">:]</span>
+        <span class="n">connections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">restart</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">nimage</span><span class="p">,</span><span class="n">connection</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">nimages_list</span><span class="p">),</span><span class="n">connections</span><span class="p">),</span><span class="n">start</span><span class="o">=</span><span class="n">restart</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">connection</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">connection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="n">fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_list</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_images</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">,</span><span class="n">nimage</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span> <span class="o">=</span> <span class="n">RepetitiveNEB</span><span class="p">(</span>
+                        <span class="n">images</span><span class="p">,</span>
+                        <span class="n">constraints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> 
+                        <span class="n">parallel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span> 
+                        <span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span> 
+                        <span class="n">calc_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span> 
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span>
+                        <span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">htmlfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">(EQ</span><span class="si">{</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">-EQ</span><span class="si">{</span><span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">).html&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">args</span><span class="p">,</span><span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_list</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">args</span><span class="p">,</span><span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_stop_list</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">attach_stop</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>     
+                    <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_list</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+                        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">savefolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">images</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unconvergedfolder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">rneb</span><span class="o">.</span><span class="n">images</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">functions</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_i_list</span><span class="p">:</span>
+                        <span class="n">functions</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_errorlog</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">番目の計算:</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

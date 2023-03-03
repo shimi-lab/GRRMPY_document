@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.optimize.optimizer &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.optimize.optimizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.optimize.optimizer のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; call Dynamics.run and keep track of fmax&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">irun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run dynamics algorithm as generator. This allows, e.g.,</span>
+<span class="sd">        to easily run two optimizers or MD thermostats at the same time.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">        &gt;&gt;&gt; opt1 = BFGS(atoms)</span>
+<span class="sd">        &gt;&gt;&gt; opt2 = BFGS(StrainFilter(atoms)).irun()</span>
+<span class="sd">        &gt;&gt;&gt; for _ in opt2:</span>
+<span class="sd">        &gt;&gt;&gt;     opt1.run()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># compute initial structure and log the first step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_forces</span><span class="p">()</span>
+
+        <span class="c1"># yield the first time to inspect before logging</span>
+        <span class="k">yield</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">call_observers</span><span class="p">()</span>
+
+        <span class="c1"># run the algorithm until converged or max_steps reached</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_steps</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">:</span>
+
+            <span class="c1"># compute the next step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># let the user inspect the step and change things before logging</span>
+            <span class="c1"># and predicting the next step</span>
+            <span class="k">yield</span> <span class="kc">False</span>
+
+            <span class="c1"># log the step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">call_observers</span><span class="p">()</span>
+
+        <span class="c1"># finally check if algorithm was converged</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">()</span>
+        
+    <span class="bp">self</span><span class="o">.</span><span class="n">fmax</span> <span class="o">=</span> <span class="n">fmax</span>
+    <span class="k">if</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_steps</span> <span class="o">=</span> <span class="n">steps</span>
+    <span class="k">for</span> <span class="n">converged</span> <span class="ow">in</span> <span class="n">irun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">converged</span>
+
+<span class="k">def</span> <span class="nf">attach_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">function1</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">function</span><span class="p">):</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">function</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">b</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
+            
+    <span class="bp">self</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">function1</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+    
+
+<div class="viewcode-block" id="OptWithCond"><a class="viewcode-back" href="../../../src/modules/optimize.html#grrmpy.optimize.optimizer.OptWithCond">[ドキュメント]</a><span class="k">def</span> <span class="nf">OptWithCond</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    | OptWithCond.stopがTrueになると計算が停止するOptimizer</span>
+<span class="sd">    | attach_stop()の引数にTrue,Falseを返す関数をアタッチできる.</span>
+<span class="sd">    | イタレーション毎にattach_stopで設定した関数が実行され,関数の返り値がTrueになればOptWithCond.stopがTureとなり,計算が停止する.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    optimizer: class</span>
+<span class="sd">        | 継承するoptimizer</span>
+<span class="sd">    atoms: Atoms</span>
+<span class="sd">        | Atomsオブジェクト</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        | optimizerの引数</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        class: Stop機能を付けたOptimizer object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">custun_optimizer</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">withCOND&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">optimizer</span><span class="p">,),{})</span>
+    <span class="n">custun_optimizer</span><span class="o">.</span><span class="n">run</span> <span class="o">=</span> <span class="n">run</span>
+    <span class="n">custun_optimizer</span><span class="o">.</span><span class="n">attach_stop</span> <span class="o">=</span> <span class="n">attach_stop</span>
+    <span class="n">custun_optimizer</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">custun_optimizer</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

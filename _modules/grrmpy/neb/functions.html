@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.neb.functions &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.neb.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.neb.functions のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.geometry</span> <span class="kn">import</span> <span class="n">find_mic</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">mol</span><span class="p">,</span> <span class="n">kJ</span><span class="p">,</span> <span class="n">Hartree</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># User</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">to_html_energy_diagram</span><span class="p">,</span> <span class="n">get_energy_list</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">set_calc2images</span>
+
+<span class="k">def</span> <span class="nf">to_html_nebgraph</span><span class="p">(</span><span class="n">neb_obj</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                     <span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kJ/mol&quot;</span><span class="p">,</span>
+                     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NEB Energy Diagram&quot;</span><span class="p">,</span>
+                     <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Reaction Coordinate&quot;</span><span class="p">,</span>
+                     <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">highlight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">annotation</span><span class="o">=</span><span class="p">[],</span>
+                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NEBのエネルギーダイアグラムのhtmlテキストを作成する</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    unit: string</span>
+<span class="sd">        &#39;eV&#39;, &#39;kJ/mol&#39;, &#39;Hartree&#39;, &#39;kcal/mol&#39;のいずれか</span>
+<span class="sd">    yaxis_title: string</span>
+<span class="sd">        Noneの場合,Energy({unit})</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        plotpyのto_htmlの引数を参照</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">to_html_energy_diagram</span><span class="p">(</span><span class="n">neb_obj</span><span class="o">.</span><span class="n">images</span><span class="p">,</span>
+                                  <span class="n">calc_func</span><span class="o">=</span><span class="n">calc_func</span><span class="p">,</span>
+                                  <span class="n">full_html</span><span class="o">=</span><span class="n">full_html</span><span class="p">,</span>
+                                  <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span>
+                                  <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+                                  <span class="n">xaxis_title</span><span class="o">=</span><span class="n">xaxis_title</span><span class="p">,</span>
+                                  <span class="n">yaxis_title</span><span class="o">=</span><span class="n">yaxis_title</span><span class="p">,</span>
+                                  <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span>
+                                  <span class="n">annotation</span><span class="o">=</span><span class="n">annotation</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">insert_image</span><span class="p">(</span><span class="n">neb</span><span class="p">,</span> <span class="n">mic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">clac_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TS周りに新たにimageを挿入する.</span>
+<span class="sd">    </span>
+<span class="sd">    TS構造の両側に新たなImageを挿入する.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    neb: NEB object</span>
+<span class="sd">        NEBオブジェクト</span>
+<span class="sd">    mic: bool</span>
+<span class="sd">        周期境界条件で最小画像規則を使用する場合は,True</span>
+<span class="sd">    i: int or None</span>
+<span class="sd">        | i番目のimageの両側に新たなイメージを作成する.</span>
+<span class="sd">        | Noneの場合,imax(TS)に挿入する.</span>
+<span class="sd">    a: float or list of float</span>
+<span class="sd">        | 挿入する構造のTS構造との変位</span>
+<span class="sd">        | i番目の構造からa[Å]離れた構造を挿入する</span>
+<span class="sd">        | 2要素のリストで与えた場合,i-1番目に1番目要素,i+1番目に2番目の要素を適用する</span>
+<span class="sd">    clac_func: fnction object</span>
+<span class="sd">        claculatorを返す関数. デフォルトはpfpのcalculator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">neb</span><span class="o">.</span><span class="n">imax</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;aはfloatまたは要素数2のリストです&quot;</span><span class="p">)</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">neb</span><span class="o">.</span><span class="n">images</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">neb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span><span class="n">ins_idx</span><span class="p">,</span><span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        idx: tsの隣の構造のidx番号</span>
+<span class="sd">        ins_idx: 挿入する位置</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos1</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">pos2</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">pos2</span> <span class="o">-</span> <span class="n">pos1</span>
+        <span class="k">if</span> <span class="n">mic</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">find_mic</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">ts</span><span class="o">.</span><span class="n">pbc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="n">a</span>
+        <span class="n">d</span> <span class="o">/=</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">pos1</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span> <span class="c1"># n-2(ts付近)</span>
+        <span class="n">unconstrained_image</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">unconstrained_image</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">new_pos</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">unconstrained_image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">clac_func</span><span class="p">()</span>
+        <span class="n">images</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ins_idx</span><span class="p">,</span><span class="n">unconstrained_image</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">is_barrier_less</span><span class="p">(</span><span class="n">neb_images</span><span class="p">,</span><span class="n">barrier_less</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NEBイメージがバリアレスかどうか</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    neb_images: list of Atoms</span>
+<span class="sd">        NEBイメージ</span>
+<span class="sd">    barrier_less: float</span>
+<span class="sd">        barrier_less(kJ/mol)以下のTSであればバリアレスと見做す    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">])</span>      
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy_list</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># 単純に極大値がない時(純粋なバリアレスの場合)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">barrier_less</span><span class="p">:</span>
+        <span class="c1"># 上昇系のバリアレスの場合</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">energy_list</span><span class="p">))</span> <span class="c1"># 反転し,下降系のエネルギーダイアグラムにする.</span>
+    <span class="k">elif</span> <span class="nb">max</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">barrier_less</span><span class="p">:</span>
+        <span class="c1"># 下降系のバリアレスの場合</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 完全にバリアレスでない場合</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># これより下はバリアレスか怪しいものを判定する</span>
+    <span class="c1"># 確実にバリアレス,バリレスでないとっ判断されたものは既にTrue,Falseを返している</span>
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy_list</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy_list</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># 極大値が1つのみの時</span>
+        <span class="k">return</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">max_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">-</span> <span class="n">energy_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">barrier_less</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># 極小値が1つのみの時</span>
+        <span class="k">return</span> <span class="n">energy_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">max_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">barrier_less</span>
+    <span class="c1"># これより下は極大値,極小値が複数ある,より複雑なものを判定する.</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1">#極値のindex</span>
+    <span class="k">if</span> <span class="n">max_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span> <span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">indexes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span> <span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">indexes</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">barrier_less</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">separate_images</span><span class="p">(</span><span class="n">neb_images</span><span class="p">,</span><span class="n">tolerance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    作成中</span>
+<span class="sd">    </span>
+<span class="sd">    | NEBイメージに複数の山があった際,一番高い山のみを分離抽出する.</span>
+<span class="sd">    | イメージは書き変わる(破壊的メソッド)なので注意する.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    neb_images: list of Atoms</span>
+<span class="sd">        NEBイメージ,実行後には書き変わっている.</span>
+<span class="sd">    tolerance: float</span>
+<span class="sd">        tolerance(kJ/mol)以下の谷間は分離しない.</span>
+<span class="sd">    threshold: float</span>
+<span class="sd">        一番高い山(TSの山)のみを抽出した後に,両端の裾野の部分をさらにTSの高さに対しthreshold%削る.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_separate_images</span><span class="p">(</span><span class="n">neb_images</span><span class="p">,</span><span class="n">tolerance</span><span class="p">,</span><span class="n">threshold</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_separate_images</span><span class="p">(</span><span class="n">neb_images</span><span class="p">,</span><span class="n">tolerance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">not_considered_inifin</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    作成中</span>
+<span class="sd">    </span>
+<span class="sd">    | NEBイメージに複数の山があった際,一番高い山のみを分離抽出する.</span>
+<span class="sd">    | イメージは書き変わる(破壊的メソッド)なので注意する.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    neb_images: list of Atoms</span>
+<span class="sd">        NEBイメージ,実行後には書き変わっている.</span>
+<span class="sd">    tolerance: float</span>
+<span class="sd">        tolerance(kJ/mol)以下の谷間は分離しない.</span>
+<span class="sd">    threshold: float</span>
+<span class="sd">        一番高い山(TSの山)のみを抽出した後に,両端の裾野の部分をさらにTSの高さに対しthreshold%削る.</span>
+<span class="sd">    not_considered_inifin: bool</span>
+<span class="sd">        NEB計算の際と同じようにini,finを除いて最もエネルギーの高い点をTSとする.</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        Calculatorを返す関数</span>
+<span class="sd">        </span>
+<span class="sd">    Return:</span>
+<span class="sd">        ini_idx, fin_idx</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># エネルギーの取得</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc_func</span><span class="p">()</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neb_images</span><span class="p">])</span>
+    <span class="c1"># TSのindex番号の取得  </span>
+    <span class="k">if</span> <span class="n">not_considered_inifin</span><span class="p">:</span>
+        <span class="n">imax</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">imax</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span>
+    <span class="c1"># TSを境にエネルギーリストを2つに分離する</span>
+    <span class="n">reverse_energy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">energy_list</span><span class="p">[:</span><span class="n">imax</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span> <span class="c1"># 下降系のダイアグラムにする.</span>
+    <span class="n">reverse_atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb_images</span><span class="p">[:</span><span class="n">imax</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">forward_energy</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">imax</span><span class="p">:]</span>
+    <span class="n">forward_atoms</span> <span class="o">=</span> <span class="n">neb_images</span><span class="p">[</span><span class="n">imax</span><span class="p">:]</span>
+    
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reverse_energy</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reverse_energy</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">idxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">reverse_energy</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+<div class="viewcode-block" id="get_ea"><a class="viewcode-back" href="../../../src/toy_tools.html#grrmpy.neb.functions.get_ea">[ドキュメント]</a><span class="k">def</span> <span class="nf">get_ea</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">reverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kJ/mol&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;活性化エネルギーを算出する</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        | Atomsのリスト(NEBイメージ)</span>
+<span class="sd">    reverse: bool</span>
+<span class="sd">        | Trueの場合,逆反応のEaを返す. Noneの場合,どちらか高い方を返す.</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        | calculatorを返す関数</span>
+<span class="sd">    unit: str</span>
+<span class="sd">        | 戻り値の単位(kJ/mol, eV, Hartreeのいずれか)</span>
+<span class="sd">        </span>
+<span class="sd">    Return:</span>
+<span class="sd">        float: Ea値</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">get_energy_list</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">calc_func</span><span class="p">))</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="n">energy_list</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="n">ts_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">reverse</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ini_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">reverse</span><span class="p">:</span> <span class="c1"># reverse is Ture</span>
+        <span class="n">ini_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">imax</span><span class="p">:]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># reverse is False</span>
+        <span class="n">ini_e</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[:</span><span class="n">imax</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;eV&quot;</span><span class="p">:</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;kJ/mol&quot;</span><span class="p">:</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">mol</span><span class="o">/</span><span class="n">kJ</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;Hartree&quot;</span><span class="p">:</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Hartree</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;unitはeV,kJ/mol,Hartreeのいずれかです&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">ts_e</span><span class="o">-</span><span class="n">ini_e</span><span class="p">)</span><span class="o">*</span><span class="n">conv</span></div>
+
+<div class="viewcode-block" id="find_local_minimum_points_and_ea"><a class="viewcode-back" href="../../../src/toy_tools.html#grrmpy.neb.functions.find_local_minimum_points_and_ea">[ドキュメント]</a><span class="k">def</span> <span class="nf">find_local_minimum_points_and_ea</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">minenergy</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NEBイメージの中から極小値を見つけそのindex番号を返す</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        Atomsのリスト(NEBイメージ)</span>
+<span class="sd">    minenergy: int</span>
+<span class="sd">        | 極小点を見つけたとしてもその両側の山との高さの差がどちらもminenergy以下であればそれは極小値とは見做さない.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="n">get_energy_list</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">calc_func</span><span class="p">)</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">energy</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">energy_list</span><span class="p">])</span>
+    <span class="n">min_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">marge_idxes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">min_idxes</span><span class="o">+</span><span class="n">max_idxes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">marge_idxes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],[]</span>
+    <span class="c1"># 極大値,最小値,極大値,最小値......極大値になるようにする</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">marge_idxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">max_idxes</span><span class="p">:</span>
+        <span class="n">marge_idxes</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">marge_idxes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">max_idxes</span><span class="p">:</span>
+        <span class="n">marge_idxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">new_min_index</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ea_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">marge_idxes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">ea1</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">marge_idxes</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="n">marge_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="n">ea2</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="n">marge_idxes</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="n">marge_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">ea1</span><span class="o">&gt;</span><span class="n">minenergy</span> <span class="ow">or</span> <span class="n">ea2</span><span class="o">&gt;</span><span class="n">minenergy</span><span class="p">:</span>
+            <span class="n">new_min_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">marge_idxes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">ea_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">ea1</span><span class="p">,</span><span class="n">ea2</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">new_min_index</span><span class="p">,</span><span class="n">ea_list</span></div>
+    
+<div class="viewcode-block" id="get_appropriate_nimages"><a class="viewcode-back" href="../../../src/toy_tools.html#grrmpy.neb.functions.get_appropriate_nimages">[ドキュメント]</a><span class="k">def</span> <span class="nf">get_appropriate_nimages</span><span class="p">(</span><span class="n">ini_atoms</span><span class="p">,</span><span class="n">fin_atoms</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span><span class="n">nmax</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span><span class="n">nmin</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;最適なNEBのイメージ数を算出する.</span>
+<span class="sd">    </span>
+<span class="sd">    最も移動距離の大きい原子が,d(Å)ずつ移動する時のイメージ数を返す.</span>
+<span class="sd">    maxとminで最大,最小のイメージ数の制限を与えることができる.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    ini_atoms: Atoms</span>
+<span class="sd">        | Atoms</span>
+<span class="sd">    fin_atoms: Atoms</span>
+<span class="sd">        | Atoms</span>
+<span class="sd">    dist: float</span>
+<span class="sd">        | d(Å)毎にイメージ切る</span>
+<span class="sd">    nmax: int</span>
+<span class="sd">        | 最大のimage数</span>
+<span class="sd">    nmin:</span>
+<span class="sd">        | 最小のimage数.</span>
+<span class="sd">    mic: bool</span>
+<span class="sd">        | 最小イメージ規則を適用するか.Noneの場合与えたAtomsが周期境界条件である時,自動でTureにする.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos1</span> <span class="o">=</span> <span class="n">ini_atoms</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+    <span class="n">pos2</span> <span class="o">=</span> <span class="n">fin_atoms</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">pos2</span> <span class="o">-</span> <span class="n">pos1</span>
+    <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">ini_atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">mic</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">find_mic</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ini_atoms</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">ini_atoms</span><span class="o">.</span><span class="n">pbc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nimages</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">/</span><span class="n">dist</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nimages</span> <span class="o">&gt;</span> <span class="n">nmax</span><span class="p">:</span>
+        <span class="n">nimages</span> <span class="o">=</span> <span class="n">nmax</span>
+    <span class="k">elif</span> <span class="n">nimages</span> <span class="o">&lt;</span> <span class="n">nmin</span><span class="p">:</span>
+        <span class="n">nimages</span> <span class="o">=</span> <span class="n">nmin</span>
+    <span class="k">return</span> <span class="n">nimages</span></div>
+
+<span class="k">def</span> <span class="nf">get_ts_image</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">barrierless_is_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    NEBイメージからTSのイメージを抽出する.</span>
+<span class="sd">    最もエネルギーの高いimageをTSとする.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        | Atomsのリスト</span>
+<span class="sd">    barrierless_is_none:bool</span>
+<span class="sd">        | Trueの場合,バリアレスの時Noneを返す</span>
+<span class="sd">        | Falseの場合,最もエネルギーの高いimageを返す</span>
+<span class="sd">    copy: bool</span>
+<span class="sd">        | コピーを作成して返す場合True.</span>
+<span class="sd">    calc_func: functions object</span>
+<span class="sd">        | calculatorを返す関数</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">get_energy_list</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">calc_func</span><span class="p">))</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="n">energy_list</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">barrierless_is_none</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_idxes</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+    
+<div class="viewcode-block" id="get_imax"><a class="viewcode-back" href="../../../src/toy_tools.html#grrmpy.neb.functions.get_imax">[ドキュメント]</a><span class="k">def</span> <span class="nf">get_imax</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;TSのindex番号を返す</span>
+<span class="sd">    </span>
+<span class="sd">    | バリアレス(極大値・極小値: 0個)の場合Noneを返す.</span>
+<span class="sd">    | 山が1つ(極大値: 1個,極小値: 0個)かつ,活性化障壁がthreshold[kJ/mol]以下であればバリアレスと考えNoneを返す.</span>
+<span class="sd">    | (正反応,逆反応のとちらかがthreshold[kJ/mol]以下の場合)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    images: list of Atoms</span>
+<span class="sd">        | NEBイメージ</span>
+<span class="sd">    threshold: float</span>
+<span class="sd">        | 活性化障壁がthreshold(kJ/mol)以下の場合はバリアレスと判定する</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        | imagesにcalcuatorが設定されていない場合に必要</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        int or None: TSのindex番号,バリアレスの場合None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">energy_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">get_energy_list</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">calc_func</span><span class="p">))</span>
+    <span class="n">max_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_idxes</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">energy_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="n">energy_list</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_idxes</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_idxes</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">ea1</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_list</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="c1"># 正反応Ea</span>
+        <span class="n">ea2</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy_list</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span><span class="o">-</span><span class="n">energy_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="c1"># 逆反応Ea</span>
+        <span class="k">if</span> <span class="n">ea1</span> <span class="o">&lt;</span> <span class="n">threshold</span> <span class="ow">or</span> <span class="n">ea2</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">imax</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

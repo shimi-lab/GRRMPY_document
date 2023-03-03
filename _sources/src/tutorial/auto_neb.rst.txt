@@ -1,0 +1,62 @@
+###########################
+連続NEB計算 
+###########################
+
+複数のNEB計算を連続的に行なう
+======================================
+
+この方法より :doc:`連続PinNEB<auto_pinneb>` を使用する方法の方がおすすめ
+
+AutoNEBのドキュメント: :class:`AutoNEB<grrmpy.automate.auto_neb.AutoNEB>`
+
+基本的な使い方
+--------------------
+
+.. code-block:: python
+
+    auto_neb = AutoNEB(eq_list, connections)
+    # eq_listはAtomsの1次元リスト.
+    # connectionsは[[0,1],[2,3],[2,5]]などの2次元リスト
+    # この場合eq_list[0]とeq_list[1],q_list[2]とeq_list[3]...
+    # でそれぞれNEBイメージを作成しNEB計算を行なう
+    auto_neb.run(16) # 全てのNEBのイメージ数は16イメージで行なわれる.
+
+| 収束後のtrajファイルは"Structures"フォルダに保存される.未収束のtrajは"unconv"フォルダに保存される.
+| NEBイメージのエネルギーダイアグラムは"htmlフォルダに保存される.
+
+
+計算後のデータの取り込み
+----------------------------
+
+収束後の構造はStructuresフォルダに保存されているので 
+:class:`iread_traj<grrmpy.io.read_traj.iread_traj>` を用いてデーターを取り出す
+
+>>> from grrmpy.io import iread_traj
+>>> images_list,_ = iread_traj("Structure") # trajが存在するフォルダ名を指定
+>>> # 2次元リストで取得できる
+
+細かいパラメータを指定する
+---------------------------------
+
+例えば(maxstep=0.01,steps=200)→(maxstep=0.2,steps=2000)→(maxstep="自動化",steps=2000)で計算したい場合
+
+>>> auto_neb.run(16,maxstep_list=[0.01,0.2,None],steps_list=[200,2000,2000])
+
+その他のパラメータは :class:`AutoNEB<grrmpy.automate.auto_neb.AutoNEB>` を参照.
+
+NEBのイメージ数について
+-----------------------------
+
+>>> auto_neb.run(16)
+
+| とすれば,全てのNEBは16イメージで計算されるが,サンプルによってイメージ数を変えたい場合もあるだろう.
+| その場合,リストで与えれば良い
+
+>>> auto_neb.run([16,18,16,8,16]) # 計算したい構造が５個ある場合
+
+| :class:`get_appropriate_nimages<grrmpy.neb.functions.get_appropriate_nimages>` 
+ を用いれば最適なNEBイメージの数を求められるため. それぞれの計算に適したNEBイメージ数を与えることができる.
+
+>>> nimages_list = [get_appropriate_nimages(eq_list[ini],eq_list[fin],dist=0.2) for ini,fin in connections]
+>>> auto_neb.run(nimages_list)
+

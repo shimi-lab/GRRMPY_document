@@ -1,0 +1,71 @@
+====================================
+GRRMの結果をデータをインポートする
+====================================
+
+XXX_(EQ,TS,PT)_list.logから構造をインポート
+============================================
+
+.. code-block:: python
+
+    from grrmpy.io import log2atoms
+    from grrmpy.visualize import View
+    
+    eq_log = "XXX_EQ_list.log"
+    com = "XXX.com" # FrozenAtomsがあるときに指定
+    poscar = "POSCAR" # 周期境界で計算した際に指定
+    eq_list = log2atoms(eq_log,com,poscar)
+
+    View(eq_list)
+
+| COMファイルはFrozenAtomsがある場合に指定する
+| POSCARはGRRM-VASPで計算した(周期境界)場合に指定する.
+
+
+XXX_(TS,PT)_list.logからCONNECTIONSを抽出
+===============================================
+
+2次元のリストとしてCONNECTIONSを取得できる.
+
+.. code-block:: python
+
+    from grrmpy.io import read_connections
+    
+    ts_log = "XXX_TS_list.log"
+    connections = read_connections(ts_log)
+    # connections
+    # [[1,2],[2,7],[4,3],["??",1]]
+
+
+不要なCONNECTIONSを省く方法
+-------------------------------
+
+:class:`get_unique_connections<grrmpy.functions.get_unique_connections>` を用いる.
+
+- 同じ番号([1,1],[3,3]など)の削除
+- 価値のないCONNECTIONS(["??",2],["DC",2]など)の削除
+- 同じCOONECTIONSの組み合わせ([0,1],[1,0],[0,1])は一つだけにする
+
+.. code-block:: python
+    :emphasize-lines: 1,4
+
+    from grrmpy.functions import get_unique_connections
+    from grrmpy.io import read_connections
+    connections = read_connections(ts_log)
+    valuable_connections, idx = get_unique_connections(connections)
+
+| `valuable_connections` に不要なCOONECTIONSを削除した新なCONNECTIONSが含まれている.
+| `idx` は新たなCONNECTIONSが元々何番目のCONNECTIONSだったかが記録されている.
+
+同一構造判定を行ないさらに不要なCONNECTIONSを省く方法
+-----------------------------------------------------
+
+詳しいtargetの指定の仕方は :class:`grouping<grrmpy.geometry.functions.grouping>` を参照する
+
+.. code-block:: python
+
+    from grrmpy.geometry import grouping
+    from grrmpy.io import read_connections
+
+    valuable_connections, idx = get_unique_connections(connections)
+    group = grouping(eq_list, rtype="1D")
+    connections = [[ini,fin] for ini,fin in valuable_connections if group[ini]!=group[fin]]

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.neb.auto_neb &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.neb.auto_neb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.neb.auto_neb のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span><span class="p">,</span><span class="n">LBFGS</span>
+<span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span><span class="p">,</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">ase.geometry.analysis</span> <span class="kn">import</span> <span class="n">Analysis</span>
+<span class="kn">from</span> <span class="nn">ase.geometry</span> <span class="kn">import</span> <span class="n">find_mic</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">kJ</span><span class="p">,</span><span class="n">mol</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">mul</span>
+
+<span class="c1"># User</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.optimize</span> <span class="kn">import</span> <span class="n">automate_maxstep</span>
+<span class="kn">from</span> <span class="nn">grrmpy.optimize.functions</span> <span class="kn">import</span> <span class="n">add_stop_to</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.functions</span> <span class="kn">import</span> <span class="n">to_html_nebgraph</span>
+
+<div class="viewcode-block" id="ANEB"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.auto_neb.ANEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">ANEB</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+                 <span class="n">logfile</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                 <span class="n">html</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                 <span class="n">optimizer</span><span class="o">=</span><span class="n">FIRE</span><span class="p">,</span>
+                 <span class="n">with_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">max_n</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                 <span class="n">times</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">constraints</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Adaptive NEBを行なう.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        *data: </span>
+<span class="sd">            | 3種類の方法でinput構造を与えることができる.</span>
+<span class="sd">            | </span>
+<span class="sd">            | - ini,fin構造と初期イメージの数を与える(3つの引数を与える)</span>
+<span class="sd">            | - ini,fin構造を与える(2つの引数を与える.初期イメージの数は13にする)</span>
+<span class="sd">            | - images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</span>
+<span class="sd">            |       imageの数は奇数個にすることが推奨される.</span>
+<span class="sd">        logfile: str or Path</span>
+<span class="sd">            logファイルを出力する場合,ファイル名.</span>
+<span class="sd">        html: str or Path</span>
+<span class="sd">            途中のNEBイメージを保存する場合にファイル名を設定.</span>
+<span class="sd">        mic : bool</span>
+<span class="sd">            周期境界条件の際, 最小距離でイメージを作成する場合.True.</span>
+<span class="sd">            設定しない場合(None). ini構造が周期境界条件である場合.自動的にTrueにする.</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並行処理を行なう場合.True. デフォルトはTrue.</span>
+<span class="sd">        calc_func: object</span>
+<span class="sd">            calculatorを返す関数.デフォルトはpfpのcalculator</span>
+<span class="sd">        optimizer:</span>
+<span class="sd">            NEB計算を行なう際のOptimizer. デフォルトはFIRE.</span>
+<span class="sd">        with_stop: bool</span>
+<span class="sd">            | optimizerにstop機能を付ける場合True.</span>
+<span class="sd">            | max_n回連続でEnergyとForceが同じ状況がtimes回あった時計算を終了する.</span>
+<span class="sd">            | grrmpy.optimize.functions.add_stop_to()を参照</span>
+<span class="sd">        max_n: int:</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト12</span>
+<span class="sd">        times: int</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト2</span>
+<span class="sd">        constraints: constrain or list</span>
+<span class="sd">            適用するconstraint</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            arg以外の引数は全てキーワード引数なので注意!</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; aneb = ANEB(ini,fin,15) # 15イメージで作成される</span>
+<span class="sd">            &gt;&gt;&gt; # または</span>
+<span class="sd">            &gt;&gt;&gt; aneb = ANEB(ini,fin) # 13イメージで作成される</span>
+<span class="sd">            &gt;&gt;&gt; # または</span>
+<span class="sd">            &gt;&gt;&gt; aneb = ANEB(images)  </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_dict</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># {func:interval}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">logfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html</span> <span class="o">=</span> <span class="n">html</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="c1">#: 全てのNEBイメージが2次元リストで保存されている</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">archive</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">with_stop</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">add_stop_to</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span><span class="n">max_n</span><span class="p">,</span><span class="n">times</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
+            <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;ini_fin&quot;</span>
+            <span class="c1">#: 現在のNEBイメージ</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">==</span><span class="n">Atoms</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">==</span><span class="n">Atoms</span><span class="p">:</span>
+            <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;images&quot;</span>
+            <span class="n">ini</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">fin</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">nimages</span> <span class="o">=</span> <span class="mi">13</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fin</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Dataはini,fin構造またはNEB imagesである必要があります&quot;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;images&quot;</span><span class="p">:</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">set_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;meta charset=&#39;UTF-8&#39; /&gt;&quot;</span><span class="p">)</span>
+                
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;NEB計算上でTSと判断されたindex番号&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">imax</span>
+    
+    <span class="k">def</span> <span class="nf">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="n">dist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ts:ts構造</span>
+<span class="sd">        atoms:ts構造の隣の構造</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos1</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">pos2</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">pos2</span> <span class="o">-</span> <span class="n">pos1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">find_mic</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">ts</span><span class="o">.</span><span class="n">pbc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="n">dist</span>
+        <span class="n">d</span> <span class="o">/=</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">pos1</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span> <span class="c1"># n-2(ts付近)</span>
+        <span class="n">unconstrained_image</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">unconstrained_image</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">new_pos</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">unconstrained_image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">unconstrained_image</span>
+        
+    <span class="k">def</span> <span class="nf">updata_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nsampling</span><span class="p">,</span><span class="n">nimages</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        | TS構造から,forward側,reverse側にそれぞれnsampling個隣の構造を</span>
+<span class="sd">        | 新たなini,fin構造としてイメージを作成する.</span>
+<span class="sd">        | ini,finの間にnimages個のイメージを作成する.</span>
+<span class="sd">        | iが指定されていない場合,neb.imaxをTS構造とする.</span>
+<span class="sd">        | TS構造からdist[Å]離れた位置にイメージを作成する</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            | </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">imax</span>
+        <span class="n">ini_idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">nsampling</span>
+        <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">nsampling</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">fin_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">nsampling</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="o">-</span><span class="mi">2</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fin_atoms</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span> <span class="o">+</span> <span class="n">imgs</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span>  <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">ini_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">nsampling</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_atoms</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">ini_atoms</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="o">-</span><span class="mi">2</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">imgs</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ini_idx</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">nsampling</span><span class="o">*</span><span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">fin_idx</span> <span class="o">&gt;</span>  <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">nsampling</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ini_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">fin_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nimages</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">imgs1</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span><span class="o">+</span><span class="p">[</span><span class="n">ini_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">imgs1</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">img2</span> <span class="o">=</span> <span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">imgs1</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="n">img2</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">set_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ini_idx</span><span class="p">,</span> <span class="n">fin_idx</span>
+            
+    <span class="k">def</span> <span class="nf">make_neb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">climb</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="n">climb</span><span class="p">,</span><span class="n">parallel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">make_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">maxstep</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">maxstep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">automate_maxstep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="p">),</span><span class="n">interval</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">func</span><span class="p">,</span><span class="n">interval</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attach_dict</span><span class="p">[</span><span class="n">func</span><span class="p">]</span><span class="o">=</span><span class="n">interval</span>
+        
+    <span class="k">def</span> <span class="nf">write_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">comment</span><span class="p">,</span><span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">html_text</span> <span class="o">=</span> <span class="n">to_html_nebgraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">,</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_text</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">iter_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fmax</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span><span class="n">steps</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxstep</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_neb</span><span class="p">(</span><span class="n">climb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_opt</span><span class="p">(</span><span class="n">maxstep</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">func</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attach_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="n">interval</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>    
+        <span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">converged</span>
+    
+<div class="viewcode-block" id="ANEB.run"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.auto_neb.ANEB.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">fmax</span><span class="o">=</span><span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+            <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span><span class="mi">2000</span><span class="p">],</span>
+            <span class="n">maxstep</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+            <span class="n">nimages</span><span class="o">=</span><span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+            <span class="n">nsampling</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="n">dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        | ini,fin構造の間に3つのイメージを作成し,緩い収束条件でNEB計算を行なう.</span>
+<span class="sd">        | 計算後のTS構造の両隣の構造を新たなini,fin構造としてNEB計算を行なう.</span>
+<span class="sd">        | この操作を合計len(nimages)回繰り返す(NEB計算をlen(nimages)回行なう).</span>
+<span class="sd">        | 最後のNEB計算のみ収束条件を厳しく(=fmax)する.</span>
+<span class="sd">        | デフォルトではn=4回のNEB計算を行なう.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        fmax: float or list of float</span>
+<span class="sd">            | floatで与えた場合,[fmax*2,fmax*2,fmax*2,...fmax]の収束条件で計算する.</span>
+<span class="sd">            | (最後だけ厳しい収束条件で計算する)</span>
+<span class="sd">            | listで与えた場合, [fmax_0, fmax_1, fmax_2,...fmax_n]の収束条件で計算する.</span>
+<span class="sd">        steps: integers or list of integers</span>
+<span class="sd">            | integersで与えた場合,[steps,steps,steps,...steps*5]のステップ数で計算する.</span>
+<span class="sd">            | listで与えた場合, [steps_0, steps_1, steps_2,...steps_n]のステップ数で計算する.</span>
+<span class="sd">        maxstep: float or list of float</span>
+<span class="sd">            | maxstep. Noneの場合,Forceに合わせて自動的に調整する.</span>
+<span class="sd">            | 詳しくはgrrmpy.optimize.attach.automate_maxsteps()を参照</span>
+<span class="sd">            | floatで与えた場合,maxstepの値で計算する.</span>
+<span class="sd">            | listで与えた場合, [maxstep_0, maxstep_1, maxstep_2,...maxstep_n]の収束条件で計算する.</span>
+<span class="sd">            | None,またはNoneの要素を与えた場合,forceに合わせて自動的に調整する.</span>
+<span class="sd">        nimages: list of integers</span>
+<span class="sd">            | 毎回のNEB計算の中間イメージ数.</span>
+<span class="sd">            | [nimages_0, nimages_1, nimages_2,...nimages_n]イメージ数で作成する.</span>
+<span class="sd">        nsampling: integers or list of integers</span>
+<span class="sd">            | TS構造からforward側,reverse側にそれぞれnsampling個隣の構造を</span>
+<span class="sd">            | 新たなini,fin構造としてイメージを作成する.</span>
+<span class="sd">            | integersで与えた場合,nsamplingのイメージ数で作成する.</span>
+<span class="sd">            | listで与えた場合, [nsampling_0, nsampling_1, nsampling_2,...nsampling_n]イメージ数で作成する.</span>
+<span class="sd">            | Noneの場合,自動的に調整する.</span>
+<span class="sd">        dist: float</span>
+<span class="sd">            | 新たなNEBイメージを作成する際に,TS付近に2つイメージを作成する.</span>
+<span class="sd">            | TS構造からの変位をdistで設定する</span>
+<span class="sd">            </span>
+<span class="sd">        Retrun:</span>
+<span class="sd">            bool: 収束した場合True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">###引数の検証####</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;nimagesはリストで与えて下さい.&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;fmaxはflaotまたはnimagesと同じ要素数のflaotのリストで与えください.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fmax</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmax</span><span class="o">*</span><span class="mi">2</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fmax</span><span class="p">]</span>
+            
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;stepsはintまたはnimagesと同じ要素数のintのリストで与えください.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">steps</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">steps</span><span class="o">*</span><span class="mi">5</span><span class="p">]</span>
+            
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">maxstep</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">maxstep</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;maxstepはflaotまたはnimagesと同じ要素数のflaotのリストで与えください.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maxstep</span> <span class="o">=</span> <span class="p">[</span><span class="n">maxstep</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">))]</span>
+            
+        <span class="k">if</span> <span class="n">nsampling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nsampling</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nsampling</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">nsampling</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nsampling</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;nsamplingはintまたは(nimagesの要素数-1)の要素数のintのリストで与えください.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nsampling</span> <span class="o">=</span> <span class="p">[</span><span class="n">nsampling</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nsampling</span><span class="p">,[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">nimages</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;nsamplingに不適切な値が含まれています,nsamplingが大きすぎる可能性があります&quot;</span><span class="p">)</span>
+        <span class="c1">################</span>
+        <span class="c1">###何パーセントzoomするか出力###</span>
+        <span class="n">zooms</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">nimages</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">nsampling</span><span class="p">)]</span> 
+        <span class="n">zoom</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">zooms</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;zoom:</span><span class="si">{</span><span class="n">zoom</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;zoom:</span><span class="si">{</span><span class="n">zoom</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">sp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fmax</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">maxstep</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">nimages</span><span class="p">,</span><span class="n">nsampling</span><span class="p">):</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">f</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=False, converged=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="k">if</span> <span class="n">c</span> <span class="k">else</span> <span class="mi">15</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">f</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+                <span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updata_images</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">dist</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=True, converged=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&lt;/p&gt;&lt;p&gt;</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">番,</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">番をini,finに選択&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="c1"># 最後のNEB計算</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">climb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=False, converged=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=True, converged=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SNEB"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.auto_neb.SNEB">[ドキュメント]</a><span class="k">class</span> <span class="nc">SNEB</span><span class="p">(</span><span class="n">ANEB</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        \*data: </span>
+<span class="sd">            | 3種類の方法でinput構造を与えることができる.</span>
+<span class="sd">            | </span>
+<span class="sd">            | - ini,fin構造と初めの中間イメージの数を与える(3つの引数を与える)</span>
+<span class="sd">            | - ini,fin構造を与える(2つの引数を与える.初期イメージの数は13になる)</span>
+<span class="sd">            | - images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</span>
+<span class="sd">            |       imageの数は奇数個を推奨する.</span>
+<span class="sd">            </span>
+<span class="sd">            Examples:</span>
+<span class="sd">            </span>
+<span class="sd">                インスタンス化方法</span>
+<span class="sd">            </span>
+<span class="sd">                &gt;&gt;&gt; sneb = SNEB(ini,fin,html=&quot;NEB_progress.html&quot;) # 13個で中間イメージが作られる</span>
+<span class="sd">                &gt;&gt;&gt; # または</span>
+<span class="sd">                &gt;&gt;&gt; sneb = SNEB(ini,fin,15,html=&quot;NEB_progress.html&quot;) # 15個で中間イメージが作られる</span>
+<span class="sd">                &gt;&gt;&gt; # または</span>
+<span class="sd">                &gt;&gt;&gt; sneb = SNEB(images,html=&quot;NEB_progress.html&quot;)</span>
+<span class="sd">                </span>
+<span class="sd">                Constraintsがある場合</span>
+<span class="sd">                </span>
+<span class="sd">                &gt;&gt;&gt; f = FixAtoms(indices=[0,1,2,3])</span>
+<span class="sd">                &gt;&gt;&gt; sneb = SNEB(ini,fin,html=&quot;NEB_progress.html&quot;,constraints=f)</span>
+<span class="sd">                </span>
+<span class="sd">                &gt;&gt;&gt; f = FixAtoms(indices=[0,1,2,3])</span>
+<span class="sd">                &gt;&gt;&gt; c = FixBondLength(0, 1)</span>
+<span class="sd">                &gt;&gt;&gt; sneb = SNEB(ini,fin,html=&quot;NEB_progress.html&quot;,constraints=[f,c])</span>
+<span class="sd">                </span>
+<span class="sd">        logfile: str or Path</span>
+<span class="sd">            logファイルを出力する場合,ファイル名.</span>
+<span class="sd">        html: str or Path</span>
+<span class="sd">            途中のNEBイメージを保存する場合にファイル名を設定.</span>
+<span class="sd">        mic : bool</span>
+<span class="sd">            周期境界条件の際, 最小距離でイメージを作成する場合.True.</span>
+<span class="sd">            設定しない場合(None). ini構造が周期境界条件である場合.自動的にTrueにする.</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並行処理を行なう場合.True. デフォルトはTrue.</span>
+<span class="sd">        calc_func: object</span>
+<span class="sd">            calculatorを返す関数.デフォルトはpfpのcalculator</span>
+<span class="sd">        optimizer: class</span>
+<span class="sd">            NEB計算を行なう際のOptimizer. デフォルトはFIRE.</span>
+<span class="sd">        with_stop: bool</span>
+<span class="sd">            | optimizerにstop機能を付ける場合True.</span>
+<span class="sd">            | max_n回連続でEnergyとForceが同じ状況がtimes回あった時計算を終了する.</span>
+<span class="sd">            | grrmpy.optimize.functions.add_stop_to()を参照</span>
+<span class="sd">        max_n: int:</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト12</span>
+<span class="sd">        times: int</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト2</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            \*data以外の引数は全てキーワード引数になるので注意!!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+                 <span class="n">logfile</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                 <span class="n">html</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">mic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                 <span class="n">optimizer</span><span class="o">=</span><span class="n">FIRE</span><span class="p">,</span>
+                 <span class="n">with_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">max_n</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                 <span class="n">times</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">constraints</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Separative NEB</span>
+<span class="sd">        </span>
+<span class="sd">        | 緩い収束条件でNEB計算を行ない,最もエネルギーの高い点をTSとする.</span>
+<span class="sd">        | TS構造の両隣の構造のエネルギーを順次確認し,エネルギーの谷間があった場合,</span>
+<span class="sd">        | その点を新たなini,fin構造としてNEB計算を行なう.</span>
+<span class="sd">        | これらの一連の計算を何度か行ない,最後に厳しい収束条件でNEB計算を行なう.</span>
+<span class="sd">        | </span>
+<span class="sd">        | 浅い谷間は無視するため, toleranceの引数によりtolerance kJ/mol以下の谷間は無視する.</span>
+<span class="sd">        | NEB計算ではTS近くに構造を密に配置する事で無駄な計算量を減らし計算時間を短縮できる.</span>
+<span class="sd">        | NEBバンドの裾野が広い場合,計算時間が長くなるため,thresholdの引数により,</span>
+<span class="sd">        | 山の高さのthreshold%以内までの点は谷間でなくても切断する.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        *data: </span>
+<span class="sd">            | 3種類の方法でinput構造を与えることができる.</span>
+<span class="sd">            | </span>
+<span class="sd">            | - ini,fin構造と初めの中間イメージの数を与える(3つの引数を与える)</span>
+<span class="sd">            | - ini,fin構造を与える(2つの引数を与える.初期イメージの数は13になる)</span>
+<span class="sd">            | - images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</span>
+<span class="sd">            |       imageの数は奇数個を推奨する.</span>
+<span class="sd">        logfile: str or Path</span>
+<span class="sd">            logファイルを出力する場合,ファイル名.</span>
+<span class="sd">        html: str or Path</span>
+<span class="sd">            途中のNEBイメージを保存する場合にファイル名を設定.</span>
+<span class="sd">        mic : bool</span>
+<span class="sd">            周期境界条件の際, 最小距離でイメージを作成する場合.True.</span>
+<span class="sd">            設定しない場合(None). ini構造が周期境界条件である場合.自動的にTrueにする.</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並行処理を行なう場合.True. デフォルトはTrue.</span>
+<span class="sd">        calc_func: object</span>
+<span class="sd">            calculatorを返す関数.デフォルトはpfpのcalculator</span>
+<span class="sd">        optimizer: class</span>
+<span class="sd">            NEB計算を行なう際のOptimizer. デフォルトはFIRE.</span>
+<span class="sd">        with_stop: bool</span>
+<span class="sd">            | optimizerにstop機能を付ける場合True.</span>
+<span class="sd">            | max_n回連続でEnergyとForceが同じ状況がtimes回あった時計算を終了する.</span>
+<span class="sd">            | grrmpy.optimize.functions.add_stop_to()を参照</span>
+<span class="sd">        max_n: int:</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト12</span>
+<span class="sd">        times: int</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト2</span>
+<span class="sd">        constraints: constraint obj or list</span>
+<span class="sd">            適用するconstraintのオブジェクトまたはそのリスト</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            *data以外の引数は全てキーワード引数になるので注意!!</span>
+<span class="sd">            </span>
+<span class="sd">        Examples:</span>
+<span class="sd">        </span>
+<span class="sd">            &gt;&gt;&gt; sneb = SNEB(ini,fin,html=&quot;NEB_progress.html&quot;) # 13個で中間イメージが作られる</span>
+<span class="sd">            &gt;&gt;&gt; # または</span>
+<span class="sd">            &gt;&gt;&gt; sneb = SNEB(ini,fin,15,html=&quot;NEB_progress.html&quot;) # 15個で中間イメージが作られる</span>
+<span class="sd">            &gt;&gt;&gt; # または</span>
+<span class="sd">            &gt;&gt;&gt; sneb = SNEB(images,html=&quot;NEB_progress.html&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span>
+                         <span class="n">logfile</span><span class="o">=</span><span class="n">logfile</span><span class="p">,</span>
+                         <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
+                         <span class="n">mic</span><span class="o">=</span><span class="n">mic</span><span class="p">,</span>
+                         <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+                         <span class="n">calc_func</span><span class="o">=</span><span class="n">calc_func</span><span class="p">,</span>
+                         <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+                         <span class="n">with_stop</span><span class="o">=</span><span class="n">with_stop</span><span class="p">,</span>
+                         <span class="n">max_n</span><span class="o">=</span><span class="n">max_n</span><span class="p">,</span>
+                         <span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">,</span>
+                         <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">updata_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nimages</span><span class="p">,</span><span class="n">tolerance</span><span class="p">,</span><span class="n">threshold</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">min_nimages</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">imax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">imax</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">imax</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">])</span>
+        <span class="n">ts_e</span> <span class="o">=</span> <span class="n">energies</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+
+        <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">argrelmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># 極大値のindexを取得</span>
+        <span class="n">min_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">argrelmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># 極小値のindexを取得</span>
+        
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">min_nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># tsの±m隣は必ず含める</span>
+        <span class="n">forward_max_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">imax</span><span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="n">max_idx</span><span class="p">))))</span>        
+        <span class="n">reverse_max_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">&gt;</span><span class="n">imax</span><span class="o">+</span><span class="n">m</span><span class="p">,</span> <span class="n">max_idx</span><span class="p">))</span>
+        <span class="n">forward_min_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">&lt;</span><span class="n">imax</span><span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="n">min_idx</span><span class="p">))))</span>
+        <span class="n">reverse_min_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">&gt;</span><span class="n">imax</span><span class="o">+</span><span class="n">m</span><span class="p">,</span> <span class="n">min_idx</span><span class="p">))</span>
+        
+        <span class="c1"># iniのindex番号を探す(toleranceを考慮しつつ)</span>
+        <span class="n">ini_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">forward_max_idx</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">forward_min_idx</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">forward_max_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">forward_min_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="sd">&quot;&quot;&quot;iがneb.maxでなく,任意の値にしている時,iが極大値でない可能性があるため&quot;&quot;&quot;</span>
+                <span class="n">forward_max_idx</span> <span class="o">=</span> <span class="n">forward_max_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">ma</span><span class="p">,</span><span class="n">mi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">forward_max_idx</span><span class="p">,</span><span class="n">forward_min_idx</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;!!!zip中のforward_max_idx,forward_min_idxは要素数が異なる場合もある!!!&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">ma</span><span class="p">]</span><span class="o">-</span><span class="n">energies</span><span class="p">[</span><span class="n">mi</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="n">mi</span>
+                <span class="k">break</span>
+            
+        <span class="c1"># finのindex番号を探す(toleranceを考慮しつつ)</span>
+        <span class="n">fin_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reverse_max_idx</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reverse_min_idx</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reverse_max_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">reverse_min_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="sd">&quot;&quot;&quot;iがneb.maxでなく,任意の値にしている時,iが極大値でない可能性があるため&quot;&quot;&quot;</span>
+                <span class="n">reverse_max_idx</span> <span class="o">=</span> <span class="n">reverse_max_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">ma</span><span class="p">,</span><span class="n">mi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">reverse_max_idx</span><span class="p">,</span><span class="n">reverse_min_idx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">ma</span><span class="p">]</span><span class="o">-</span><span class="n">energies</span><span class="p">[</span><span class="n">mi</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">mi</span>
+                <span class="k">break</span>
+            
+        <span class="n">ini_H</span> <span class="o">=</span> <span class="n">ts_e</span> <span class="o">-</span> <span class="n">energies</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span> <span class="c1"># 正反応の活性化エネルギー(もちろん正確ではないが)</span>
+        <span class="n">fin_H</span> <span class="o">=</span> <span class="n">ts_e</span> <span class="o">-</span> <span class="n">energies</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span> <span class="c1"># 逆反応の活性化エネルギー(もちろん正確ではないが)</span>
+        
+        <span class="c1"># 再度thresholdを考慮し,iniのindex番号を探す</span>
+        <span class="n">ini_idx_copy</span> <span class="o">=</span> <span class="n">ini_idx</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ini_idx_copy</span><span class="p">,</span><span class="n">imax</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">energies</span><span class="p">[</span><span class="n">ini_idx_copy</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">ini_H</span><span class="o">*</span><span class="n">threshold</span><span class="o">*</span><span class="mf">0.01</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;正反応の活性化エネルギーのthreshold%以下の点があった場合それを新たなini_idxとする&quot;&quot;&quot;</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="n">i</span>
+                
+        <span class="c1"># 再度thresholdを考慮し,finのindex番号を探す</span>
+        <span class="n">fin_idx_copy</span> <span class="o">=</span> <span class="n">fin_idx</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">imax</span><span class="p">,</span> <span class="n">fin_idx_copy</span><span class="o">+</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">energies</span><span class="p">[</span><span class="n">fin_idx_copy</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">fin_H</span><span class="o">*</span><span class="n">threshold</span><span class="o">*</span><span class="mf">0.01</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;正反応の活性化エネルギーのthreshold%以下の点があった場合それを新たなini_idxとする&quot;&quot;&quot;</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">i</span> 
+                
+        <span class="k">if</span> <span class="n">fin_idx</span><span class="o">-</span><span class="n">ini_idx</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">min_nimages</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">min_nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ini_idx</span> <span class="o">=</span> <span class="n">imax</span><span class="o">-</span><span class="n">n</span>
+            <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">imax</span><span class="o">+</span><span class="n">n</span>
+            <span class="k">if</span> <span class="n">ini_idx</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="n">min_nimages</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">fin_idx</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">fin_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+                <span class="n">ini_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="n">min_nimages</span>        
+        
+        <span class="n">ts_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ini_idx</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">fin_idx</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">ini_idx</span> <span class="o">==</span> <span class="n">imax</span><span class="p">:</span>
+            <span class="n">fin_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">fin_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">fin_images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">ts_images</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="n">fin_images</span>
+        <span class="k">elif</span> <span class="n">fin_idx</span> <span class="o">==</span> <span class="n">imax</span><span class="p">:</span>
+            <span class="n">ini_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">ini_images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">ini_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">ini_images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">ini_images</span> <span class="o">+</span> <span class="p">[</span><span class="n">ts_images</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ini_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">fin_near_ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_near_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">ini_images</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">ini_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))]</span><span class="o">+</span><span class="p">[</span><span class="n">ini_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">ini_images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">fin_images</span> <span class="o">=</span> <span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">fin_near_ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nimages</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))]</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">fin_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="n">fin_images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">ini_images</span> <span class="o">+</span> <span class="p">[</span><span class="n">ts_images</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span> <span class="o">+</span> <span class="n">fin_images</span>
+ 
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">:</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">set_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ini_idx</span><span class="p">,</span> <span class="n">fin_idx</span>
+            
+<div class="viewcode-block" id="SNEB.run"><a class="viewcode-back" href="../../../src/modules/neb.html#grrmpy.neb.auto_neb.SNEB.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">nimages</span><span class="o">=</span><span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+            <span class="n">maxstep</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+            <span class="n">fmax</span><span class="o">=</span><span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+            <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span><span class="mi">2000</span><span class="p">],</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">],</span>
+            <span class="n">dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">min_nimages</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">climb_steps</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+            <span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        nimages: list of integers</span>
+<span class="sd">            毎回のNEB計算のイメージの数, 5以上の奇数.</span>
+<span class="sd">        maxstep: list of float</span>
+<span class="sd">            毎回のNEB計算のmaxstep値,Noneを要素にとった場合,fmaxに応じて自動調整する.</span>
+<span class="sd">        fmax: list of float</span>
+<span class="sd">            毎回のNEB計算のfmax値</span>
+<span class="sd">        steps: list of integers</span>
+<span class="sd">            毎回のNEB計算のsteps値</span>
+<span class="sd">        tolerance: float</span>
+<span class="sd">            tolerance(kJ/mol)以下の谷間は無視する.デフォルトは5 kJ/mol</span>
+<span class="sd">        threshold: list of float</span>
+<span class="sd">            山の高さのthreshold%以下の点は切り捨てる.デフォルトは30%</span>
+<span class="sd">        dist: float</span>
+<span class="sd">            | 新たなNEBイメージを作成する際に,TS付近に2つイメージを作成する.</span>
+<span class="sd">            | TS構造からの変位をdistで設定する</span>
+<span class="sd">        min_nimages: integer</span>
+<span class="sd">            | NEBバンドを切断する際,最低min_nimages個の点を残す.デフォルトは3</span>
+<span class="sd">            | (一個だけ突出しているTS(Wみたいな形)のNEBバンドがあった時のために設定する)</span>
+<span class="sd">        climb_steps: integer</span>
+<span class="sd">            | climb=Falseで収束しなかった場合,その後のTrueでのNEB計算のStep数をclimb_steps回にする.</span>
+<span class="sd">            | Noneの場合,climb=Falseの時と同じstepsで計算する.</span>
+<span class="sd">            | 一番最後のNEB計算ではclimb_stepsに関係なくclimb=Falseの時と同じstepsで計算する.</span>
+<span class="sd">        climb: bool</span>
+<span class="sd">            | Falseの場合,climbはFalse,False,False,False...Trueで行なう.</span>
+<span class="sd">            | Trueの場合はclimbはFalse,True,Fase,True,False....Trueで行なう</span>
+<span class="sd">            | Falseにした場合,climb_stepsを設定する意味はなくなる.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">####引数の検証######</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">5</span><span class="p">,</span><span class="n">nimages</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nimagesはmin_nimages+2=</span><span class="si">{</span><span class="n">min_nimages</span><span class="o">+</span><span class="mi">2</span><span class="si">}</span><span class="s2">以上を設定してください.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_nimages</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_nimagesは奇数且つ,nimages以下の数を設定してください.&quot;</span><span class="p">)</span>
+        <span class="n">arg_check1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">maxstep</span><span class="p">)</span>
+        <span class="n">arg_check2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">fmax</span><span class="p">)</span>
+        <span class="n">arg_check3</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+        <span class="n">arg_check4</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">arg_check1</span><span class="p">,</span><span class="n">arg_check2</span><span class="p">,</span><span class="n">arg_check3</span><span class="p">,</span><span class="n">arg_check4</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;maxstep,fmax,steps,threshold+1はthresholdと同じ要素数である必要があります.&quot;</span><span class="p">)</span>
+        <span class="c1">####################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">climb_steps</span> <span class="o">=</span> <span class="n">climb_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clibm</span> <span class="o">=</span> <span class="n">climb</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fmax</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">maxstep</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">nimages</span><span class="p">,</span><span class="n">threshold</span><span class="p">):</span>
+                <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">f</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clibm</span><span class="p">:</span> <span class="c1"># self.climb=Trueの場合climb=Trueでも計算する</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">climb</span><span class="si">}</span><span class="s2">, converged=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb_steps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb_steps</span>
+                    <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">f</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+                <span class="n">ini_idx</span><span class="p">,</span><span class="n">fin_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updata_images</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">tolerance</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dist</span><span class="p">,</span><span class="n">min_nimages</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">climb</span><span class="si">}</span><span class="s2">, converged=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">&lt;/p&gt;&lt;p&gt;</span><span class="si">{</span><span class="n">ini_idx</span><span class="si">}</span><span class="s2">番,</span><span class="si">{</span><span class="n">fin_idx</span><span class="si">}</span><span class="s2">番をini,finに選択&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="c1"># 最後のNEB計算</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">climb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">climb</span><span class="si">}</span><span class="s2">, converged=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="n">converged</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">iter_run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">climb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">maxstep</span><span class="o">=</span><span class="n">maxstep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;climb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">neb</span><span class="o">.</span><span class="n">climb</span><span class="si">}</span><span class="s2">, converged=</span><span class="si">{</span><span class="n">converged</span><span class="si">}</span><span class="s2">&lt;/p&gt;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">converged</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

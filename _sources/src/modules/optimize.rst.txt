@@ -1,0 +1,79 @@
+###################
+Optimizeモジュール 
+###################
+
+.. module:: grrmpy.optimize
+
+Optimizer
+=============
+
+FIRELBFGS
+-----------
+
+
+| matlantis_featuresにある FIRELBFGS_ をgrrmpyから呼び出せるようにした.
+| 今後matlantis_featuresのアップデートによりFIRELBFGSの位置が変わった場合には修正する必要がある
+
+.. _FIRELBFGS: https://docs.matlantis.com/atomistic-simulation-tutorial/ja/2_3_opt-algorithm.html#%E4%B8%8A%E8%A8%98%E7%9F%A5%E8%A6%8B%E3%82%92%E8%B8%8F%E3%81%BE%E3%81%88%E3%81%9F%E3%80%81%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0%E3%81%AE%E5%AE%9F%E8%A3%85
+
+.. admonition:: 引用 FIRELBFGSとは
+
+    | *ヒューリスティックにうまくいきそうな最適化アルゴリズムとして、*
+    
+    - *構造最適化の初期など、不安定な場所では、FIREを用いて勾配を下っていく。* 
+    - *ある程度安定点に達したら(Forceなどが小さな値になったら)LBFGS法を用いて高速に収束を試みる。*
+    
+    | *という方法がうまくいきそうです。*
+    | *matlantis-features では、このようなアルゴリズムを FIRELBFGS Optimizer として実装をしています。*
+
+
+.. code-block:: python
+
+    from grrmpy.optimize import FIRELBFGS
+    
+    opt = FIRELBFGS(atoms,maxstep_fire=0.2,maxstep_lbfgs=0.2)
+    opt.run(fmax=0.001,steps=10000)
+
+
+OptWithCond(STOP機能付きOptimizer)
+------------------------------------
+
+.. code-block:: python
+   :emphasize-lines: 7,8,9
+
+    from grrmpy.optimize import OptWithCond
+    from grrmpy.io import write_html
+    from ase.optimize import FIRE
+    from ase.neb import NEB
+    
+    neb = NEB(images,climb=False,parallel=True)
+    opt = OptWithCond(FIRE,neb,maxstep=0.2) # FIREを継承しOptimizerをインスタンス化
+    opt.attach_stop(steep_peak(opt,300,30))
+    opt.attach_stop(lambda:same_energy_and_fmax(opt,10,2))
+    opt.attach(lambda:write_html("NEB.html",images))
+
+.. autofunction:: grrmpy.optimize.optimizer.OptWithCond
+
+
+attach
+=============
+
+automate_maxstep
+------------------
+.. autofunction:: grrmpy.optimize.attach.automate_maxstep
+
+write_traj
+-----------------
+.. autofunction:: grrmpy.optimize.attach.write_traj
+
+optimize_eq
+--------------
+.. autofunction:: grrmpy.optimize.attach.optimize_eq
+
+same_energy_and_fmax
+--------------------------
+.. autofunction:: grrmpy.optimize.attach.same_energy_and_fmax
+
+steep_peak
+--------------
+.. autofunction:: grrmpy.optimize.attach.steep_peak

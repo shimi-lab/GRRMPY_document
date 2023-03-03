@@ -1,0 +1,117 @@
+################
+Pathモジュール
+################
+
+
+
+.. module:: grrmpy.path
+
+
+ReactPath
+============ 
+
+インスタンス化方法
+-------------------
+
+- nameとAtomsを与える方法
+
+.. code-block:: python
+
+    from grrmpy.path import ReactPath
+    from ase.io import iread
+
+    atoms_list = [atoms fro atoms in iread(atoms)] # 5つのAtomsが格納されている
+    name = ["EQ0","TS0","EQ1","TS1","EQ2"]
+    data = {":name":name,"atoms":atoms}
+    path = ReactPath(data)
+
+.. role:: strike
+.. role:: red
+
+- :strike:`nameとenergyを与える方法` → :red:`この方法は現在,非推奨. ReactPathは機能するがReactPathsが機能しない.この方法でインスタンス化したReactPathからReactPathsをインスタンス化しようとするとエラーになる`
+
+
+.. code-block:: python
+
+    from grrmpy.path import ReactPath
+    from ase.io import iread
+
+    energy = [-201.3, -123.3, -222.3, -192.6, -200.1] # Hartree単位
+    name = ["EQ0","TS0","EQ1","TS1","EQ2"]
+    data = {"name":name,"energy":energy}
+    path = ReactPath(data,unit="Hartree") # eV単位以外の場合は単位を設定する
+
+プレビュー
+-------------------
+.. code-block:: python
+
+    path.preview()
+
+.. image:: ./img/preview.png
+   :scale: 60%
+   :align: center
+
+Excelへ保存
+-------------------
+.. code-block:: python
+
+    path.write_excel("Sample.xlsx")
+
+.. image:: ./img/excel.png
+   :scale: 60%
+   :align: center
+
+htmlへ保存
+-------------------
+.. code-block:: python
+
+    path.write_html("Sample.html") # Sample.htmlに保存
+    path.write_html() # 標準出力 空白が表示される場合,path.write_html().show(renderer="sphinx_gallery")
+
+.. image:: ./img/path_html.png
+   :scale: 60%
+   :align: center
+
+
+.. autoclass:: grrmpy.path.reaction_path.ReactPath
+   :members: preview,get_fig, frompkl, topkl, write_html, write_excel
+
+
+create_reactpath
+======================
+テキストファイルからReactPathオブジェクトを作成する
+
+| 例としてEQ_Listフォルダに0.traj,1.traj...のEQ構造が,TS_Listフォルダに0.traj,1.traj...のTS構造がある事を想定する.
+| Path.datファイルの中身は
+
+.. code-block:: 
+
+    [Dir]
+    EQ: ./EQ_List/
+    TS: ./TS_List/
+    PT:
+
+    [ReactPath]
+    path: EQ0;TS1;EQ2;TS0;EQ1~EQ5|EQ3
+
+上のファイルは次のように表記することもできる
+
+.. code-block:: 
+
+    [ReactPath]
+    EQ: ./EQ_List/
+    TS: ./TS_List/
+    PT:
+    path: ${EQ}0;${TS}1;${EQ}2;${TS}0;${EQ}1~${EQ}5|${EQ}3
+    name: ["EQ0","TS1","EQ2","TS0","EQ1","EQ2","EQ0"]
+
+
+.. code-block:: python
+
+    from grrmpy.path import create_reactpath
+    react_path = create_reactpath("Path.dat")
+    react_path.write_html("Sample.html")
+
+
+
+.. autofunction:: grrmpy.path.create_reactpath.create_reactpath

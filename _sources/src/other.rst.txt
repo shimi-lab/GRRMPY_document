@@ -1,0 +1,19 @@
+#################
+その他
+#################
+
+grrmpy/__init__.pyの中身
+
+.. code-block:: python
+
+    from grrmpy import *
+    from grrmpy.calculator import pfp_calculator
+
+    # 本来デフォルトのレンダラーを使用したいが，なぜかうまく作動しないため追加
+    import plotly.io as pio
+    pio.renderers.default = "sphinx_gallery"
+
+    __all__ = ["pfp_calculator"]
+
+Plotlyを用いてNotebook上にグラフを出力する際,デフォルトのレンダラーでは出力されなくなってしまった．
+なぜか `sphinx_gallery` にするとうまく機能する (いずれデフォルトで表示できるようにしたい...)

@@ -1,0 +1,66 @@
+###########################
+Visualizeモジュール 
+###########################
+
+.. module:: grrmpy.visualize
+
+
+View
+==================================
+
+| Forceのベクトル表示や電荷の色分けなどを行なえる.
+| 電荷またはindex番号のラベルを貼ることができる.
+| 原子にカーソルを合わせると,index番号と座標が表示される.
+| "現在の構造のみ保存"にチェックを入れた場合, 表示中の構造のみを保存する.
+| チェックを外すと，複数の構造を表示している場合は全ての構造を保存する
+  (.traj, .html, .xyzなど複数の構造を保存できる形式に限る).
+|  
+
+.. code-block:: python
+
+    from grrmpy.visualize import View
+    from grrmpy import pfp_calculator
+    from ase.io import iread
+
+    images = [i for i in iread("images.traj")]
+    for image in images:
+        image.calc = pfp_calculator
+
+    View(images)
+
+
+.. image:: ./img/visualize.png
+   :scale: 60%
+   :align: center
+
+| スタイルの色からいくつかの色を選択することができる
+| 色の定義ファイルはライブラリの根本にある `default_color.ini` `vesta_color.ini` `jmol_color,csv` .
+| Viewクラスはnglviewライブラリを用いて作成している. nglviewのデフォルトの色の設定はelementであり,その他のdefaut,vesta,jmolの色は
+ grrmpy用に作成したものであり, **不具合によって稀に色が反映できず原子が全て黒く着色される** 場合がある.(原因はわからない)
+| **その場合はelenetを選択** する(elementはそのような不具合が起きない). もしくはカーネルを再起動すると直る.
+
+.. image:: ./img/color.png
+   :scale: 15%
+   :align: center
+
+.. autoclass:: grrmpy.visualize.custum_viewer.View
+
+view
+==================================
+
+.. autofunction:: grrmpy.visualize.by_ase.view
+
+view_images
+==================================
+
+.. autofunction:: grrmpy.visualize.by_ase.view_images
+
+view_with_index
+==================================
+
+.. autofunction:: grrmpy.visualize.by_nglview.view_with_index
+
+view_with_coordinate
+==================================
+
+.. autofunction:: grrmpy.visualize.by_nglview.view_with_coordinate

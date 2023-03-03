@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blenderモジュール &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="コマンドライン" href="commandline.html" />
+    <link rel="prev" title="Networkモジュール" href="network.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../modules.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="io.html">I/O モジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimize.html">Optimizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neb.html">NEBモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opt.html">OPTモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="automate.html">Automateモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualize.html">Visualizeモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path.html">Pathモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html">Geometryモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data.html">Dataモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conv.html">Convモジュール</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network.html">Networkモジュール</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">blenderモジュール</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Blenderに構造をインポートする</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">注意</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">基本的な使い方</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html">コマンドライン</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules.html">Modules</a></li>
+      <li class="breadcrumb-item active">blenderモジュール</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/modules/blender.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="blender">
+<h1>blenderモジュール<a class="headerlink" href="#blender" title="この見出しへのパーマリンク"></a></h1>
+<section id="id1">
+<h2>Blenderに構造をインポートする<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<section id="id2">
+<h3>注意<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line"><strong>Blender2.93.4</strong> で動作確認済みであるが,他のバージョンでは動かない可能性がある.</div>
+<div class="line">Blenderはマイナーチェンジであってもスクリプトが機能しない場合がある.</div>
+</div>
+</section>
+<section id="id3">
+<h3>基本的な使い方<a class="headerlink" href="#id3" title="この見出しへのパーマリンク"></a></h3>
+<p>Blenderへ構造をインポート, アニメーションを作成する.</p>
+<ul>
+<li><p>単一構造をインポートする場合</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.blender</span> <span class="kn">import</span> <span class="n">make_py_script</span><span class="p">,</span><span class="n">BallAndStick</span>
+
+<span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;BallAndStick.py&quot;</span><span class="p">,</span><span class="n">BallAndStick</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>アニメーションを作成する場合</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">拡張子は.zipとする. ローカルPC上でzipを展開する.展開するとpklファイルとpyファイルが入っている.</div>
+<div class="line">これらのファイルと同じディレクトリ上でBlenderファイルを作成する.</div>
+<div class="line"><strong>Blenderファイルを作成した後に</strong> pythonスクリプトを実行する</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.blender</span> <span class="kn">import</span> <span class="n">make_py_script</span><span class="p">,</span><span class="n">Animation</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">Trajectory</span>
+
+<span class="n">traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="s2">&quot;MD.traj&quot;</span><span class="p">)</span>
+<span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;Animation.zip&quot;</span><span class="p">,</span><span class="n">Animation</span><span class="p">(</span><span class="n">traj</span><span class="p">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>複数のスタイルを組みわせる場合</p>
+<blockquote>
+<div><p>0~8番目の原子をSpaceFilling,それ以外をStickで表現する</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.blender</span> <span class="kn">import</span> <span class="n">make_py_script</span><span class="p">,</span><span class="n">Stick</span><span class="p">,</span><span class="n">SpaceFilling</span>
+
+<span class="n">indices1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">indices2</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span> <span class="c1"># indices1以外のindex番号</span>
+<span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;Combine.py&quot;</span><span class="p">,[</span><span class="n">SpaceFilling</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices1</span><span class="p">),</span><span class="n">Stick</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">indices</span><span class="o">=</span><span class="n">indices2</span><span class="p">)])</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>細かいパラメーターを指定する.</p>
+<blockquote>
+<div><p>SpaceFillingで漫画風の描写をする</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.blender</span> <span class="kn">import</span> <span class="n">make_py_script</span><span class="p">,</span><span class="n">SpaceFilling</span>
+
+<span class="n">make_py_script</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">SpaceFilling</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">cartoon</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;apply&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p><cite>file</cite> を&quot;-&quot;とした場合はnotebook上にpythonスクリプトが標準出力される.</p>
+</div></blockquote>
+</li>
+</ul>
+<dl class="py function">
+<dt class="sig sig-object py" id="grrmpy.blender.make_pyscript.make_py_script">
+<span class="sig-prename descclassname"><span class="pre">grrmpy.blender.make_pyscript.</span></span><span class="sig-name descname"><span class="pre">make_py_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Styles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/blender/make_pyscript.html#make_py_script"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.blender.make_pyscript.make_py_script" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Belnder用のPythonスクリプトを作成する</p>
+<p>Parameters:</p>
+<dl>
+<dt>file: str(.py or .zip)</dt><dd><p>pythonファイル名, Animationが含まれる場合はzip名
+ファイル名がハイフン'-'の場合,標準出力する.(Animationがある場合は無効)</p>
+</dd>
+<dt>Styles: BaseStyle object</dt><dd><div class="line-block">
+<div class="line">BallAndStick,Stick,SpaceFilling,Animationのオブジェクト</div>
+<div class="line">複数のstyleを組み合わせる場合,リストで与える.</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.blender.make_pyscript.BallAndStick">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.blender.make_pyscript.</span></span><span class="sig-name descname"><span class="pre">BallAndStick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/blender/make_pyscript.html#BallAndStick"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.blender.make_pyscript.BallAndStick" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Ball and Stickのスタイル</p>
+<p>bicolor=Trueにすると,Blender上での操作が重くなるので注意(オブジェクト数が多い)</p>
+<p>Parameters:</p>
+<dl>
+<dt>atoms: Atoms</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>indices: list of int</dt><dd><p>一部の原子のみを表示する場合,index番号をリストで与える</p>
+</dd>
+<dt>kwargs:</dt><dd><dl>
+<dt>bicolor: bool</dt><dd><p>bicolorにする場合True.</p>
+</dd>
+<dt>cartoon:dict</dt><dd><dl>
+<dt>apply: bool</dt><dd><div class="line-block">
+<div class="line">cartoonを適用する場合Ture.</div>
+</div>
+</dd>
+<dt>IOR: float</dt><dd><div class="line-block">
+<div class="line">フレネルのIOR(枠線の太さに相当する)</div>
+</div>
+</dd>
+<dt>color: tuple</dt><dd><div class="line-block">
+<div class="line">ミックスのColor2(枠線の色に相当する)</div>
+<div class="line">1で規格化されたRGBAで指定する</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>colors<span class="classifier">dict</span></dt><dd><p>1で規格化したRGBA.
+ex) {'O':(1,0,0,1)}</p>
+</dd>
+<dt>radius: float</dt><dd><p>stickの半径</p>
+</dd>
+<dt>scale: flaot</dt><dd><div class="line-block">
+<div class="line">Ballの大きさ.(1の場合.SpaceFillingと同じサイズになる)</div>
+<div class="line">元素毎に大きさを変更したい場合はscaleでなくsizesで指定する.</div>
+</div>
+</dd>
+<dt>sizes: dict</dt><dd><div class="line-block">
+<div class="line">元素毎のBallの大きさ.(共有結合半径)</div>
+<div class="line">{'H':0.46, 'C':0.77}}のように指定</div>
+</div>
+</dd>
+<dt>stick_color: tuple</dt><dd><div class="line-block">
+<div class="line">1で規格化されたRGBA.</div>
+<div class="line">bicolor=Falseの時のみ有効</div>
+</div>
+</dd>
+<dt>subdivision_surface: dict</dt><dd><dl>
+<dt>apply<span class="classifier">bool</span></dt><dd><div class="line-block">
+<div class="line">適用する場合True.</div>
+</div>
+</dd>
+<dt>level<span class="classifier">int</span></dt><dd><div class="line-block">
+<div class="line">viewポートでのレベル</div>
+</div>
+</dd>
+<dt>render_levels: int</dt><dd><div class="line-block">
+<div class="line">Renderレベル</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.blender.make_pyscript.Stick">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.blender.make_pyscript.</span></span><span class="sig-name descname"><span class="pre">Stick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/blender/make_pyscript.html#Stick"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.blender.make_pyscript.Stick" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Stickのスタイル</p>
+<p>bicolor=Trueにすると,Blender上での操作が重くなるので注意(オブジェクト数が多い)</p>
+<p>Parameters:</p>
+<dl>
+<dt>atoms: Atoms</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>indices: list of int</dt><dd><p>一部の原子のみを表示する場合,index番号をリストで与える</p>
+</dd>
+<dt>kwargs:</dt><dd><dl>
+<dt>bicolor: bool</dt><dd><p>bicolorにする場合True.</p>
+</dd>
+<dt>cartoon:dict</dt><dd><dl>
+<dt>apply: bool</dt><dd><div class="line-block">
+<div class="line">cartoonを適用する場合Ture.</div>
+</div>
+</dd>
+<dt>IOR: float</dt><dd><div class="line-block">
+<div class="line">フレネルのIOR(枠線の太さに相当する)</div>
+</div>
+</dd>
+<dt>color: tuple</dt><dd><div class="line-block">
+<div class="line">ミックスのColor2(枠線の色に相当する)</div>
+<div class="line">1で規格化されたRGBAで指定する</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>colors<span class="classifier">dict</span></dt><dd><p>1で規格化したRGBA.
+ex) {'O':(1,0,0,1)}</p>
+</dd>
+<dt>radius: float</dt><dd><p>stickの半径</p>
+</dd>
+<dt>stick_color: tuple</dt><dd><div class="line-block">
+<div class="line">1で規格化されたRGBA.</div>
+<div class="line">bicolor=Falseの時のみ有効</div>
+</div>
+</dd>
+<dt>subdivision_surface: dict</dt><dd><dl>
+<dt>apply<span class="classifier">bool</span></dt><dd><div class="line-block">
+<div class="line">適用する場合True.</div>
+</div>
+</dd>
+<dt>level<span class="classifier">int</span></dt><dd><div class="line-block">
+<div class="line">viewポートでのレベル</div>
+</div>
+</dd>
+<dt>render_levels: int</dt><dd><div class="line-block">
+<div class="line">Renderレベル</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.blender.make_pyscript.SpaceFilling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.blender.make_pyscript.</span></span><span class="sig-name descname"><span class="pre">SpaceFilling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/blender/make_pyscript.html#SpaceFilling"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.blender.make_pyscript.SpaceFilling" title="この定義へのパーマリンク"></a></dt>
+<dd><p>SpaceFillingのスタイル</p>
+<p>bicolor=Trueにすると,Blender上での操作が重くなるので注意(オブジェクト数が多い)</p>
+<p>Parameters:</p>
+<dl>
+<dt>atoms: Atoms</dt><dd><p>Atomsオブジェクト</p>
+</dd>
+<dt>indices: list of int</dt><dd><p>一部の原子のみを表示する場合,index番号をリストで与える</p>
+</dd>
+<dt>kwargs:</dt><dd><dl>
+<dt>cartoon:dict</dt><dd><dl>
+<dt>apply: bool</dt><dd><div class="line-block">
+<div class="line">cartoonを適用する場合Ture.</div>
+</div>
+</dd>
+<dt>IOR: float</dt><dd><div class="line-block">
+<div class="line">フレネルのIOR(枠線の太さに相当する)</div>
+</div>
+</dd>
+<dt>color: tuple</dt><dd><div class="line-block">
+<div class="line">ミックスのColor2(枠線の色に相当する)</div>
+<div class="line">1で規格化されたRGBAで指定する</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>colors<span class="classifier">dict</span></dt><dd><p>1で規格化したRGBA.
+ex) {'O':(1,0,0,1)}</p>
+</dd>
+<dt>scale: flaot</dt><dd><div class="line-block">
+<div class="line">Ballの大きさ.デフォルトは1.</div>
+<div class="line">元素毎に大きさを変更したい場合はscaleでなくsizesで指定する.</div>
+</div>
+</dd>
+<dt>sizes: dict</dt><dd><div class="line-block">
+<div class="line">元素毎のBallの大きさ.(共有結合半径)</div>
+<div class="line">{'H':0.46, 'C':0.77}}のように指定</div>
+</div>
+</dd>
+<dt>subdivision_surface: dict</dt><dd><dl>
+<dt>apply<span class="classifier">bool</span></dt><dd><div class="line-block">
+<div class="line">適用する場合True.</div>
+</div>
+</dd>
+<dt>level<span class="classifier">int</span></dt><dd><div class="line-block">
+<div class="line">viewポートでのレベル</div>
+</div>
+</dd>
+<dt>render_levels: int</dt><dd><div class="line-block">
+<div class="line">Renderレベル</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grrmpy.blender.make_pyscript.Animation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grrmpy.blender.make_pyscript.</span></span><span class="sig-name descname"><span class="pre">Animation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/grrmpy/blender/make_pyscript.html#Animation"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grrmpy.blender.make_pyscript.Animation" title="この定義へのパーマリンク"></a></dt>
+<dd><p>Animationのスタイル</p>
+<div class="line-block">
+<div class="line">結合の描写が複雑なのでAnimationはSpaceFillingのみしかサポートしていない</div>
+<div class="line">Animationと他のスタイルを組み合わせることはできるがAnimationで指定した原子のみが動く.</div>
+</div>
+<p>Parameters:</p>
+<dl>
+<dt>images: Trajectory or list of Atoms</dt><dd><p>TrajectoryまたはAtomsのリスト</p>
+</dd>
+<dt>indices: list of int</dt><dd><p>一部の原子のみを表示する場合,index番号をリストで与える</p>
+</dd>
+<dt>kwargs:</dt><dd><dl>
+<dt>cartoon:dict</dt><dd><dl>
+<dt>apply: bool</dt><dd><div class="line-block">
+<div class="line">cartoonを適用する場合Ture.</div>
+</div>
+</dd>
+<dt>IOR: float</dt><dd><div class="line-block">
+<div class="line">フレネルのIOR(枠線の太さに相当する)</div>
+</div>
+</dd>
+<dt>color: tuple</dt><dd><div class="line-block">
+<div class="line">ミックスのColor2(枠線の色に相当する)</div>
+<div class="line">1で規格化されたRGBAで指定する</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>colors<span class="classifier">dict</span></dt><dd><p>1で規格化したRGBA.
+ex) {'O':(1,0,0,1)}</p>
+</dd>
+<dt>scale: flaot</dt><dd><div class="line-block">
+<div class="line">Ballの大きさ.デフォルトは1.</div>
+<div class="line">元素毎に大きさを変更したい場合はscaleでなくsizesで指定する.</div>
+</div>
+</dd>
+<dt>sizes: dict</dt><dd><div class="line-block">
+<div class="line">元素毎のBallの大きさ.(共有結合半径)</div>
+<div class="line">{'H':0.46, 'C':0.77}}のように指定</div>
+</div>
+</dd>
+<dt>start: int</dt><dd><p>始めのキーフレームを打つ位置</p>
+</dd>
+<dt>step: int</dt><dd><p>何フレーム毎にキーを打つか</p>
+</dd>
+<dt>subdivision_surface: dict</dt><dd><dl>
+<dt>apply<span class="classifier">bool</span></dt><dd><div class="line-block">
+<div class="line">適用する場合True.</div>
+</div>
+</dd>
+<dt>level<span class="classifier">int</span></dt><dd><div class="line-block">
+<div class="line">viewポートでのレベル</div>
+</div>
+</dd>
+<dt>render_levels: int</dt><dd><div class="line-block">
+<div class="line">Renderレベル</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="network.html" class="btn btn-neutral float-left" title="Networkモジュール" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="commandline.html" class="btn btn-neutral float-right" title="コマンドライン" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

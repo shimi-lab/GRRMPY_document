@@ -1,0 +1,42 @@
+#################
+Tips
+#################
+
+- 一部の原子のみをwrapする
+
+    一部の原子のみをwrapした新たな `new.traj` ファイルが作成される.
+
+    .. code-block:: python
+
+        from ase.io import Trajectory
+
+        traj = Trajectory("XXX.traj") # オリジナルのtrajファイル
+        new_traj =  Trajectory("new.traj",mode="a")
+        indices = [192,193,194,195,196,197,198,199,200,201,202,203] # indicesで指定した原子のみwrapする
+        for atoms in traj:
+            positions = atoms.get_positions(wrap=True)
+            atoms.positions[indices] = positions[indices]
+            new_traj.write(atoms)
+
+
+- 構造をhtmlに保存する → これは :class:`grrmpy.visualize.custum_viewer.View` クラスで簡単に行なえる
+
+    | Viewで表示した構造をhtmlに保存する
+    | Viewで可視化した時と同じインタラクティブな状態でhtmlに保存される.
+
+    .. code-block:: python
+
+        from grrmpy.visualize import View
+        from ase.io import read
+        import nglview as nv
+
+        atoms = read("atoms.cif")
+        v = View(atoms) 
+        v # またはdisplay(v)
+        # ↑一度必ずnote book上で可視化する必要がある.
+
+    その後
+        
+    .. code-block:: python
+
+        nv.write_html("atoms.html",v.view) # htmlに保存される

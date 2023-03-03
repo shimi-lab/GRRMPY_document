@@ -1,0 +1,36 @@
+.. GRRMPY documentation master file, created by
+   sphinx-quickstart on Thu Nov 10 15:51:16 2022.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+GRRMPYドキュメント
+==================================
+
+.. toctree::
+   :maxdepth: 2
+
+   src/basic
+   src/install
+   src/calculator
+   src/tutorial
+   src/modules
+   src/blender_gallery
+   src/toy_tools
+   src/SearchByPurpose
+   src/tips
+   src/algorithm
+   src/other_lib
+   src/other
+
+
+Indices and tables
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+   src/SearchByPurpose
+   
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PinNEB計算 &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="連続PinNEB計算" href="auto_pinneb.html" />
+    <link rel="prev" title="連続Vib計算" href="auto_vib.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">チュートリアル</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="import_GRRM.html">GRRMの結果をデータをインポートする</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_opt.html">連続最適化計算</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_neb.html">連続NEB計算</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auto_vib.html">連続Vib計算</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PinNEB計算</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">PinNEBの概要</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">基本操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">細かいパラメータを指定する</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">同一構造判定</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#path-dat">Path.datについて</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">PinNEBのフロー</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="auto_pinneb.html">連続PinNEB計算</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blender_tutorial.html">Blenderのアニメーションを作成する</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorial.html">チュートリアル</a></li>
+      <li class="breadcrumb-item active">PinNEB計算</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/tutorial/pin_neb.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="pinneb">
+<h1>PinNEB計算<a class="headerlink" href="#pinneb" title="この見出しへのパーマリンク"></a></h1>
+<section id="id1">
+<h2>PinNEBの概要<a class="headerlink" href="#id1" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">PinNEBはNEBエネルギーダイアグラム中に谷間を見つけたら最適化し,素反応に切り分けて計算を行なう.</div>
+<div class="line">次のステップで行う</div>
+<div class="line"><br /></div>
+<div class="line"><strong>STEP1</strong> : 通常のNEB計算を行なう</div>
+<div class="line"><strong>STEP2</strong> : STEP1のエネルギーダイアグラム中に谷間(極小点)があれば最適化し, 新たなEQとする</div>
+<div class="line"><strong>STEP3</strong> : STEP2で見つけたEQ(中間体)を経由する新たなNEBイメージを作成し,STEP1,STEP2を行なう</div>
+<div class="line"><strong>STEP4</strong> : 極小点がなくなるまで(つまり素反応が見つかるまで)STEP1,2,3を繰り返す</div>
+<div class="line"><br /></div>
+<div class="line">より詳細なフローはこのページの最後に示した．</div>
+</div>
+<a class="reference internal image-reference" href="../../_images/PinNEB_View.png"><img alt="../../_images/PinNEB_View.png" class="align-center" src="../../_images/PinNEB_View.png" style="width: 600.0px; height: 270.0px;" /></a>
+</section>
+<section id="id2">
+<h2>基本操作<a class="headerlink" href="#id2" title="この見出しへのパーマリンク"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grrmpy.automate</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span><span class="n">PinNEB</span>
+
+<span class="n">pin_neb</span> <span class="o">=</span> <span class="n">PinNEB</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">pin_neb</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>細かいパラメータを指定する<a class="headerlink" href="#id3" title="この見出しへのパーマリンク"></a></h2>
+<p>例えば極小点があってもNEBが収束すれば,NEBイメージを分解しないようにする場合, <code class="docutils literal notranslate"><span class="pre">separate_completely</span></code> をFalseにする.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pin_neb</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="n">separate_completely</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">その他指定可能な引数は <a class="reference internal" href="../modules/automate.html#grrmpy.automate.pin_neb.PinNEB" title="grrmpy.automate.pin_neb.PinNEB"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinNEB</span></code></a> を参照する.</div>
+<div class="line">また,指定可能な全ての引数は <code class="docutils literal notranslate"><span class="pre">get_param()</span></code> で確認できる.</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pin_neb</span><span class="o">.</span><span class="n">get_param</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">PinNEBは <a class="reference internal" href="../modules/automate.html#grrmpy.automate.queue.Queue" title="grrmpy.automate.queue.Queue"><code class="xref py py-class docutils literal notranslate"><span class="pre">Queue</span></code></a> クラスを用いてQueueの管理を行なっている.</div>
+<div class="line">Queueはデフォルトでは幅優先でQueueの取り出しを行なう(priority=0)が, PinNEBの場合priority=1に設定すると,
+反応熱の高い順にQueueからイメージが取り出される</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pin_neb</span> <span class="o">=</span> <span class="n">PinNEB</span><span class="p">(</span><span class="n">images</span><span class="p">,</span><span class="n">constraints</span><span class="o">=</span><span class="p">[],</span><span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id4">
+<h3>同一構造判定<a class="headerlink" href="#id4" title="この見出しへのパーマリンク"></a></h3>
+<div class="line-block">
+<div class="line">PinNEBでは不必要なNEB計算を防ぐために構造最適化後の構造について同一構造判定を行なっている.</div>
+<div class="line">例えばEQ0とEQ1をINI,FIN構造としNEB計算をした際に1つの極小値が見つかり,この最適化後の構造をEQ2とする.</div>
+<div class="line">通常であれば,EQ0とEQ2, EQ2とEQ1で新たにNEB計算をすれば良いが,もしEQ0とEQ2が同一構造であった場合,NEB計算する意味はない.</div>
+<div class="line">それどころか,同一構造でNEB計算をするとNEBエネルギーダイアグラムが歪な形状になり,バリアレス判定を行ないにくくなってしまう.</div>
+<div class="line"><br /></div>
+<div class="line"><strong>PinNEBでは</strong> <a class="reference internal" href="../modules/automate.html#grrmpy.automate.pin_neb.is_similar" title="grrmpy.automate.pin_neb.is_similar"><code class="xref py py-class docutils literal notranslate"><span class="pre">is_similar</span></code></a> <strong>で同一構造判定を行なっている</strong> が
+自作の同一構造判定関数を設定することもできる.</div>
+<div class="line">atoms1,atoms2の引数をとり,同一構造の場合True,異なる場合Falseを返す関数を定義する.</div>
+<div class="line">例えば,2つの構造のエネルギー差が3 kJ/mol以下の場合同一構造とする場合</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">mol</span><span class="p">,</span><span class="n">kJ</span>
+
+<span class="k">def</span> <span class="nf">user_function</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">energy</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">e1</span> <span class="o">=</span> <span class="n">atoms1</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+    <span class="n">e2</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">e1</span><span class="o">-</span><span class="n">e2</span><span class="p">)</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">energy</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>このような関数を定義し,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pin_neb</span><span class="o">.</span><span class="n">set_param</span><span class="p">(</span><span class="n">isomorphism_func</span><span class="o">=</span><span class="n">user_function</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">set_param</span></code> で適用する事ができる.</p>
+</section>
+</section>
+<section id="path-dat">
+<h2>Path.datについて<a class="headerlink" href="#path-dat" title="この見出しへのパーマリンク"></a></h2>
+<div class="line-block">
+<div class="line">計算中にPath.datが更新され,これに基づいてPath.html(反応座標)が作成される</div>
+<div class="line">Path.datの中身の例を示す</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Dir</span><span class="p">]</span>
+<span class="n">EQ</span><span class="p">:</span> <span class="o">./</span><span class="n">EQ_List</span><span class="o">/</span>
+<span class="n">TS</span><span class="p">:</span> <span class="o">./</span><span class="n">TS_List</span><span class="o">/</span>
+<span class="p">[</span><span class="n">path</span><span class="p">]</span>
+<span class="n">path</span><span class="p">:</span> <span class="n">EQ0</span><span class="o">|</span><span class="n">EQ3</span><span class="p">;</span><span class="n">EQ4</span><span class="o">~</span><span class="n">EQ2</span><span class="p">;</span><span class="n">TS0</span><span class="p">;</span><span class="n">EQ1</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">このPath.datから次のグラフが作成される.</div>
+<div class="line">EQ_List,TS_Listに保存されているtrajファイルを読み込みグラフを作成が作成される.</div>
+</div>
+<a class="reference internal image-reference" href="../../_images/Path.png"><img alt="../../_images/Path.png" class="align-center" src="../../_images/Path.png" style="width: 1100.0px; height: 348.25px;" /></a>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>記号</p></th>
+<th class="head"><p>意味</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>; (セミコロン)</p></td>
+<td><p>破線でつなぐ(パスがつながっている)</p></td>
+</tr>
+<tr class="row-odd"><td><p>| (バーティカルバー)</p></td>
+<td><p>線を書かない(パスがつながていない)</p></td>
+</tr>
+<tr class="row-even"><td><p>~ (チルダ)</p></td>
+<td><p>バリアレス 破線でつなぐ&amp;barrier lessと表示</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">Path.datに~が一つしか書かれていないのにhtml上に&quot;barrier less&quot;のラベルが複数表示されるバグが存在する.</div>
+<div class="line">これはPlotly側の既知のバグから生じている.</div>
+<div class="line">notebook上で</div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">grrmpy.path</span> <span class="kn">import</span> <span class="n">create_reactpath</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpath</span> <span class="o">=</span> <span class="n">create_reactpath</span><span class="p">(</span><span class="s2">&quot;Path.dat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpath</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Path.html&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>とすれば，正しいグラフに書き直すことができる.</p>
+</section>
+<section id="id5">
+<h2>PinNEBのフロー<a class="headerlink" href="#id5" title="この見出しへのパーマリンク"></a></h2>
+<a class="reference internal image-reference" href="../../_images/PinNEB_flowchart.png"><img alt="../../_images/PinNEB_flowchart.png" class="align-center" src="../../_images/PinNEB_flowchart.png" style="width: 658.65px; height: 516.6px;" /></a>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="auto_vib.html" class="btn btn-neutral float-left" title="連続Vib計算" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="auto_pinneb.html" class="btn btn-neutral float-right" title="連続PinNEB計算" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

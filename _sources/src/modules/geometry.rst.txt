@@ -1,0 +1,26 @@
+###########################
+Geometryモジュール 
+###########################
+
+.. module:: grrmpy.geometry
+
+grouping
+---------------
+.. autofunction:: grrmpy.geometry.functions.grouping
+
+
+issame
+-----------
+
+| 2つのAtomsが同じジオメトリであるか判断する.
+| 2構造の座標やindex番号の違いに関係なく,純粋にジオメトリのみに注目し同一構造判定を行なうことができる.
+
+.. image:: ./img/geometry.png
+   :scale: 20%
+   :align: center
+
+.. image:: ./img/geometry_code.png
+   :scale: 100%
+   :align: center
+
+.. autofunction:: grrmpy.geometry.functions.issame

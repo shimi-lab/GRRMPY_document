@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.io.html &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.io.html</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.io.html のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">NEB</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span> <span class="nn">ase.units</span> <span class="k">as</span> <span class="nn">units</span>
+<span class="kn">from</span> <span class="nn">ase.vibrations</span> <span class="kn">import</span> <span class="n">Vibrations</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1">#User</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.vibrations.functions</span> <span class="kn">import</span> <span class="n">to_html_table_and_imode</span><span class="p">,</span><span class="n">to_html_graph</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.functions</span> <span class="kn">import</span> <span class="n">to_html_nebgraph</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">to_html_energy_diagram</span>
+
+<div class="viewcode-block" id="write_html"><a class="viewcode-back" href="../../../src/modules/io.html#grrmpy.io.html.write_html">[ドキュメント]</a><span class="k">def</span> <span class="nf">write_html</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">obj</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;htmlファイルとして保存する</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    html: string</span>
+<span class="sd">        保存ファイル名</span>
+<span class="sd">    obj: object</span>
+<span class="sd">        | objの引数には次のオブジェクトを指定できる</span>
+<span class="sd">        | - NEB</span>
+<span class="sd">        |     NEBのエネルギーダイアグラムを作成</span>
+<span class="sd">        | - Vibrations</span>
+<span class="sd">        |     エネルギーダイアグラムと振動数表を作成</span>
+<span class="sd">        | - trajファイル</span>
+<span class="sd">        |     エネルギーダイアグラムを作成</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="n">NEB</span><span class="p">:</span>
+        <span class="n">write_neb_graph</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">obj</span><span class="p">,</span> <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="n">append</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="n">Vibrations</span><span class="p">:</span>
+        <span class="n">write_vibtb_and_vibgraph</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">obj</span><span class="p">,</span> <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="n">append</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="n">Path</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">write_vib_graph</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">obj</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="n">append</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">Atoms</span><span class="p">:</span>
+            <span class="n">write_energy_diagram</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">obj</span><span class="p">,</span><span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span><span class="n">append</span><span class="o">=</span><span class="n">append</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    
+<span class="k">def</span> <span class="nf">write_vib_table</span><span class="p">(</span>
+    <span class="n">html</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">vib_obj</span><span class="p">,</span>
+    <span class="n">full_html</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,):</span>
+    <span class="sd">&quot;&quot;&quot;振動数の表をhtmlのstrを出力する&amp;虚振動の振動モード番号を出力する</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    html: string or None</span>
+<span class="sd">        | 出力するhtmlファイル名.</span>
+<span class="sd">        | Noneの場合,htmlテキストを戻り値として出力する</span>
+<span class="sd">    vib_obj: Viblations object</span>
+<span class="sd">        Viblationsオブジェクト</span>
+<span class="sd">    full_html: boolean</span>
+<span class="sd">        | &lt;html&gt;タグから始まる,完全なhtmlを出力する場合True</span>
+<span class="sd">        | Falseの場合&lt;div&gt;タグから始まるテキストを出力</span>
+<span class="sd">    append:bool</span>
+<span class="sd">        Trueの場合追記モード</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_html</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="n">full_html</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">html_text</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">to_html_table_and_imode</span><span class="p">(</span><span class="n">vib_obj</span><span class="p">,</span><span class="n">full_html</span><span class="o">=</span><span class="n">full_html</span><span class="p">,</span><span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html_text</span>        
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_text</span><span class="p">)</span>
+        
+<span class="k">def</span> <span class="nf">write_vib_graph</span><span class="p">(</span>
+    <span class="n">html</span><span class="p">,</span><span class="n">vib_obj</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">outfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span> 
+    <span class="n">kT</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">nimages</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">full_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,):</span>
+    <span class="sd">&quot;&quot;&quot;エネルギーダイアグラムを作成する</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    html: string or None</span>
+<span class="sd">        | 出力するhtmlファイル名.</span>
+<span class="sd">        | Noneの場合,htmlテキストを戻り値として出力する</span>
+<span class="sd">    vib_obj: Viblations object</span>
+<span class="sd">        Viblationsオブジェクト</span>
+<span class="sd">    n: integer</span>
+<span class="sd">        振動モード番号</span>
+<span class="sd">    outfile: str</span>
+<span class="sd">        | 振動の構造をtrajで出力する場合,trajファイル名.</span>
+<span class="sd">        | Noneの場合出力しない</span>
+<span class="sd">        | (write_mode()でtrajファイルを出力する)</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        Claculatorを返す関数</span>
+<span class="sd">    nimages: integer</span>
+<span class="sd">        | イメージの数, デフォルトは30</span>
+<span class="sd">        | 偶数で設定する事を推奨する</span>
+<span class="sd">    full_html:</span>
+<span class="sd">        | &lt;html&gt;タグから始まる,完全なhtmlを出力する場合True</span>
+<span class="sd">        | Falseの場合&lt;div&gt;タグから始まるテキストを出力</span>
+<span class="sd">    append: bool</span>
+<span class="sd">        追記する場合True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_html</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="n">full_html</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">html_text</span> <span class="o">=</span> <span class="n">to_html_graph</span><span class="p">(</span>
+        <span class="n">vib_obj</span><span class="p">,</span>
+        <span class="n">n</span><span class="p">,</span>
+        <span class="n">outfile</span><span class="p">,</span>
+        <span class="n">calc_func</span><span class="p">,</span>
+        <span class="n">kT</span><span class="p">,</span>
+        <span class="n">nimages</span><span class="p">,</span>
+        <span class="n">full_html</span><span class="p">,</span>
+        <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html_text</span>  
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_text</span><span class="p">)</span>
+        
+
+<span class="k">def</span> <span class="nf">write_vibtb_and_vibgraph</span><span class="p">(</span>
+    <span class="n">html</span><span class="p">,</span>
+    <span class="n">vib_obj</span><span class="p">,</span>
+    <span class="n">outfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+    <span class="n">kT</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="n">nimages</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;振動数の表とエネルギーダイアグラムのhtmlテキストを出力する.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    html: string or None</span>
+<span class="sd">        | 出力するhtmlファイル名.</span>
+<span class="sd">        | Noneの場合,htmlテキストを戻り値として出力する</span>
+<span class="sd">    vib_obj: Viblations object</span>
+<span class="sd">        Viblationsオブジェクト</span>
+<span class="sd">    outfile: str</span>
+<span class="sd">        | 振動の構造をtrajで出力する場合,trajファイル名.</span>
+<span class="sd">        | Noneの場合出力しない</span>
+<span class="sd">        | (write_mode()でtrajファイルを出力する)</span>
+<span class="sd">    calc_func: function object</span>
+<span class="sd">        Claculatorを返す関数</span>
+<span class="sd">    nimages: integer</span>
+<span class="sd">        | イメージの数, デフォルトは30</span>
+<span class="sd">        | 偶数で設定する事を推奨する</span>
+<span class="sd">    append: bool</span>
+<span class="sd">        追記の場合True.</span>
+<span class="sd">    Note:</span>
+<span class="sd">        | 虚振動がないor複数ある場合は,エネルギーダイアグラムは出力しない</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">tb_txt</span><span class="p">,</span><span class="n">imode</span> <span class="o">=</span> <span class="n">to_html_table_and_imode</span><span class="p">(</span><span class="n">vib_obj</span><span class="p">,</span><span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">imode</span><span class="p">:</span>
+        <span class="n">fig_txt</span> <span class="o">=</span> <span class="n">write_vib_graph</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="n">vib_obj</span><span class="p">,</span><span class="n">imode</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">calc_func</span><span class="p">,</span><span class="n">kT</span><span class="p">,</span><span class="n">nimages</span><span class="p">,</span><span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig_txt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tb_txt</span><span class="o">+</span><span class="n">fig_txt</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tb_txt</span><span class="o">+</span><span class="n">fig_txt</span><span class="p">)</span>
+        
+<span class="k">def</span> <span class="nf">write_neb_graph</span><span class="p">(</span><span class="n">html</span><span class="p">,</span>
+                    <span class="n">neb_obj</span><span class="p">,</span>
+                    <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NEB Energy Diagram&quot;</span><span class="p">,</span>
+                    <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                    <span class="n">full_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kJ/mol&quot;</span><span class="p">,</span>
+                    <span class="n">highlight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">annotation</span><span class="o">=</span><span class="p">[],</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">full_html</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="n">full_html</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">html_txt</span> <span class="o">=</span> <span class="n">to_html_nebgraph</span><span class="p">(</span>
+        <span class="n">neb_obj</span><span class="p">,</span>
+        <span class="n">calc_func</span><span class="o">=</span><span class="n">calc_func</span><span class="p">,</span>
+        <span class="n">full_html</span><span class="o">=</span><span class="n">full_html</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span>
+        <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">,</span>
+        <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span>
+        <span class="n">annotation</span><span class="o">=</span><span class="n">annotation</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html_txt</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_txt</span><span class="p">)</span>
+        
+<span class="k">def</span> <span class="nf">write_energy_diagram</span><span class="p">(</span><span class="n">html</span><span class="p">,</span>
+                         <span class="n">images</span><span class="p">,</span>
+                         <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Energy Diagram&quot;</span><span class="p">,</span>
+                         <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                         <span class="n">full_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kJ/mol&quot;</span><span class="p">,</span>
+                         <span class="n">highlight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">annotation</span><span class="o">=</span><span class="p">[],</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">full_html</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="n">full_html</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">append</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
+    <span class="n">html_txt</span> <span class="o">=</span> <span class="n">to_html_energy_diagram</span><span class="p">(</span>
+        <span class="n">images</span><span class="p">,</span>
+        <span class="n">calc_func</span><span class="o">=</span><span class="n">calc_func</span><span class="p">,</span>
+        <span class="n">full_html</span><span class="o">=</span><span class="n">full_html</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">,</span>
+        <span class="n">highlight</span><span class="o">=</span><span class="n">highlight</span><span class="p">,</span>
+        <span class="n">annotation</span><span class="o">=</span><span class="n">annotation</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">html</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html_txt</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">html</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_txt</span><span class="p">)</span>
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

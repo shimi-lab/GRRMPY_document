@@ -1,0 +1,70 @@
+==================================
+Blenderのアニメーションを作成する
+==================================
+
+.. image:: ./img/Sample_Movie.gif
+   :scale: 20%
+   :align: center
+
+作成方法
+===============================
+
+Matlantis上での操作
+-------------------------
+
+.. role:: red
+
+| Matlantisでアニメーションにしたい構造をTrajectoryとしておき, :class:`make_py_script<grrmpy.blender.make_pyscript.make_py_script>` 
+ を実行する.zipファイルが作成されるのでローカルPCにダウンロードする.
+
+.. code-block:: python
+
+    from grrmpy.blender import make_py_script,Animation
+
+    traj = Trajectory("MD.traj")
+    make_py_script("Animation.zip",Animation(traj))
+    # --> zipファイルが作成される.中身は"Animation.py","positions0.pkl"
+
+ローカルPC上での操作
+-------------------------------
+
+| ローカルPCでzipを展開する. 中に"Animation.py", "positions0.pkl"が入っている.
+| "positions0.pkl"と同じディレクトリ上にblenderファイルを作成し,blender上で"Animation.py"を実行する.
+| :red:`Pythonスクリプトを実行する前にblenderファイルを保存する必要があるので注意`
+
+.. image:: ./img/folder.png
+   :scale: 100%
+   :align: center
+
+blenderファイルを開き,テキストエディターを開く(windows: Shift+F11).
+
+.. image:: ./img/text_editer.png
+   :scale: 25%
+   :align: center
+
+.. image:: ./img/text_editer2.png
+   :scale: 25%
+   :align: center
+
+| テキストエディターからAnimation.pyを開き,Pythonスクリプトを実行する(数秒かかる).
+
+.. image:: ./img/text_editer3.png
+   :scale: 30%
+   :align: center
+
+| 3Dビューポートに戻ると構造がインポートされた事が分かる.
+| 原子に色がついていないように見える場合があるが，マテリアルプレビューモードにすればちゃんと着色されている.
+| 原子の色はBlender上で変更するか :class:`Animation<grrmpy.blender.make_pyscript.Animation>` 
+ の `color` の引数から元素の色を予め指定しておく.
+
+.. image:: ./img/blender_view.png
+   :scale: 30%
+   :align: center 
+
+| キーフレームは0から開始し,3フレーム毎にキーが挿入されている.
+
+ :class:`Animation<grrmpy.blender.make_pyscript.Animation>` のキーワード引数, `start`, `step` で変更することができる.
+
+.. image:: ./img/key_frame.png
+   :scale: 30%
+   :align: center

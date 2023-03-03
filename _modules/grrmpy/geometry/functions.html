@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.geometry.functions &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.geometry.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.geometry.functions のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.conv.atoms2smiles</span> <span class="kn">import</span> <span class="n">atomslist2smileses</span><span class="p">,</span><span class="n">atoms2smiles</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="n">get_bond</span>
+
+
+<div class="viewcode-block" id="grouping"><a class="viewcode-back" href="../../../src/modules/geometry.html#grrmpy.geometry.functions.grouping">[ドキュメント]</a><span class="k">def</span> <span class="nf">grouping</span><span class="p">(</span><span class="n">atoms_list</span><span class="p">,</span> <span class="n">target0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target1</span><span class="o">=</span><span class="p">[],</span> <span class="n">target2</span><span class="o">=</span><span class="p">[],</span><span class="n">mult</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">rtype</span><span class="o">=</span><span class="s2">&quot;2D&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;同一構造をまとめる.</span>
+<span class="sd">    </span>
+<span class="sd">    | atoms_list中で同じ構造ごとにindex番号をまとめたリストを返す.</span>
+<span class="sd">    | 例えば,戻り値が[[0,1,3],[2,5,6],[4]]の場合,0,1,3番目の構造が同一構造である.</span>
+<span class="sd">    | </span>
+<span class="sd">    | 結合の有無で同一構造かどうか判定を行なう.厳密にはSMILESが同一かを判定している.</span>
+<span class="sd">    | ただし,全て単結合としてSMILESを表現するため,2重結合と単結合の違い(角度の違い)は表現できない.</span>
+<span class="sd">    |</span>
+<span class="sd">    | ゼオライトなどを扱う場合,活性点以外の結合状態の違いはあまり意味をなさない.</span>
+<span class="sd">    | 引数のtargetを指定することで注目したい結合部分のみで同一構造判定を行なうことができる.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    atoms_list: list of Atoms</span>
+<span class="sd">        Atomsのリスト</span>
+<span class="sd">    target0: list of int</span>
+<span class="sd">        | target0,target1とtarget2との結合状態を見る.</span>
+<span class="sd">        | Noneの場合,全ての結合状態を見る.</span>
+<span class="sd">    target1: list of int</span>
+<span class="sd">        | target0,target1の結合状態を見る.</span>
+<span class="sd">    target2: list of int</span>
+<span class="sd">        | target0の原子との結合状態を見る.</span>
+<span class="sd">    rtype: str</span>
+<span class="sd">        | 戻り値のタイプ. &quot;1D&quot; または &quot;2D&quot;</span>
+<span class="sd">        | &quot;1D&quot;の場合,[0,0,1,2,3,3,4...]のような1次元リストを返す.この場合0,1番目と4,5番目が同じ構造という意味.</span>
+<span class="sd">        | &quot;2D&quot;の場合,[[0,1],[2],[3],[4,5],[6]...]のようなリストを返す.これも0,1番目と4,5番目が同じ構造という意味.</span>
+<span class="sd">    mult: float</span>
+<span class="sd">        結合の判定を行なうための係数.数字の大きい程,遠く離れていても結合していると判断される.</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        | 原子毎に結合半径を指定できる.</span>
+<span class="sd">        | ex) Ag=1.4 のように指定する.</span>
+<span class="sd">    </span>
+<span class="sd">    Hint:</span>
+<span class="sd">        | targetの指定の仕方として, 例えばゼオライトにAg4クラスターを担持した触媒の場合,次のように指定すると良い.</span>
+<span class="sd">        </span>
+<span class="sd">        .. csv-table::</span>
+<span class="sd">            :header: 計算モード, target0, target1, target2</span>
+
+<span class="sd">            厳密な構造判定, None, [], []</span>
+<span class="sd">            かなりラフな構造判定, 反応物, [], Ag</span>
+<span class="sd">            ラフな構造判定(Agのコンフォメーションも考慮), 反応物+Ag, [], []</span>
+<span class="sd">            ゼオライトケージへの吸着を考慮, 反応物, Ag, その他の原子</span>
+<span class="sd">            ゼオライトケージへの吸着も考慮+Agのコンフォメーションも考慮, 反応物+Ag, [], その他の原子</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">smiles_list</span> <span class="o">=</span> <span class="n">atomslist2smileses</span><span class="p">(</span><span class="n">atoms_list</span><span class="p">,</span><span class="n">target0</span><span class="p">,</span><span class="n">target1</span><span class="p">,</span><span class="n">target2</span><span class="p">,</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s2">&quot;2D&quot;</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">_x</span> <span class="o">==</span> <span class="n">smiles</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">smiles</span> 
+                <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">smiles_list</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s2">&quot;1D&quot;</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">smiles_list</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">smiles_list</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">))]</span>
+        <span class="n">unique_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">val</span><span class="p">))</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="n">unique_dict</span><span class="p">[</span><span class="n">smiles</span><span class="p">]</span> <span class="k">for</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">smiles_list</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;rtypeは&#39;1D&#39;または&#39;2D&#39;です&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">group</span></div>
+
+<div class="viewcode-block" id="issame"><a class="viewcode-back" href="../../../src/modules/geometry.html#grrmpy.geometry.functions.issame">[ドキュメント]</a><span class="k">def</span> <span class="nf">issame</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">target0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">target1</span><span class="o">=</span><span class="p">[],</span><span class="n">target2</span><span class="o">=</span><span class="p">[],</span><span class="n">mult</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;2つの構造が同一構造かどうかを判定する</span>
+<span class="sd">    </span>
+<span class="sd">    Atomsの__eq__とは異なり,ジオメトリが同じかどうかを判定する.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">smiles1</span> <span class="o">=</span> <span class="n">atoms2smiles</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">target0</span><span class="p">,</span><span class="n">target1</span><span class="p">,</span><span class="n">target2</span><span class="p">,</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">smiles2</span> <span class="o">=</span> <span class="n">atoms2smiles</span><span class="p">(</span><span class="n">atoms2</span><span class="p">,</span><span class="n">target0</span><span class="p">,</span><span class="n">target1</span><span class="p">,</span><span class="n">target2</span><span class="p">,</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">smiles1</span> <span class="o">==</span> <span class="n">smiles2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+<span class="k">def</span> <span class="nf">get_bond_diff</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">,</span><span class="n">mult</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;atoms1とatoms2の結合の差分</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    atoms1: Atoms</span>
+<span class="sd">        Atomsオブジェクト</span>
+<span class="sd">    atoms2: Atoms:</span>
+<span class="sd">        Atomsオブジェクト</span>
+<span class="sd">    </span>
+<span class="sd">    retruns: Tuple(List[List[int,int]],List[List[int,int]])</span>
+<span class="sd">        | 2要素のタプルを返す.</span>
+<span class="sd">        | 1要素目は生成した結合(atoms1--&gt;atoms2)のインデックス番号のリスト</span>
+<span class="sd">        | 2要素目は開裂した結合(atoms1--&gt;atoms2)のインデックス番号のリスト</span>
+<span class="sd">        </span>
+<span class="sd">    Note:</span>
+<span class="sd">        | atoms1とatoms2が同じ組成であるかの検証は行わないので注意.</span>
+<span class="sd">        | 当たり前だか異なる組成の構造を比較しても意味がない.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bond1</span> <span class="o">=</span> <span class="n">get_bond</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span><span class="n">mult</span><span class="o">=</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">bond2</span> <span class="o">=</span> <span class="n">get_bond</span><span class="p">(</span><span class="n">atoms2</span><span class="p">,</span><span class="n">mult</span><span class="o">=</span><span class="n">mult</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cleavage</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">formation</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">bond1</span><span class="p">,</span><span class="n">bond2</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">set_a</span><span class="o">:=</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">))</span><span class="o">==</span><span class="p">(</span><span class="n">set_b</span><span class="o">:=</span><span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">((</span><span class="n">dif</span><span class="o">:=</span><span class="n">set_a</span><span class="o">-</span><span class="n">set_b</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">cleavage</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dif</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">((</span><span class="n">dif</span><span class="o">:=</span><span class="n">set_b</span><span class="o">-</span><span class="n">set_a</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">formation</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dif</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">formation</span><span class="p">,</span> <span class="n">cleavage</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

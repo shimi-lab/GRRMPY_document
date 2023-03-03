@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.automate.by_neb &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.automate.by_neb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.automate.by_neb のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.neb</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">FIRE</span><span class="p">,</span> <span class="n">LBFGS</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">write</span><span class="p">,</span><span class="n">iread</span><span class="p">,</span> <span class="n">Trajectory</span>
+<span class="kn">from</span> <span class="nn">ase.vibrations</span> <span class="kn">import</span> <span class="n">Vibrations</span>
+<span class="kn">from</span> <span class="nn">ase.units</span> <span class="kn">import</span> <span class="n">kJ</span><span class="p">,</span><span class="n">mol</span>
+<span class="kn">from</span> <span class="nn">ase.geometry</span> <span class="kn">import</span> <span class="n">find_mic</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ase.build.rotate</span> <span class="kn">import</span> <span class="n">minimize_rotation_and_translation</span>
+
+<span class="c1">#USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.calculator</span> <span class="kn">import</span> <span class="n">pfp_calculator</span>
+<span class="kn">from</span> <span class="nn">grrmpy.neb.auto_neb</span> <span class="kn">import</span> <span class="n">SNEB</span>
+<span class="kn">from</span> <span class="nn">grrmpy.io.html</span> <span class="kn">import</span> <span class="n">write_html</span>
+<span class="kn">from</span> <span class="nn">grrmpy.vibrations.functions</span> <span class="kn">import</span> <span class="n">to_html_table_and_imode</span><span class="p">,</span><span class="n">find_ts_idx</span><span class="p">,</span><span class="n">to_html_graph</span>
+<span class="kn">from</span> <span class="nn">grrmpy.functions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">to_html_energy_diagram</span><span class="p">,</span>
+                              <span class="n">minimize_rotation_and_translation_for_specified_indices_only</span><span class="p">,</span>
+                              <span class="n">connected_components</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">grrmpy.path</span> <span class="kn">import</span> <span class="n">ReactPath</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">grrmpy.optimize</span> <span class="kn">import</span> <span class="n">FIRELBFGS</span>
+    <span class="n">defaultoptimizer</span> <span class="o">=</span> <span class="n">FIRELBFGS</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">defaultoptimizer</span> <span class="o">=</span> <span class="n">FIRE</span>
+
+
+<div class="viewcode-block" id="SinglePath"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.by_neb.SinglePath">[ドキュメント]</a><span class="k">class</span> <span class="nc">SinglePath</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        \*data: </span>
+<span class="sd">            | 3種類の方法でinput構造を与えることができる.</span>
+
+<span class="sd">            ini,fin構造と初めの中間イメージの数を与える(3つの引数を与える)</span>
+<span class="sd">                &gt;&gt;&gt; sp = SinglePath(ini,fin,21,indices=[1,2,3,4]) # 21個内部にイメージを作成</span>
+<span class="sd">            ini,fin構造を与える(2つの引数を与える.初期イメージの数は13になる)</span>
+<span class="sd">                &gt;&gt;&gt; sp = SinglePath(ini,fin,indices=[1,2,3,4])</span>
+<span class="sd">            images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</span>
+<span class="sd">                &gt;&gt;&gt; sp = SinglePath(images,indices=[1,2,3,4])</span>
+<span class="sd">                </span>
+<span class="sd">            Constraintsがある場合</span>
+<span class="sd">                </span>
+<span class="sd">                &gt;&gt;&gt; f = FixAtoms(indices=[0,1,2,3])</span>
+<span class="sd">                &gt;&gt;&gt; sp = SinglePath(ini,fin,indices=[1,2,3,4],constraints=f)</span>
+<span class="sd">                </span>
+<span class="sd">                &gt;&gt;&gt; f = FixAtoms(indices=[0,1,2,3])</span>
+<span class="sd">                &gt;&gt;&gt; c = FixBondLength(0, 1)</span>
+<span class="sd">                &gt;&gt;&gt; sp = SinglePath(ini,fin,indices=[1,2,3,4],constraints=[f,c])</span>
+<span class="sd">                </span>
+<span class="sd">            imageの数は奇数個を推奨する.</span>
+<span class="sd">        indices: list</span>
+<span class="sd">            振動数計算を行なう時に動かす原子のindex番号のリスト</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並列計算を行なう場合True.</span>
+<span class="sd">        mic: bool</span>
+<span class="sd">            | 最小イメージ規則を適用する場合True.</span>
+<span class="sd">            | Noneの場合,周期境界条件で計算する場合自動でTrueにする.</span>
+<span class="sd">            | デフォルトはTrue.</span>
+<span class="sd">        calc_func: function object</span>
+<span class="sd">            calculatorを返す関数. デフォルトは ``pfp_calculator``</span>
+<span class="sd">        debug: bool</span>
+<span class="sd">            debug.logを出力する(デバック用)</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            | EQ_list.traj, TS_list.trajが既にディレクトリ中にある場合,上書きされてしまうので</span>
+<span class="sd">            | 1つフォルダ内で複数の計算を行なわないようにする!!!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="n">data</span><span class="p">,</span>
+                 <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">parallel</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">mic</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">calc_func</span><span class="o">=</span><span class="n">pfp_calculator</span><span class="p">,</span>
+                 <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">constraints</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        EQ構造,TS構造,PT構造はEQ_list.traj,TS_list.traj,PT_list.trajに保存される.</span>
+<span class="sd">        CONNECTIONSの情報はTS_CONNECTIONS.csv,PT_CONNECTIONS.csvに保存される</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        *data: </span>
+<span class="sd">            3種類の方法でinput構造を与えることができる.</span>
+<span class="sd">     </span>
+<span class="sd">            ・ini,fin構造と初めの中間イメージの数を与える(3つの引数を与える)</span>
+<span class="sd">            ・ini,fin構造を与える(2つの引数を与える.初期イメージの数は13になる)</span>
+<span class="sd">            ・images構造を与える(1つの引数を与える.calculatorを付ける必要はない)</span>
+<span class="sd">                   imageの数は奇数個を推奨する.</span>
+<span class="sd">        indices: list</span>
+<span class="sd">            振動数計算を行なう時に動かす原子のindex番号のリスト</span>
+<span class="sd">        parallel: bool</span>
+<span class="sd">            並列計算を行なう場合True.</span>
+<span class="sd">        mic: bool</span>
+<span class="sd">            | 最小イメージ規則を適用する場合True.</span>
+<span class="sd">            | Noneの場合,周期境界条件で計算する場合自動でTrueにする.</span>
+<span class="sd">            | デフォルトはTrue.</span>
+<span class="sd">        calc_func: function object</span>
+<span class="sd">            calculatorを返す関数. デフォルトは ``pfp_calculator``</span>
+<span class="sd">        constraints:constraint object or list</span>
+<span class="sd">            | constraintsまたはconstraintsのリスト</span>
+<span class="sd">        debug: bool</span>
+<span class="sd">            debug.logを出力する(デバック用)</span>
+<span class="sd">            </span>
+<span class="sd">        Note:</span>
+<span class="sd">            EQ_list.traj, TS_list.trajが既にディレクトリ中にある場合,上書きされてしまうので</span>
+<span class="sd">            1つフォルダ内で複数の計算を行なわないようにする!!!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span> <span class="o">=</span> <span class="n">calc_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span> <span class="c1"># vibrations用</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="c1">### 初期イメージの作成 ###</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;images&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;ini_fin&quot;</span>
+            <span class="n">ini</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">fin</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">nimages</span> <span class="o">=</span> <span class="mi">13</span> <span class="c1"># Deffaultのイメージ数</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">nimages</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span><span class="o">+</span><span class="p">[</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimages</span><span class="p">)]</span><span class="o">+</span><span class="p">[</span><span class="n">fin</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+        
+        <span class="k">if</span> <span class="n">mic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mic</span> <span class="o">=</span> <span class="n">mic</span>
+        
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;ini_fin&quot;</span><span class="p">:</span>
+            <span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span><span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span><span class="n">apply_constraint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">set_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        
+            
+    <span class="k">def</span> <span class="nf">write_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file</span><span class="p">,</span><span class="n">data_list</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">write_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_traj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+    <span class="k">def</span> <span class="nf">write_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_traj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_count</span> <span class="o">+=</span> <span class="mi">1</span> 
+         
+    <span class="k">def</span> <span class="nf">write_pt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_traj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span> <span class="nf">debug_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;debug.log&quot;</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> 
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;run()のデフォルトのパラメータを返す.</span>
+<span class="sd">        </span>
+<span class="sd">        General:</span>
+<span class="sd">        </span>
+<span class="sd">        stopping_criterion: int</span>
+<span class="sd">            停止基準. SNEBの計算をstopping_criterion回行なうと停止する.</span>
+<span class="sd">        struct_check_threshold: list of float</span>
+<span class="sd">            | 2つの構造が同一構造であるとみなす基準.</span>
+<span class="sd">            | a,b,c,d,e,fの6つの要素を指定する.基準1,基準2のどちらかを満たしている時,同一構造とする.</span>
+<span class="sd">            | 基準1:</span>
+<span class="sd">            | 電子エネルギーの差, 原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ</span>
+<span class="sd">            | a kJ/mol, b%, cÅ 以下の時, 同一構造であるとみなす</span>
+<span class="sd">            | 基準2: </span>
+<span class="sd">            | エネルギーの差がd kJ/mol以下であり,indicesで指定した原子を重ね合わせた時,</span>
+<span class="sd">            | (最小二乗法で重ねる)原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ,</span>
+<span class="sd">            | e%, fÅ 以下の時, 同一構造であるとみなす. </span>
+<span class="sd">        minimize_rotation_and_translation: boolean</span>
+<span class="sd">            | 基準1で2つの構造の座標が近くなるように再配置して解析する場合Ture.</span>
+<span class="sd">            | (最小二乗値が小さくなるよう再配置を行なう)</span>
+
+<span class="sd">        SNEB:</span>
+<span class="sd">        </span>
+<span class="sd">        optimizer: Optimizer class</span>
+<span class="sd">            NEB計算に使用するOptimizerの種類</span>
+<span class="sd">        nimages: list of int</span>
+<span class="sd">            各NEB計算の中間イメージの数</span>
+<span class="sd">        maxstep: list of float</span>
+<span class="sd">            | 各NEB計算でのmaxstep値のリスト</span>
+<span class="sd">            | Noneの場合,forceに合わせて自動的にmaxstepsを変化させる.</span>
+<span class="sd">        fmax: list of float</span>
+<span class="sd">            各NEB計算でのfmax値のリスト</span>
+<span class="sd">        steps: list of int</span>
+<span class="sd">            各NEB計算でのsteps値のリスト</span>
+<span class="sd">        tolerance: float</span>
+<span class="sd">            NEBバンド中のtolerance(kJ/mol)以下の谷間はEQとは考えないで計算する.</span>
+<span class="sd">        threshold: list of float</span>
+<span class="sd">            活性化エネルギーに対してthreshold%以下の点は削り新たなNEBイメージを作成して計算する</span>
+<span class="sd">        dist: float</span>
+<span class="sd">            | 新たなNEBイメージを作成する際,TSの両隣に,TSからdistÅ離れた位置にイメージを作成する.</span>
+<span class="sd">            | TS付近にイメージを密集させるために行なう.</span>
+<span class="sd">        min_nimages: int</span>
+<span class="sd">            | 新たなイメージを作成するにあたって,それまでのNEBを削ることになるが,</span>
+<span class="sd">            | 少なくともmin_nimages個は確保するようにする.</span>
+<span class="sd">        with_stop: bool</span>
+<span class="sd">            | optimizerにstop機能を付ける場合True.</span>
+<span class="sd">            | max_n回連続でEnergyとForceが同じ状況がtimes回あった時計算を終了する.</span>
+<span class="sd">            | grrmpy.optimize.functions.add_stop_to()を参照</span>
+<span class="sd">        max_n: int:</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト12</span>
+<span class="sd">        times: int</span>
+<span class="sd">            with_stop=Trueの場合に指定.</span>
+<span class="sd">            with_stop(add_stop_to)の引数. デフォルト2</span>
+<span class="sd">        climb_steps: integer</span>
+<span class="sd">            | climb=Falseで収束しなかった場合,その後のTrueでのNEB計算のStep数をclimb_steps回にする.</span>
+<span class="sd">            | Noneの場合,climb=Falseの時と同じstepsで計算する.</span>
+<span class="sd">            | 一番最後のNEB計算ではclimb_stepsに関係なくclimb=Falseの時と同じstepsで計算する.</span>
+<span class="sd">        climb: bool</span>
+<span class="sd">            | Falseの場合,climbはFalse,False,False,False...Trueで行なう.</span>
+<span class="sd">            | Trueの場合はclimbはFalse,True,Fase,True,False....Trueで行なう</span>
+<span class="sd">            | Falseにした場合,climb_stepsを設定する意味はなくなる.</span>
+<span class="sd">            </span>
+<span class="sd">        IRC:</span>
+<span class="sd">        </span>
+<span class="sd">        optimizer1: Optimizer calss</span>
+<span class="sd">            振動数計算後のエネルギーダイアグラム解析の結果,TSがはっきり分かる場合に使用するOptimizer</span>
+<span class="sd">        optimizer2: Optimizer calss</span>
+<span class="sd">            振動数計算後のエネルギーダイアグラム解析の結果,TSがはっきり見えない場合に使用するOptimizer</span>
+<span class="sd">        maxsteps:float or None</span>
+<span class="sd">            | maxsteps値. maxstepsの値を大きく設定したとしても,始めの200回はmaxstep=0.03で計算する.</span>
+<span class="sd">            | Noneを指定した場合,forceに合わせて自動的にmaxstepを調整する.</span>
+<span class="sd">        dif: float</span>
+<span class="sd">            | 振動数計算後のエネルギーダイアグラム解析の結果,</span>
+<span class="sd">            | TS(極大値)と谷間(極小値)の差が,dif(kJ/mol)以下の時,optimizer2を使って計算する.</span>
+<span class="sd">        calc_notop_ts: boolean</span>
+<span class="sd">            | 振動数計算後のエネルギーダイアグラム解析の結果,TSがない(極大値がない)時,</span>
+<span class="sd">            | IRC計算を行なわないならFalse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;General&quot;</span><span class="p">:{</span>
+                <span class="s2">&quot;stopping_criterion&quot;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
+                <span class="s2">&quot;struct_check_threshold&quot;</span><span class="p">:[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span>
+                <span class="s2">&quot;minimize_rotation_and_translation&quot;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;SNEB&quot;</span><span class="p">:{</span>
+                <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span><span class="n">FIRE</span><span class="p">,</span>
+                <span class="s2">&quot;nimages&quot;</span><span class="p">:[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span>
+                <span class="s2">&quot;maxstep&quot;</span><span class="p">:[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+                <span class="s2">&quot;fmax&quot;</span><span class="p">:[</span><span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span>
+                <span class="s2">&quot;steps&quot;</span><span class="p">:[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">],</span>
+                <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span><span class="mf">5.0</span><span class="p">,</span>
+                <span class="s2">&quot;threshold&quot;</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;dist&quot;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span>
+                <span class="s2">&quot;min_nimages&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+                <span class="s2">&quot;with_stop&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;max_n&quot;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span>
+                <span class="s2">&quot;times&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+                <span class="s2">&quot;climb_steps&quot;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+                <span class="s2">&quot;climb&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="s2">&quot;IRC&quot;</span><span class="p">:{</span>
+                <span class="s2">&quot;optimizer1&quot;</span><span class="p">:</span><span class="n">defaultoptimizer</span><span class="p">,</span>
+                <span class="s2">&quot;optimizer2&quot;</span><span class="p">:</span><span class="n">defaultoptimizer</span><span class="p">,</span>
+                <span class="s2">&quot;maxstep&quot;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;fmax&quot;</span><span class="p">:</span><span class="mf">0.001</span><span class="p">,</span>
+                <span class="s2">&quot;steps&quot;</span><span class="p">:</span><span class="mi">40000</span><span class="p">,</span>
+                <span class="s2">&quot;dif&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span>
+                <span class="s2">&quot;calc_notop_ts&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">}</span>
+        
+    <span class="k">def</span> <span class="nf">set_calculator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_calculator</span><span class="p">():</span>
+            <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">atoms</span><span class="o">.</span><span class="n">set_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span> <span class="c1"># 多分なくても良い</span>
+        
+    <span class="k">def</span> <span class="nf">run_sneb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">images</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span> <span class="o">=</span> <span class="n">SNEB</span><span class="p">(</span><span class="o">*</span><span class="n">images</span><span class="p">,</span>
+                            <span class="n">logfile</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;SNEB</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">,</span>
+                            <span class="n">html</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;SNEB</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">_progress.html&quot;</span><span class="p">,</span>
+                            <span class="n">mic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">,</span>
+                            <span class="n">parallel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span>
+                            <span class="n">calc_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span>
+                            <span class="n">optimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_optimizer</span><span class="p">,</span>
+                            <span class="n">with_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_stop</span><span class="p">,</span>
+                            <span class="n">max_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_n</span><span class="p">,</span>
+                            <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span>
+                            <span class="n">constraints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="n">sneb_converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">,</span>
+            <span class="n">maxstep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_maxstep</span><span class="p">,</span>
+            <span class="n">fmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_fmax</span><span class="p">,</span>
+            <span class="n">steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_steps</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>
+            <span class="n">dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">neb_dist</span><span class="p">,</span>
+            <span class="n">min_nimages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_nimages</span><span class="p">,</span>
+            <span class="n">climb_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb_steps</span><span class="p">,</span>
+            <span class="n">climb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb</span>
+        <span class="p">)</span>     
+        <span class="k">return</span> <span class="n">sneb_converged</span>
+    
+    <span class="k">def</span> <span class="nf">run_vib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vib</span> <span class="o">=</span> <span class="n">Vibrations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;vib</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">tb_text</span><span class="p">,</span><span class="n">imode</span> <span class="o">=</span> <span class="n">to_html_table_and_imode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="p">,</span><span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">imode</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vib</span><span class="o">.</span><span class="n">write_mode</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">imode</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vimages</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iread</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;vib</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">imode</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">)]</span>
+            <span class="n">fig_text</span> <span class="o">=</span> <span class="n">to_html_energy_diagram</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vimages</span><span class="p">,</span>
+                <span class="n">calc_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">,</span>
+                <span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;kJ/mol&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Vibration Energy Diagram&quot;</span><span class="p">,</span>
+                <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">include_plotlyjs</span><span class="o">=</span><span class="s2">&quot;cdn&quot;</span><span class="p">)</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">fig_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;vib</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tb_text</span><span class="o">+</span><span class="n">fig_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">success</span>
+    
+    <span class="k">def</span> <span class="nf">run_irc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts_idx</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span><span class="n">r_use_newton</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">f_use_newton</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vimages</span><span class="p">[</span><span class="n">ts_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">set_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vimages</span><span class="p">[</span><span class="n">ts_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="o">.</span><span class="n">set_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="n">r_converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">irun_irc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">,</span> <span class="n">r_use_newton</span><span class="p">,</span> <span class="s2">&quot;reverse&quot;</span><span class="p">)</span>
+        <span class="n">f_converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">irun_irc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">,</span> <span class="n">f_use_newton</span><span class="p">,</span> <span class="s2">&quot;forward&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">r_converged</span><span class="p">,</span> <span class="n">f_converged</span><span class="p">]</span>
+        
+    <span class="k">def</span> <span class="nf">irun_irc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="n">use_newton</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer2</span> <span class="k">if</span> <span class="n">use_newton</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer1</span>
+        <span class="k">def</span> <span class="nf">get_args</span><span class="p">(</span><span class="n">maxsteps</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">optimizer</span><span class="o">==</span><span class="n">FIRELBFGS</span><span class="p">:</span>
+                    <span class="n">arg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;switch&quot;</span><span class="p">:</span><span class="mf">0.04</span><span class="p">,</span><span class="s2">&quot;maxstep_fire&quot;</span><span class="p">:</span><span class="n">maxsteps</span><span class="p">,</span><span class="s2">&quot;maxstep_lbfgs&quot;</span><span class="p">:</span><span class="n">maxsteps</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;maxstep&quot;</span><span class="p">:</span><span class="n">maxsteps</span><span class="p">}</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;maxstep&quot;</span><span class="p">:</span><span class="n">maxsteps</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">arg</span>
+        <span class="c1">### 始めにmaxstep=0.03で200回計算しておく</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span> <span class="o">=</span> <span class="n">optimizer</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span>
+                                 <span class="n">logfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;IRC</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">get_args</span><span class="p">(</span><span class="mf">0.03</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IRC</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span> <span class="n">atoms</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_fmax</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+        <span class="c1">### 計算</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span> <span class="o">=</span> <span class="n">optimizer</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span>
+                                 <span class="n">logfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;IRC</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">get_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_maxstep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IRC</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span> <span class="n">atoms</span><span class="p">))</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">irc_opt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_fmax</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_steps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">converged</span>
+    
+    <span class="k">def</span> <span class="nf">_get_dif_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms1</span><span class="p">,</span> <span class="n">atoms2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;エネルギー差の判定&quot;&quot;&quot;</span>
+        <span class="n">dif_e</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">atoms1</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">-</span><span class="n">atoms2</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">())</span> <span class="c1"># eV単位</span>
+        <span class="n">dif_e</span> <span class="o">*=</span> <span class="n">mol</span><span class="o">/</span><span class="n">kJ</span> <span class="c1"># kJ/mol単位</span>
+        <span class="k">return</span> <span class="n">dif_e</span>
+    
+    <span class="k">def</span> <span class="nf">_get_check_rmse_and_maxdist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;RMS誤差と最大距離の判定&quot;&quot;&quot;</span>
+        <span class="n">pos1</span> <span class="o">=</span> <span class="n">atoms1</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">pos2</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">d_mat</span> <span class="o">=</span> <span class="n">pos2</span> <span class="o">-</span> <span class="n">pos1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic</span><span class="p">:</span>
+            <span class="n">d_mat</span> <span class="o">=</span> <span class="n">find_mic</span><span class="p">(</span><span class="n">d_mat</span><span class="p">,</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">pbc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">d_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">d_mat</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rms_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d_line</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">rms_error</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">d_line</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms1</span><span class="p">,</span><span class="n">atoms2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;2つの構造が同一構造であるか判断する.</span>
+<span class="sd">        </span>
+<span class="sd">            | エネルギーの差, 原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ</span>
+<span class="sd">            | a kJ/mol, b%, cÅ 以下の時, 同一構造であるとみなす. </span>
+<span class="sd">            | もしくはエネルギーの差がd kJ/mol以下であり,indicesの原子を重ね合わせた時,</span>
+<span class="sd">            | 原子間距離のRMS誤差,原子間距離の最大距離がそれぞれ,</span>
+<span class="sd">            | e%, fÅ 以下の時, 同一構造であるとみなす. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_check_threshold</span>
+        
+        <span class="n">dif_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dif_energy</span><span class="p">(</span><span class="n">atoms1</span><span class="p">,</span> <span class="n">atoms2</span><span class="p">)</span> <span class="c1"># エネルギー差を取得</span>
+        
+        <span class="n">atoms1_cp</span> <span class="o">=</span> <span class="n">atoms1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">atoms2_cp</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">mols_idx1</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">connected_components</span><span class="p">(</span><span class="n">atoms1_cp</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)]</span> <span class="c1"># 分子を抽出</span>
+        <span class="n">mols_idx2</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">connected_components</span><span class="p">(</span><span class="n">atoms2_cp</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)]</span> <span class="c1"># 分子を抽出</span>
+        <span class="k">if</span> <span class="n">mols_idx1</span> <span class="o">==</span> <span class="n">mols_idx2</span><span class="p">:</span> <span class="c1"># 同じ分子で構成されていた場合</span>
+            <span class="k">for</span> <span class="n">idxs</span> <span class="ow">in</span> <span class="n">mols_idx1</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+                <span class="n">minimize_rotation_and_translation_for_specified_indices_only</span><span class="p">(</span>
+                    <span class="n">atoms1_cp</span><span class="p">,</span>
+                    <span class="n">atoms2_cp</span><span class="p">,</span>
+                    <span class="n">indices</span>
+                    <span class="p">)</span>
+            <span class="n">rmse1</span><span class="p">,</span> <span class="n">max_dist1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_check_rmse_and_maxdist</span><span class="p">(</span><span class="n">atoms1_cp</span><span class="p">,</span><span class="n">atoms2_cp</span><span class="p">)</span>
+            <span class="n">same_geo</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rmse1</span><span class="p">,</span> <span class="n">max_dist1</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span><span class="kc">False</span>
+            <span class="n">same_geo</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="n">atoms1_cp</span> <span class="o">=</span> <span class="n">atoms1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">atoms2_cp</span> <span class="o">=</span> <span class="n">atoms2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>   
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrt</span><span class="p">:</span>
+            <span class="n">minimize_rotation_and_translation</span><span class="p">(</span><span class="n">atoms1_cp</span><span class="p">,</span><span class="n">atoms2_cp</span><span class="p">)</span>  
+        <span class="n">rmse2</span><span class="p">,</span> <span class="n">max_dist2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_check_rmse_and_maxdist</span><span class="p">(</span><span class="n">atoms1_cp</span><span class="p">,</span><span class="n">atoms2_cp</span><span class="p">)</span>
+        
+        <span class="c1"># 同じ分子で構成されていた場合,rmse1を返す</span>
+        <span class="n">rmse</span> <span class="o">=</span> <span class="n">rmse1</span> <span class="k">if</span> <span class="n">rmse1</span> <span class="k">else</span> <span class="n">rmse2</span>
+        <span class="n">max_dist</span> <span class="o">=</span> <span class="n">max_dist1</span> <span class="k">if</span> <span class="n">max_dist1</span> <span class="k">else</span> <span class="n">max_dist2</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dif_energy</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">rmse1</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">max_dist1</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">rmse2</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">max_dist2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">dif_energy</span><span class="o">&lt;</span><span class="n">a</span><span class="p">,</span> <span class="n">rmse2</span><span class="o">&lt;</span><span class="n">b</span><span class="p">,</span> <span class="n">max_dist2</span><span class="o">&lt;</span><span class="n">c</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">([</span><span class="n">dif_energy</span><span class="o">&lt;</span><span class="n">d</span><span class="p">,</span> <span class="n">b</span><span class="o">&lt;</span><span class="n">rmse</span><span class="o">&lt;</span><span class="n">e</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">&lt;</span><span class="n">f</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">same_geo</span><span class="p">,</span> <span class="n">rmse</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">same_geo</span><span class="p">,</span> <span class="n">rmse</span>
+    
+    <span class="k">def</span> <span class="nf">analyze_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ts_n</span><span class="p">,</span><span class="n">ini_n</span><span class="p">,</span><span class="n">fin_n</span><span class="p">,</span><span class="n">ts</span><span class="p">,</span><span class="n">ini</span><span class="p">,</span><span class="n">fin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;CSVファイルに書き込む情報を作成する</span>
+<span class="sd">        </span>
+<span class="sd">        [&quot;TS/PT&quot;,&quot;ini&quot;,&quot;fin&quot;,&quot;ini_energy&quot;,&quot;fin_energy&quot;,&quot;forward_Ea&quot;,&quot;reverce_Ea&quot;]</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        ts_n (int): TS番号</span>
+<span class="sd">        ini_n (int): iniのEQ番号</span>
+<span class="sd">        fin_n (int): finのEQ番号</span>
+<span class="sd">        ts (Atoms): TSのAtoms</span>
+<span class="sd">        ini (Atoms): iniのEQのAtoms</span>
+<span class="sd">        fin (Atoms): finのEQのAtoms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">ini</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+        <span class="n">ini_e</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span>
+        <span class="n">fin_e</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span>
+        <span class="n">ts_e</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span><span class="o">*</span><span class="n">mol</span><span class="o">/</span><span class="n">kJ</span>
+        <span class="n">forward_ea</span> <span class="o">=</span> <span class="n">ts_e</span><span class="o">-</span><span class="n">ini_e</span>
+        <span class="n">reverse_ea</span> <span class="o">=</span> <span class="n">ts_e</span><span class="o">-</span><span class="n">fin_e</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">ts_n</span><span class="p">,</span><span class="n">ini_n</span><span class="p">,</span><span class="n">fin_n</span><span class="p">,</span><span class="n">ini_e</span><span class="p">,</span><span class="n">fin_e</span><span class="p">,</span><span class="n">forward_ea</span><span class="p">,</span><span class="n">reverse_ea</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">text</span>
+    
+    <span class="k">def</span> <span class="nf">create_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pathオブジェクトを作成する&quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">ReactPath</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;atoms&quot;</span><span class="p">:</span><span class="n">atoms</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="s2">&quot;Path.html&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">topkl</span><span class="p">(</span><span class="s2">&quot;Path.pickle&quot;</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="SinglePath.run"><a class="viewcode-back" href="../../../src/modules/automate.html#grrmpy.automate.by_neb.SinglePath.run">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;計算を実行する</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        </span>
+<span class="sd">        param: dict</span>
+<span class="sd">            | 種々のパラメータは辞書で与える</span>
+<span class="sd">            | デフォルトの値はget_param()で取得できる</span>
+<span class="sd">            </span>
+<span class="sd">        Example:</span>
+<span class="sd">        </span>
+<span class="sd">        IRCのoptimizer1をBFGS変えたい時</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; sp = SinglePath(ini,fin)</span>
+<span class="sd">        &gt;&gt;&gt; param = sp.default_param</span>
+<span class="sd">        &gt;&gt;&gt; param[&quot;IRC&quot;][&quot;optimizer1&quot;] = BFGS</span>
+<span class="sd">        &gt;&gt;&gt; sp.run(param)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">### 番号の初期化 ###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_count</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># connection #</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_connections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_connections</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1">### ファイル関係 ###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_list_file</span> <span class="o">=</span> <span class="s2">&quot;EQ_list.traj&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_list_file</span> <span class="o">=</span> <span class="s2">&quot;TS_list.traj&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_list_file</span> <span class="o">=</span> <span class="s2">&quot;PT_list.traj&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_info_file</span> <span class="o">=</span> <span class="s2">&quot;TS_CONNECTIONS.csv&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_info_file</span> <span class="o">=</span> <span class="s2">&quot;PT_CONNECTIONS.csv&quot;</span>
+        
+        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list_file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;既にEQ_list.trajファイルがあります&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_list_file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;既にTS_list.trajファイルがあります&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">eq_traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_list_file</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts_traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_list_file</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pt_traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_list_file</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        
+        <span class="n">ts_coulmn</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TS&quot;</span><span class="p">,</span><span class="s2">&quot;ini&quot;</span><span class="p">,</span><span class="s2">&quot;fin&quot;</span><span class="p">,</span><span class="s2">&quot;ini_energy&quot;</span><span class="p">,</span><span class="s2">&quot;fin_energy&quot;</span><span class="p">,</span><span class="s2">&quot;forward_Ea&quot;</span><span class="p">,</span><span class="s2">&quot;reverce_Ea&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_connections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_info_file</span><span class="p">,</span> <span class="n">ts_coulmn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">pt_coulmn</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PT&quot;</span><span class="p">,</span><span class="s2">&quot;ini&quot;</span><span class="p">,</span><span class="s2">&quot;fin&quot;</span><span class="p">,</span><span class="s2">&quot;ini_energy&quot;</span><span class="p">,</span><span class="s2">&quot;fin_energy&quot;</span><span class="p">,</span><span class="s2">&quot;forward_Ea&quot;</span><span class="p">,</span><span class="s2">&quot;reverce_Ea&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_connections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_info_file</span><span class="p">,</span> <span class="n">pt_coulmn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        
+        <span class="c1">###パラメータ関係</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_param</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;PARAM.txt&quot;</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pprint</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopping_criterion</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;General&quot;</span><span class="p">][</span><span class="s2">&quot;stopping_criterion&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_check_threshold</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;General&quot;</span><span class="p">][</span><span class="s2">&quot;struct_check_threshold&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mrt</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;General&quot;</span><span class="p">][</span><span class="s2">&quot;minimize_rotation_and_translation&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb_optimizer</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_nimages</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;nimages&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;nimages&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb_maxstep</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;maxstep&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb_fmax</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;fmax&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb_steps</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;tolerance&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;threshold&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neb_dist</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;dist&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_nimages</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;min_nimages&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">with_stop</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;with_stop&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">climb_steps</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;climb_steps&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_n</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;max_n&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;times&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;SNEB&quot;</span><span class="p">][</span><span class="s2">&quot;climb&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer1</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;optimizer1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer2</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;optimizer2&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_maxstep</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;maxstep&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_fmax</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;fmax&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_steps</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irc_dif</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;dif&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_notop_ts</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;IRC&quot;</span><span class="p">][</span><span class="s2">&quot;calc_notop_ts&quot;</span><span class="p">]</span>
+        <span class="c1">#QUE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">que</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span> <span class="c1"># 実際には一回目はinitで作成したself.imagesを用いる</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;EQ0&quot;</span><span class="p">,</span><span class="s2">&quot;EQ1&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;EQ0&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span><span class="p">,</span><span class="s2">&quot;EQ1&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_calculation</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="p">)</span><span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopping_criterion</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QUE:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_path</span><span class="p">()</span>
+            <span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB:</span><span class="si">{</span><span class="n">sneb_ini_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">sneb_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_calculation</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;始めのSNEB計算(始めのみinitで作成したimagesで計算する)&quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">first_calculation</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_sneb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB収束せず終了&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">sneb_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">sneb_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>       
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_sneb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">first_nimages</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB収束せず終了&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            
+            <span class="n">imax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">imax</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            
+            <span class="c1">### VIB計算と虚振動の確認 ###</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_vib</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;虚振動がない&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_pt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span>
+                <span class="k">continue</span> <span class="c1"># 虚振動がない時はSellaを行なうように今後したい</span>
+
+            <span class="c1">### VIB エネルギーダイアグラムの分析 ###</span>
+            <span class="n">ts_idx</span><span class="p">,(</span><span class="n">r_use_newton</span><span class="p">,</span><span class="n">f_use_newton</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="n">find_ts_idx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vimages</span><span class="p">,</span>
+                                         <span class="n">dif</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_dif</span><span class="p">,</span>
+                                         <span class="n">calc_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_notop_ts</span><span class="p">:</span> <span class="c1">#TSが見えない(極大値がない)時,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ピークが見えない．終了&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_pt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span>
+                <span class="k">continue</span> <span class="c1"># TSを確認できない場合,Sellaを行なうように今後したい</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TSがほぼ見えないが計算を続行&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_ts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1">### IRC計算 ###</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IRC計算&quot;</span><span class="p">)</span>
+            <span class="n">r_converged</span><span class="p">,</span><span class="n">f_converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_irc</span><span class="p">(</span><span class="n">ts_idx</span><span class="p">,</span> <span class="n">r_use_newton</span><span class="p">,</span> <span class="n">f_use_newton</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r_converged</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">irc_ini_eq_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># IRC計算の結果ini構造となったEQ番号 </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_ini_eq_n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>    
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revers収束,EQ</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_ini_eq_n</span><span class="si">}</span><span class="s2">として保存&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f_converged</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">irc_fin_eq_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># IRC計算の結果fin構造となったEQ番号</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">atoms_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_fin_eq_n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forward収束,EQ</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">irc_fin_eq_n</span><span class="si">}</span><span class="s2">として保存&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">r_converged</span><span class="p">,</span><span class="n">f_converged</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;IRCの一方が収束しなかったので終了&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="c1">### CONNECTION情報の分析と書き込み ###</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_count</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_connections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ts_info_file</span><span class="p">,</span><span class="n">text</span><span class="p">)</span>
+
+            <span class="c1">### 同一構造か判定とQUEへのイメージの追加 ###</span>
+            <span class="c1"># self.sneb.images[0]         # SNEBのiniのAtoms</span>
+            <span class="c1"># sneb_ini_idx                # SNEBのini番号</span>
+            <span class="c1"># self.sneb.images[-1]        # SNEBのiniのAtoms</span>
+            <span class="c1"># sneb_fin_idx                # SNEBのfin番号</span>
+            <span class="c1"># self.ini                    # IRCのiniのAtoms</span>
+            <span class="n">irc_ini_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">2</span> <span class="c1"># IRCのini番号</span>
+            <span class="c1"># self.fin                    # IRCのiniのAtoms</span>
+            <span class="n">irc_fin_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_count</span><span class="o">-</span><span class="mi">1</span> <span class="c1"># IRCのfii番号</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SNEB:</span><span class="si">{</span><span class="n">sneb_ini_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">sneb_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">+</span>
+                           <span class="sa">f</span><span class="s2">&quot;--&gt;IRC:</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_func</span><span class="p">()</span>
+            <span class="n">check1</span><span class="p">,</span><span class="n">val1_1</span><span class="p">,</span><span class="n">val1_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">)</span> <span class="c1">#IRC_ini,IRC_finが同じか</span>
+            <span class="n">check2</span><span class="p">,</span><span class="n">val2_1</span><span class="p">,</span><span class="n">val2_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">)</span> <span class="c1">#SNEB_ini,IRC_iniが同じか</span>
+            <span class="n">check3</span><span class="p">,</span><span class="n">val3_1</span><span class="p">,</span><span class="n">val3_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">)</span> <span class="c1">#SNEB_fin,IRC_finが同じか</span>
+            <span class="n">check4</span><span class="p">,</span><span class="n">val4_1</span><span class="p">,</span><span class="n">val4_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sneb_ini</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin</span><span class="p">)</span> <span class="c1">#SNEB_ini,IRC_finが同じか</span>
+            <span class="n">check5</span><span class="p">,</span><span class="n">val5_1</span><span class="p">,</span><span class="n">val5_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_structures</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ini</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sneb_fin</span><span class="p">)</span> <span class="c1">#IRC_ini,NEB_finが同じか</span>
+            
+            <span class="n">insert_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">sneb_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_ini_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_fin_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="n">check2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_fin_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check2</span> <span class="ow">and</span> <span class="n">check3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_ini_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="n">check4</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_ini_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check4</span> <span class="ow">and</span> <span class="n">check5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_fin_idx</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="n">check2</span> <span class="ow">and</span> <span class="n">check3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">check1</span> <span class="ow">and</span> <span class="n">check4</span> <span class="ow">and</span> <span class="n">check5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">[</span><span class="n">val2_1</span><span class="p">,</span><span class="n">val3_1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">[</span><span class="n">val4_1</span><span class="p">,</span><span class="n">val5_1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_ini_idx</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_fin_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="p">[</span><span class="n">val2_1</span><span class="p">,</span><span class="n">val3_1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">[</span><span class="n">val4_1</span><span class="p">,</span><span class="n">val5_1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_fin_idx</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_ini_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rmse_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">val2_2</span><span class="p">,</span><span class="n">val3_2</span><span class="p">,</span><span class="n">val4_2</span><span class="p">,</span><span class="n">val5_2</span><span class="p">]</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">rmse_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">rmse_list</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">idx</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">idx</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_ini_idx</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_fin_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> 
+                        <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sneb_ini_idx</span><span class="p">,</span><span class="n">irc_fin_idx</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">irc_ini_idx</span><span class="p">,</span><span class="n">sneb_fin_idx</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="n">insert_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_fin_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;TS</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;EQ</span><span class="si">{</span><span class="n">irc_ini_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> 
+                        <span class="bp">self</span><span class="o">.</span><span class="n">debug_log</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                        <span class="k">continue</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_path</span><span class="p">()</span>       
+        <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">que</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span>      </div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

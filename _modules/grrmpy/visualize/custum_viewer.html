@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grrmpy.visualize.custum_viewer &mdash; GRRMPY 2022/11/10 ドキュメント</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ase.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/translations.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="検索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> GRRMPY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/basic.html">基本操作</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/install.html">インストール</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/calculator.html">PFP Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tutorial.html">チュートリアル</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/blender_gallery.html">Blenderギャラリー</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/toy_tools.html">ちょっとした機能</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/tips.html">Tips</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/algorithm.html">最短経路アルゴリズム</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other_lib.html">その他のアプリ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/other.html">その他</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../src/SearchByPurpose.html">目的から探す</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">GRRMPY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grrmpy.visualize.custum_viewer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grrmpy.visualize.custum_viewer のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span><span class="n">Dict</span><span class="p">,</span><span class="n">List</span><span class="p">,</span><span class="n">Optional</span><span class="p">,</span><span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">ase.constraints</span> <span class="kn">import</span> <span class="n">FixAtoms</span>
+<span class="kn">from</span> <span class="nn">ase.io.vasp</span> <span class="kn">import</span> <span class="n">write_vasp</span>
+
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">Trajectory</span><span class="p">,</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">ase.visualize.ngl</span> <span class="kn">import</span> <span class="n">NGLDisplay</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="p">(</span><span class="n">Button</span><span class="p">,</span> <span class="n">Checkbox</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span>
+                        <span class="n">Text</span><span class="p">,</span> <span class="n">BoundedFloatText</span><span class="p">,</span><span class="n">RadioButtons</span><span class="p">,</span><span class="n">Image</span><span class="p">,</span><span class="n">ColorPicker</span><span class="p">,</span><span class="n">BoundedIntText</span><span class="p">,</span><span class="n">FloatSlider</span><span class="p">,</span>
+                        <span class="n">HBox</span><span class="p">,</span><span class="n">VBox</span><span class="p">,</span><span class="n">Tab</span><span class="p">,</span><span class="n">Dropdown</span><span class="p">,</span><span class="n">Layout</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">traitlets</span> <span class="kn">import</span> <span class="n">Bunch</span>
+
+<span class="kn">import</span> <span class="nn">nglview</span> <span class="k">as</span> <span class="nn">nv</span>
+<span class="kn">from</span> <span class="nn">nglview</span> <span class="kn">import</span> <span class="n">NGLWidget</span>
+<span class="kn">from</span> <span class="nn">nglview.component</span> <span class="kn">import</span> <span class="n">ComponentViewer</span>
+<span class="kn">from</span> <span class="nn">nglview.color</span> <span class="kn">import</span> <span class="n">ColormakerRegistry</span>
+
+<span class="c1"># USER</span>
+<span class="kn">from</span> <span class="nn">grrmpy.visualize.functions</span> <span class="kn">import</span> <span class="p">(</span><span class="n">update_tooltip_atoms</span><span class="p">,</span><span class="n">generate_js_code</span><span class="p">,</span>
+                                        <span class="n">get_struct</span><span class="p">,</span><span class="n">add_force_shape</span><span class="p">,</span><span class="n">rotate_view</span><span class="p">,</span><span class="n">spin_view</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">grrmpy.visualize.color</span> <span class="kn">import</span> <span class="n">default</span><span class="p">,</span><span class="n">vesta</span><span class="p">,</span><span class="n">jmol</span>
+
+<div class="viewcode-block" id="View"><a class="viewcode-back" href="../../../src/modules/visualize.html#grrmpy.visualize.custum_viewer.View">[ドキュメント]</a><span class="k">class</span> <span class="nc">View</span><span class="p">(</span><span class="n">NGLDisplay</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    </span>
+<span class="sd">    atoms:</span>
+<span class="sd">        | AtomsまたはAtomsのリストまたはTrajectoryクラス</span>
+<span class="sd">    xsize: </span>
+<span class="sd">        | 横幅(px単位)</span>
+<span class="sd">    ysize:</span>
+<span class="sd">        | 縦幅(px単位)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">atoms</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">Trajectory</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Atoms</span><span class="p">]],</span>
+        <span class="n">xsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span>
+        <span class="n">ysize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">xsize</span><span class="o">=</span><span class="n">xsize</span><span class="p">,</span> <span class="n">ysize</span><span class="o">=</span><span class="n">ysize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">view</span>  <span class="c1"># For backward compatibility...</span>
+        <span class="c1"># del self.gui # デフォルトのGUIを削除</span>
+        <span class="c1"># self.gui = HBox([self.view, VBox()]) # GUIを再設定</span>
+        
+        <span class="c1"># Make useful shortcuts for the user of the class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">control_box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">custom_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_colors</span>
+        
+        <span class="c1">####### Property #####################################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_structure</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_struct_cache</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_struct_cache</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_force_components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Red vector for force color.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_label</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_struct_cache</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># atoms is Trajectory or List[Atoms]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_struct_cache</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">))]</span>
+        <span class="c1">#色の設定</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cm</span> <span class="o">=</span> <span class="n">ColormakerRegistry</span>
+        <span class="n">default_jscode</span> <span class="o">=</span> <span class="n">generate_js_code</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+        <span class="n">vesta_jscode</span> <span class="o">=</span> <span class="n">generate_js_code</span><span class="p">(</span><span class="n">vesta</span><span class="p">)</span>
+        <span class="n">jmol_jscode</span> <span class="o">=</span> <span class="n">generate_js_code</span><span class="p">(</span><span class="n">jmol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">add_scheme_func</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span><span class="n">default_jscode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">add_scheme_func</span><span class="p">(</span><span class="s1">&#39;vesta&#39;</span><span class="p">,</span><span class="n">vesta_jscode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">add_scheme_func</span><span class="p">(</span><span class="s1">&#39;jmol&#39;</span><span class="p">,</span><span class="n">jmol_jscode</span><span class="p">)</span>
+        <span class="c1">###################################################</span>
+
+        <span class="c1"># ---原子上にマウスを置いたときに,原子のindexと位置を表示する</span>
+        <span class="n">update_tooltip_atoms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">())</span>
+        
+        <span class="c1"># GUI作成&amp;表示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_gui</span><span class="p">()</span>
+        
+        <span class="c1"># 初期表示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="s2">&quot;orthographic&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_style</span><span class="o">==</span><span class="s1">&#39;平行投影&#39;</span> <span class="k">else</span> <span class="s2">&quot;perspective&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">add_spacefill</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">add_ball_and_stick</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">add_label</span><span class="p">(</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">labelType</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+            <span class="n">labelText</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()))],</span>
+            <span class="n">zOffset</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+            <span class="n">attachment</span><span class="o">=</span><span class="s2">&quot;middle_center&quot;</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_repr</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">unobserve</span><span class="p">(</span><span class="n">NGLWidget</span><span class="o">.</span><span class="n">_on_frame_changed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_frame_changed</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">camera_style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">camera_radio_btn</span><span class="o">.</span><span class="n">value</span>
+            
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">show_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_charge_checkbox</span><span class="o">.</span><span class="n">value</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">show_force</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_force_checkbox</span><span class="o">.</span><span class="n">value</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transparent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">transparent</span><span class="o">.</span><span class="n">value</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">factor</span><span class="o">.</span><span class="n">value</span>
+    
+    <span class="k">def</span> <span class="nf">build_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">###カメラ(RadioButton)###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">camera_radio_btn</span> <span class="o">=</span> <span class="n">RadioButtons</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;平行投影&#39;</span><span class="p">,</span><span class="s1">&#39;透視投影&#39;</span><span class="p">],</span>
+            <span class="n">value</span><span class="o">=</span><span class="s1">&#39;平行投影&#39;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;カメラ&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">camera_radio_btn</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_camera</span><span class="p">)</span>
+        <span class="c1">###ラベル(RadioButton)###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_radio_btn</span> <span class="o">=</span> <span class="n">RadioButtons</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;なし&#39;</span><span class="p">,</span><span class="s1">&#39;インデックス&#39;</span><span class="p">,</span><span class="s1">&#39;元素&#39;</span><span class="p">,</span><span class="s1">&#39;電荷&#39;</span><span class="p">,</span><span class="s1">&#39;FixAtoms&#39;</span><span class="p">],</span>
+            <span class="n">value</span><span class="o">=</span><span class="s1">&#39;なし&#39;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;ラベル&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_radio_btn</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_label</span><span class="p">)</span>
+        <span class="c1">###セル(CheckBox)####</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">cell_check_box</span> <span class="o">=</span> <span class="n">Checkbox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;セルユニット&quot;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">cell_check_box</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_unitcell</span><span class="p">)</span>
+        <span class="c1">###カラースキーム###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">csel</span> <span class="o">=</span> <span class="n">Dropdown</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span><span class="s2">&quot;vesta&quot;</span><span class="p">,</span><span class="s2">&quot;element&quot;</span><span class="p">,</span><span class="s2">&quot;jmol&quot;</span><span class="p">],</span>
+                             <span class="n">value</span><span class="o">=</span><span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;色&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">csel</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_repr</span><span class="p">)</span>
+        <span class="c1">###モデル###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">model_radio_btn</span> <span class="o">=</span> <span class="n">RadioButtons</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;球棒モデル&#39;</span><span class="p">,</span><span class="s1">&#39;空間充填モデル&#39;</span><span class="p">],</span>
+            <span class="n">value</span><span class="o">=</span><span class="s1">&#39;球棒モデル&#39;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;モデル&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">model_radio_btn</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_repr</span><span class="p">)</span>
+        <span class="c1">###再配置(チェックボックス)###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">replace_structure_checkbox</span> <span class="o">=</span> <span class="n">Checkbox</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">replace_structure</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;再配置&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">replace_structure_checkbox</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_replace_structure</span><span class="p">)</span>
+        <span class="c1">###アウトプット(エラー表示)###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;border&quot;</span><span class="p">:</span> <span class="s2">&quot;0px solid black&quot;</span><span class="p">})</span>
+        <span class="c1">##IMG##</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;A軸方向から見る&#39;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;30px&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span><span class="n">y</span><span class="o">=-</span><span class="mi">90</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">90</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_view</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;B軸方向から見る&#39;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;30px&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">z</span><span class="o">=-</span><span class="mi">90</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_view</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;C軸方向から見る&#39;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;30px&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_view</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;中心&#39;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;30px&#39;</span><span class="p">),</span><span class="n">icon</span><span class="o">=</span><span class="s1">&#39;bullseye&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">center</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">,:</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="c1"># self.gui.up = Button(description=&#39;x&#39;,tooltip=&#39; x軸周りで回転(上)&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.up.on_click(lambda e,axis=0,angle=10: self.spin_view(e,axis,angle))</span>
+        <span class="c1"># self.gui.down = Button(description=&#39;x*&#39;,tooltip=&#39;x軸周りで回転(下))&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.left = Button(description=&#39;y*&#39;,tooltip=&#39;y軸周りで回転(左)&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.right = Button(description=&#39;y&#39;,tooltip=&#39;y軸周りで回転(右)&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.cc = Button(description=&#39;z&#39;,tooltip=&#39;z軸周りで回転(時計周り)&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.rc = Button(description=&#39;z*&#39;,tooltip=&#39;z軸周りで回転(反時計周り)&#39;,layout = Layout(width=&#39;30px&#39;))</span>
+        <span class="c1"># self.gui.step = BoundedFloatText(value=10,min=0,max=360,step=10,</span>
+        <span class="c1">#                                  description=&#39;Step(*):&#39;,</span>
+        <span class="c1">#                                  layout = Layout(width=&#39;150px&#39;))</span>
+        <span class="c1"># ファイル名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">transparent</span> <span class="o">=</span> <span class="n">Checkbox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;PIG保存時に透過背景&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">filename_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;Atoms&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;ファイル名: &quot;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;traj&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;cif&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span><span class="s2">&quot;vasp&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span><span class="s1">&#39;png&#39;</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span> <span class="o">=</span> <span class="n">Dropdown</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">[(</span><span class="n">val</span><span class="p">,</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;70px&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span><span class="c1"># list of Atoms or Traj</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">filename_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;Images&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;ファイル名: &quot;</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;traj&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;traj+&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="s1">&#39;cif&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="s1">&#39;cif+&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span><span class="mi">5</span><span class="p">:</span><span class="s1">&#39;xyz+&#39;</span><span class="p">,</span><span class="mi">6</span><span class="p">:</span><span class="s1">&#39;html&#39;</span><span class="p">,</span><span class="mi">7</span><span class="p">:</span><span class="s1">&#39;html+&#39;</span><span class="p">,</span><span class="mi">8</span><span class="p">:</span><span class="s2">&quot;vasp&quot;</span><span class="p">,</span><span class="mi">9</span><span class="p">:</span><span class="s1">&#39;png&#39;</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span> <span class="o">=</span> <span class="n">Dropdown</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">[(</span><span class="n">val</span><span class="p">,</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span><span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;70px&#39;</span><span class="p">))</span>
+        <span class="c1">##ダウンロード##</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">download</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;PNGをダウンロード&#39;</span><span class="p">,</span>
+                                   <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;ローカルPCにPNGをダウンロードする&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">download</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_image</span><span class="p">)</span>
+        <span class="c1">##保存##</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">save</span> <span class="o">=</span> <span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;ファイルへ保存&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">save</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_image</span><span class="p">)</span>
+        <span class="c1"># 電荷表示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_charge_checkbox</span> <span class="o">=</span> <span class="n">Checkbox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;電荷:色&quot;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_charge_checkbox</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_charge_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_scale_slider</span> <span class="o">=</span> <span class="n">BoundedFloatText</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;電荷:スケール&quot;</span><span class="p">,</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_scale_slider</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_charge_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_force_checkbox</span> <span class="o">=</span> <span class="n">Checkbox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;力&quot;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_force_checkbox</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_force_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">force_scale_slider</span> <span class="o">=</span> <span class="n">FloatSlider</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;力:スケール&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">force_scale_slider</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_force_event</span><span class="p">)</span>
+                
+        <span class="c1"># その他</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">color_picker</span> <span class="o">=</span> <span class="n">ColorPicker</span><span class="p">(</span><span class="n">concise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;ラベルカラー:&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+                                            <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">),</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">color_picker</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_size</span> <span class="o">=</span> <span class="n">BoundedFloatText</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;ラベルサイズ:&#39;</span><span class="p">,</span>
+                                               <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">),</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_size</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_round</span> <span class="o">=</span> <span class="n">BoundedIntText</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;電荷 小数点以下:&#39;</span><span class="p">,</span>
+                                               <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">),</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_round</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">BoundedIntText</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;PIGの解像度:&#39;</span><span class="p">,</span>
+                                               <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s1">&#39;200px&#39;</span><span class="p">),</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">})</span>
+        <span class="c1">###表示####</span>
+        <span class="c1"># r = list(self.gui.control_box.children)</span>
+        <span class="n">img1</span> <span class="o">=</span> <span class="n">HBox</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">a</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">b</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">c</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
+            <span class="c1"># self.gui.step　# 回転の中心を変える方法が分からないので非表示</span>
+            <span class="p">])</span>
+        <span class="c1"># img2 = HBox([</span>
+        <span class="c1">#     self.gui.up,</span>
+        <span class="c1">#     self.gui.down,</span>
+        <span class="c1">#     self.gui.right,</span>
+        <span class="c1">#     self.gui.left,</span>
+        <span class="c1">#     self.gui.cc,</span>
+        <span class="c1">#     self.gui.rc,</span>
+        <span class="c1">#     ])</span>
+        <span class="n">general</span> <span class="o">=</span> <span class="n">VBox</span><span class="p">([</span>
+            <span class="n">img1</span><span class="p">,</span>
+            <span class="c1"># img2, # 回転の中心を変える方法が分からないので非表示</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">transparent</span><span class="p">,</span>
+            <span class="n">HBox</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">filename_text</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="p">]),</span>
+            <span class="n">HBox</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">download</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">save</span><span class="p">]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_radio_btn</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_charge_checkbox</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_scale_slider</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_force_checkbox</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">force_scale_slider</span><span class="p">,</span>
+            <span class="p">])</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">VBox</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">csel</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">model_radio_btn</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">camera_radio_btn</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">cell_check_box</span><span class="p">,</span>
+        <span class="p">])</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="n">VBox</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">color_picker</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_size</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_round</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">factor</span><span class="p">,</span>
+        <span class="p">])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab</span> <span class="o">=</span> <span class="n">Tab</span><span class="p">([</span><span class="n">general</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="n">detail</span><span class="p">],</span><span class="n">_titles</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&quot;プロパティなど&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="s2">&quot;スタイル&quot;</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="s2">&quot;その他&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">control_box</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">replace_structure_checkbox</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">])</span>
+        
+    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">filename_text</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span> <span class="c1"># 現在表示中のAtoms</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;traj&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;traj&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;traj+&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.traj&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;traj&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cif&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.cif&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cif+&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.cif&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;xyz&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.xyz&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;xyz+&quot;</span><span class="p">:</span>
+            <span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.xyz&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
+            <span class="n">nv</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">,</span><span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">frame</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;html+&quot;</span><span class="p">:</span>
+            <span class="n">nv</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">,(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;vasp&quot;</span><span class="p">:</span>
+            <span class="n">write_vasp</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">direct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extention_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">file_extention</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_image_png</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">),</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">download_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">filename_text</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">download_image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span><span class="n">transparent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transparent</span><span class="p">,</span><span class="n">factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_save_image_png</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">NGLWidget</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">render_image</span><span class="p">(</span><span class="n">transparent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transparent</span><span class="p">,</span><span class="n">factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">rotate_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+        <span class="n">rotate_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">spin_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+        <span class="n">spin_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">update_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">update_label</span><span class="p">(</span>
+            <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">color_picker</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">labelType</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+            <span class="n">labelText</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labelText</span><span class="p">,</span>
+            <span class="n">zOffset</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+            <span class="n">attachment</span><span class="o">=</span><span class="s2">&quot;middle_center&quot;</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_size</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_change_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">,</span><span class="n">option</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;インデックス&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">))]</span>
+        <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;元素&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()]</span>
+        <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;電荷&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_charges</span><span class="p">()</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_round</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">))]</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Calculatorを設定してください&quot;</span><span class="p">)</span>    
+        <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;FixAtoms&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fix_atoms_label_text</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_label</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">change_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="o">.</span><span class="n">clear_output</span><span class="p">()</span>
+        <span class="n">option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_radio_btn</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;なし&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labelText</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">))]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_label</span><span class="p">()</span>
+            <span class="k">return</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_change_label</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">option</span><span class="p">)</span>
+            <span class="k">return</span> 
+           
+    <span class="k">def</span> <span class="nf">change_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">camera_radio_btn</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;平行投影&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="s1">&#39;orthographic&#39;</span>
+        <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;透視投影&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="s1">&#39;perspective&#39;</span>
+            
+    <span class="k">def</span> <span class="nf">_update_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">model_radio_btn</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;球棒モデル&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">update_spacefill</span><span class="p">(</span><span class="n">radiusType</span><span class="o">=</span><span class="s1">&#39;covalent&#39;</span><span class="p">,</span>
+                                    <span class="n">radiusScale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rad</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                    <span class="n">color_scheme</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">csel</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="c1">#color_scale=&#39;rainbow&#39;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">update_ball_and_stick</span><span class="p">(</span><span class="n">color_scheme</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">csel</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">option</span> <span class="o">==</span> <span class="s2">&quot;空間充填モデル&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">remove_spacefill</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">add_spacefill</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">update_spacefill</span><span class="p">(</span><span class="n">radiusType</span><span class="o">=</span><span class="s2">&quot;vwf&quot;</span><span class="p">,</span><span class="n">color_scheme</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">csel</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                
+    <span class="k">def</span> <span class="nf">show_unitcell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">cell_check_box</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">add_unitcell</span><span class="p">()</span> <span class="c1"># Cellの表示</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">remove_unitcell</span><span class="p">()</span>
+                
+    <span class="k">def</span> <span class="nf">_get_current_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Atoms</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">frame</span><span class="p">]</span>
+        
+    <span class="k">def</span> <span class="nf">_get_fix_atoms_label_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="n">indices_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">atoms</span><span class="o">.</span><span class="n">constraints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraint</span><span class="p">,</span> <span class="n">FixAtoms</span><span class="p">):</span>
+                <span class="n">indices_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">label_text</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices_list</span><span class="p">:</span>
+                <span class="n">label_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Fix&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">label_text</span>
+        
+    <span class="k">def</span> <span class="nf">change_replace_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bunch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">replace_structure_checkbox</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replace_structure</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_frame_changed</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replace_structure</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_on_frame_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;set and send coordinates at current frame&quot;&quot;&quot;</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">NGLWidget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span>
+        <span class="n">atoms</span><span class="p">:</span> <span class="n">Atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_force</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_structure</span><span class="p">:</span>
+            <span class="c1"># set and send coordinates at current frame</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_struct_cache</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">frame</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">struct</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">struct</span> <span class="o">=</span> <span class="n">get_struct</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_struct_cache</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_struct_cache</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="n">struct</span>  <span class="c1"># Cache</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_remote_call</span><span class="p">(</span><span class="s2">&quot;replaceStructure&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;Widget&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">struct</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Only update position info</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_set_coordinates</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_force</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_force</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_charge</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_charge_event</span><span class="p">()</span>
+
+        <span class="c1"># Tooltip: update `var atoms_pos` inside javascript.</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">standard_form</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">Q_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">var_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;this._Q = </span><span class="si">{</span><span class="n">Q_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">_execute_js_code</span><span class="p">(</span><span class="n">var_str</span><span class="p">)</span>
+        
+        <span class="c1">###ラベルの更新</span>
+        <span class="n">option</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">label_radio_btn</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="n">option</span> <span class="o">!=</span> <span class="s2">&quot;なし&quot;</span><span class="p">:</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_change_label</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span><span class="n">option</span><span class="p">)</span>
+            
+        
+    <span class="k">def</span> <span class="nf">_ipython_display_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;viewプロパティを書かなくてもjupyter上で勝手に表示してくれる&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">_ipython_display_</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">show_charge_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bunch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="o">.</span><span class="n">clear_output</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_charge</span><span class="p">:</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+            <span class="c1"># TODO: How to change `scale` and `radiusScale` by user?</span>
+            <span class="c1"># Register &quot;atomStore.partialCharge&quot; attribute inside javascript</span>
+            <span class="n">charge_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">charge_scale_slider</span><span class="o">.</span><span class="n">value</span>
+            <span class="c1"># Note that Calculator must be set here!</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">charge_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_charges</span><span class="p">()</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">*</span> <span class="n">charge_scale</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+                <span class="c1"># `append_stderr` method shows same text twice somehow...</span>
+                <span class="c1"># self.gui.out_widget.append_stderr(str(e))</span>
+                <span class="k">return</span>
+
+            <span class="n">var_code</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;var chargeArray = </span><span class="si">{</span><span class="n">charge_str</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">js_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            var component = this.stage.compList[0]</span>
+<span class="s2">            var atomStore = component.structure.atomStore</span>
+<span class="s2">            if (atomStore.partialCharge === undefined) {</span>
+<span class="s2">                atomStore.addField(&#39;partialCharge&#39;, 1, &#39;float32&#39;)</span>
+<span class="s2">            }</span>
+
+<span class="s2">            for (let i = 0; i &lt; chargeArray.length; ++i) {</span>
+<span class="s2">              atomStore.partialCharge[i] = chargeArray[i];</span>
+<span class="s2">            }</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">_execute_js_code</span><span class="p">(</span><span class="n">var_code</span> <span class="o">+</span> <span class="n">js_code</span><span class="p">)</span>
+
+            <span class="c1"># Show charge color</span>
+            <span class="c1"># TODO: More efficient way:</span>
+            <span class="c1">#  We must set other &quot;color_scheme&quot; at first, to update &quot;partialcharge&quot; color scheme...</span>
+            <span class="c1"># color_schme=&quot;element&quot; is chosen here, but any color_scheme except &quot;partialcharge&quot; is ok.</span>
+            <span class="c1"># Skip this procedure to avoid heavy process, user must turn on and off &quot;show charge&quot; now.</span>
+            <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">_update_representations_by_name</span><span class="p">(</span>
+                    <span class="s2">&quot;spacefill&quot;</span><span class="p">,</span>
+                    <span class="n">radiusType</span><span class="o">=</span><span class="s2">&quot;covalent&quot;</span><span class="p">,</span>
+                    <span class="n">radiusScale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rad</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="n">color_scheme</span><span class="o">=</span><span class="s2">&quot;element&quot;</span><span class="p">,</span>
+                    <span class="n">color_scale</span><span class="o">=</span><span class="s2">&quot;rwb&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">_update_representations_by_name</span><span class="p">(</span>
+                <span class="s2">&quot;spacefill&quot;</span><span class="p">,</span>
+                <span class="n">radiusType</span><span class="o">=</span><span class="s2">&quot;covalent&quot;</span><span class="p">,</span>
+                <span class="n">radiusScale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rad</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="n">color_scheme</span><span class="o">=</span><span class="s2">&quot;partialcharge&quot;</span><span class="p">,</span>
+                <span class="n">color_scale</span><span class="o">=</span><span class="s2">&quot;rwb&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Revert to original color scheme.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_repr</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">show_force_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bunch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="o">.</span><span class="n">clear_output</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_force</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_force</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_force</span><span class="p">()</span>
+            
+    <span class="k">def</span> <span class="nf">add_force</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">force_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">force_scale_slider</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_current_atoms</span><span class="p">()</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">add_force_shape</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span> <span class="n">force_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_color</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_force_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">out_widget</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="c1"># `append_stderr` method shows same text twice somehow...</span>
+            <span class="c1"># self.gui.out_widget.append_stderr(str(e))</span>
+            <span class="k">return</span>
+        
+    <span class="k">def</span> <span class="nf">clear_force</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Remove existing force components.</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_force_components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">remove_component</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>  <span class="c1"># Same with c.clear()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_force_components</span> <span class="o">=</span> <span class="p">[]</span></div>
+        
+<span class="k">def</span> <span class="nf">add_force_shape</span><span class="p">(</span>
+    <span class="n">atoms</span><span class="p">:</span> <span class="n">Atoms</span><span class="p">,</span>
+    <span class="n">view</span><span class="p">:</span> <span class="n">NGLWidget</span><span class="p">,</span>
+    <span class="n">force_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">force_color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComponentViewer</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">force_color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">force_color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Defaults to red color.</span>
+    <span class="c1"># Add force components</span>
+    <span class="n">forces</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_forces</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">positions</span>
+    <span class="k">if</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">rcell</span><span class="p">,</span> <span class="n">rot_t</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">standard_form</span><span class="p">()</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">rot_t</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">pos_frac</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">)</span>
+        <span class="n">force_frac</span> <span class="o">=</span> <span class="n">forces</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pos_frac</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">force_frac</span> <span class="o">=</span> <span class="n">forces</span>
+
+    <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_global_number_of_atoms</span><span class="p">()):</span>
+        <span class="n">pos1</span> <span class="o">=</span> <span class="n">pos_frac</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">pos2</span> <span class="o">=</span> <span class="n">pos1</span> <span class="o">+</span> <span class="n">force_frac</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">force_scale</span>
+        <span class="n">pos1_list</span> <span class="o">=</span> <span class="n">pos1</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">pos2_list</span> <span class="o">=</span> <span class="n">pos2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;arrow&quot;</span><span class="p">,</span> <span class="n">pos1_list</span><span class="p">,</span> <span class="n">pos2_list</span><span class="p">,</span> <span class="n">force_color</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">_add_shape</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Force&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Kato Taisetsu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

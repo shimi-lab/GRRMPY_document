@@ -1,0 +1,71 @@
+###########################
+目的から探す
+###########################
+
+ファイルの中身の情報を抽出する
+---------------------------------
+- \*_list.logファイル
+    | :class:`log2atoms<grrmpy.io.read_listlog.log2atoms>` 関数: logファイルからAtomsを作成する
+    | :class:`read_connections<grrmpy.io.read_listlog.read_connections>` 関数: CONNECTIONS情報を読み取る
+    | :class:`Log<grrmpy.io.log.Log>` クラス: logファイルをマージする
+- COMファイル 
+    | :class:`frozen2atoms<grrmpy.io.read_com.frozen2atoms>` FrozenAtomsをAtomsオブジェクトに変換する
+    | ``COM`` クラス: FrozenAtoms,Option等のCOMファイルの情報をまとめたクラス
+- ACF.dat(BaderCharge)
+    | :class:`read_acf<grrmpy.io.read_acfdat.read_acf>` ACF.datファイルの中身をDataFrameにして返す.
+    | :class:`get_dader<grrmpy.io.read_acfdat.get_dader>` ACF.datファイルからBaderChargeを計算する.
+
+構造最適化計算を行なう
+---------------------------------
+| :class:`AutoOpt<grrmpy.automate.auto_opt.AutoOpt>` クラス
+
+遷移状態計算を行なう
+---------------------------------
+
+| :class:`PinNEB<grrmpy.automate.pin_neb.PinNEB>` クラス
+| :class:`AutoPinNEB<grrmpy.automate.pin_neb.AutoPinNEB>` クラス
+| :class:`SNEB<grrmpy.neb.auto_neb.SNEB>` クラス
+| :class:`ANEB<grrmpy.neb.auto_neb.ANEB>` クラス
+| :class:`SinglePath<grrmpy.automate.by_neb.SinglePath>` : DS-AFIRのようにINI,FINを結ぶ複数の反応を自動で探索する.
+
+
+作図する
+---------------------------------
+
+- 反応座標を作図する 
+    :class:`ReactPath<grrmpy.path.reaction_path.ReactPath>` クラス
+- エネルギーダイアグラムを作図する(NEB,VIB計算等)
+    :class:`write_html<grrmpy.io.write_html.write_html>` 関数
+- Excelに保存する
+    :class:`ReactPath<grrmpy.path.reaction_path.ReactPath>` クラスの ``write_excel`` メソッド
+- NetWork図を作成する
+    :class:`NetGraph<grrmpy.network.network.NetGraph>` クラスの ``write_html`` メソッド
+- Graphmlファイルを作成する(Cytoscapeで表示する用)
+    :class:`NetGraph<grrmpy.network.network.NetGraph>` クラスの ``write_graphml`` メソッド
+    
+構造を可視化する
+---------------------------------
+- 多機能な構造Viewer
+    :class:`View<grrmpy.visualize.custum_viewer.View>` クラス
+- 静止した構造を可視化する
+    :class:`view<grrmpy.visualize.by_ase.view>` 関数
+- 動きのある構造を可視化する(NEBイメージ,VIB振動)
+    :class:`view_images<grrmpy.visualize.by_ase.view_images>` 関数
+- index番号付きで表示する
+    :class:`view_with_index<grrmpy.visualize.by_nglview.view_with_index>` 関数
+- 座標付きで表示する
+    :class:`view_with_coordinate<grrmpy.visualize.by_nglview.view_with_coordinate>` 関数
+
+Blender用Pythonスクリプトを作成する
+--------------------------------------
+
+-Beldner用のPythonスクリプトを作成する
+    :class:`make_py_script<grrmpy.blender.make_pyscript.make_py_script>`
+
+
+
+
+
+
+
+

@@ -1,0 +1,16 @@
+###########################
+インストール
+###########################
+
+.. role:: strike
+.. role:: red
+
+:red:`Matlantis上には既にインストール済みです`
+
+`setup.py` が存在するディレクトリ上で以下のコマンドを実行してインストールする
+
+>>> pip install -e .
+>>> pip install -r requirements.txt
+
+| `-e` はeditableモードでのインストールで,grrmpyのソースコードを変更した場合,変更が即座に反映される.
+| `requirements.txt` で依存ライブラリをインストールする.

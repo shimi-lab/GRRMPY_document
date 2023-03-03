@@ -1,0 +1,57 @@
+###########################
+連続最適化計算 
+###########################
+
+
+複数の構造最適化計算を連続的に行なう
+=========================================================
+
+AutoOptのドキュメント: :class:`AutoOpt<grrmpy.automate.auto_opt.AutoOpt>`
+
+基本的な使い方
+---------------
+
+| 収束後のtrajファイルは"Structures"フォルダに保存される
+
+.. code-block:: python
+   :emphasize-lines: 3,10,11
+
+    from grrmpy.visualize import *
+    from grrmpy.io import log2atoms
+    from grrmpy.automate import AutoOpt
+    from grrmpy.optimize import FIRELBFGS
+
+    log = "XXX_EQ_list.log"
+    com = "XXX.com"
+    poscar = "POSCAR"
+    eqs = log2atoms(log, com, poscar) # GRRMのデータからEQ構造を読み込む
+    opt = AutoOpt(eqs,optimizer=FIRELBFGS)
+    opt.run()
+
+GRRMのデータの読み込みには :class:`log2atoms<grrmpy.io.read_listlog.log2atoms>` を用いた.
+
+計算後のデータの取り込み
+-------------------------
+
+収束後の構造はStructuresフォルダに保存されているので 
+:class:`read_traj<grrmpy.io.read_traj.read_traj>` を用いてデーターを取り出す
+
+>>> from grrmpy.io import read_traj
+>>> opted_eq_list = read_traj("Structure") # trajが存在するフォルダ名を指定
+
+細かいパラメータを指定する
+---------------------------------
+
+| 例えば(maxstep=0.05,steps=200)→(maxstep=0.1,steps=1000)→(maxstep=0.2,steps=20000)の条件で計算するには
+
+>>> run(maxstep_list=[0.05,0.1,0.2],steps_list=[200,1000,20000])
+
+その他のパラメータは :class:`AutoOpt<grrmpy.automate.auto_opt.AutoOpt>` を参照
+
+途中から計算を開始する
+---------------------------------
+
+| XXX_EQ_listを更新して,新たにEQの最適化をしたい時があるだろう.
+| 例えば,以前の計算でEQ13まで計算してあり,新たにEQ14から計算をしたい場合には `restart` を指定して計算を途中から行なう.
+
+>>> run(restart=14)
