@@ -8,23 +8,12 @@ Blenderギャラリー
 
    :ref:`BallAndStick<ball_and_stick>` 
 
+
 .. figure:: ./img/bicolor.png
    :scale: 30%
    :align: left
 
    :ref:`BallAndStick(bicolor)<bicolor>` 
-
-.. figure:: ./img/cartoony.png
-   :scale: 30%
-   :align: left
-
-   :ref:`漫画風(BallAndStick)<cartoony>` 
-
-.. figure:: ./img/cartoon.png
-   :scale: 30%
-   :align: left
-
-   :ref:`漫画風(SpaceFilling)<cartoon>` 
 
 
 .. figure:: ./img/SpaceFilling.png
@@ -48,19 +37,40 @@ Blenderギャラリー
    :ref:`Stick(bicolor)<stick_bicolor>`
 
 
+.. figure:: ./img/cartoon_spacefilling.png
+   :scale: 30%
+   :align: left
+
+   :ref:`SpaceFilling(cartoon)<cartoon_spacefilling>` 
+
+
+.. figure:: ./img/cartoon_ballandstick.png
+   :scale: 30%
+   :align: left
+
+   :ref:`BallAndStick(cartoon)<cartoon_ballandstick>` 
+
+
 .. figure:: ./img/combine.png
    :scale: 30%
    :align: left
 
    :ref:`Stick+SpaceFilling<combine>`
 
+
 .. figure:: ./img/animation.gif
    :scale: 30%
    :align: left
 
-   :ref:`animation<animation>`
+   :ref:`Animation<animation>`
 
-:ref:`motion_blur<motion_blur>`
+
+.. figure:: ./img/motion.png
+   :scale: 30%
+   :align: left
+
+   :ref:`motion_blur<motion_blur>`
+
 
 .. figure:: ./img/blank.png
    :scale: 30%
@@ -100,7 +110,7 @@ BallAndStick(bicolor)
 SpaceFilling
 ------------------
 
-| その他,適用できるキーワード引数は :class:`SpaceFillng<grrmpy.blender.make_pyscript.SpaceFillng>` を参照
+| その他,適用できるキーワード引数は :class:`SpaceFilling<grrmpy.blender.make_pyscript.SpaceFilling>` を参照
 
 >>> make_py_script("-", SpaceFilling(atoms))
 
@@ -125,7 +135,7 @@ Stick(bicolor)
 
 >>> make_py_script("-", Stick(atoms,bicolor=True,radius=0.12))
 
-.. _cartoony:
+.. _cartoon_ballandstick:
 
 漫画風(BallAndStick,cartoonを適用)
 -------------------------------------
@@ -143,7 +153,7 @@ Stick(bicolor)
 
 
 
-.. _cartoon:
+.. _cartoon_spacefilling:
 
 漫画風(SpaceFilling,cartoonを適用)
 -------------------------------------
