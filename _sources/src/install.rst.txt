@@ -11,6 +11,11 @@
 
     https://github.com/shimi-lab/GRRMPY.git
 
+>>> git clone https://github.com/shimi-lab/GRRMPY.git
+>>> cd GRRMPY
+>>> pip install -e .
+>>> pip install -r requirements.txt
+
 - zipファイルをダウンロード
 
     :download:`GRRMPY.zip <../download/GRRMPY.zip>`
