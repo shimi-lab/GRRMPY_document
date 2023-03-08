@@ -9,7 +9,7 @@
 
 - GitHubからダウンロード
 
-    https://github.com/shimi-lab/GRRMPY
+    https://github.com/shimi-lab/GRRMPY.git
 
 - zipファイルをダウンロード
 
