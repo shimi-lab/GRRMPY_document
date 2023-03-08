@@ -5,7 +5,12 @@
 .. role:: strike
 .. role:: red
 
+GRRMPYをインストール
+-----------------------
+
 :red:`Matlantis上には既にインストール済みです`
+
+Blender用のPythonスクリプトを作成機能のみをダウンロードする場合は :ref:`こちら<only_blender_functions>`
 
 - GitHubからダウンロード
 
@@ -27,3 +32,23 @@
 
 | `-e` はeditableモードでのインストールで,grrmpyのソースコードを変更した場合,変更が即座に反映される.
 | `requirements.txt` で依存ライブラリをインストールする.
+
+
+
+.. _only_blender_functions:
+
+Blender用Pythonスクリプトを作成機能のみをインストール
+----------------------------------------------------------
+
+基本的には `Blender用Pythonスクリプト作成Webアプリ <https://shimi-lab-makeblenderscriptapp-app-vrendi.streamlit.app/>`_
+を使用すれば良い. だたし,より高度な機能を利用するにはPython notebookにて作成する必要がある. 具体的には
+
+- 長時間のアニメーションの作成
+- 複数のスタイルを組み合わせる(Web上でも可能だが,indexの指定の仕方が限られている)
+- 複数の構造ファイルをマージしてBlenderに取り込む
+
+- Gitからダウンロード
+
+    https://github.com/shimi-lab/make_blender_script.git
+
+- zipファイルをダウンロード
